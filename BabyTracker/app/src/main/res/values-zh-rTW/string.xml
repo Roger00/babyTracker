@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">寶貝雀客</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="SLEEP">睡眠計時</string>
+    <string name="MEAL">用餐</string>
+    <string name="DIAPER">尿布</string>
+    <string name="MILESTONES">里程碑</string>
+    <string name="MEDICATION">疫苗接種</string>
+    <string name="GROW">身高體重</string>
+    <string name="ALARM">鬧鐘</string>
+    <string name="STATS">統計資訊</string>
+    <string name="SETTINGS">設定</string>
+
+    <string name="MEAL_TYPE_BREAST_BOTH">餵奶計時</string>
+    <string name="MEAL_TYPE_BREAST_LEFT">親餵母乳（左）</string>
+    <string name="MEAL_TYPE_BREAST_RIGHT">親餵母乳（右）</string>
+    <string name="MEAL_TYPE_BOTTLED">瓶餵母乳</string>
+    <string name="MEAL_TYPE_MILK">配方奶</string>
+
+    <string name="DIAPER_PEEPEE">尿尿</string>
+    <string name="DIAPER_POOPOO">便便</string>
+    <string name="DIAPER_BOTH">換尿布</string>
+
+    <string name="stop">停止</string>
+
+    <string name="last_info_sleep_title">上次睡眠</string>
+    <string name="last_info_meal_title">上次餵奶</string>
+    <string name="last_info_diaper_title">上次換尿布</string>
+
+    <string name="last_info_default_message">尚無資料</string>
+    <plurals name="last_info_days_ago">
+        <item quantity="one">%d 天前</item>
+        <item quantity="other">%d 天前</item>
+    </plurals>
+    <plurals name="last_info_hours_ago">
+        <item quantity="one">%1$d 小時 %2$d 分鐘前</item>
+        <item quantity="other">%1$d 小時 %2$d 分鐘前</item>
+    </plurals>
+    <plurals name="last_info_mins_ago">
+        <item quantity="one">%d 分鐘前</item>
+        <item quantity="other">%d 分鐘前</item>
+    </plurals>
+    <plurals name="last_info_secs_ago">
+        <item quantity="one">%d 秒前</item>
+        <item quantity="other">%d 秒前</item>
+    </plurals>
+
+    <plurals name="info_years_since_birth">
+        <item quantity="one">一歲 %2$d 個月又 %3$d 天</item>
+        <item quantity="other">%1$d 歲 %2$d 個月又 %3$d 天</item>
+    </plurals>
+    <plurals name="info_months_since_birth">
+        <item quantity="one">一個月又 %2$d 天</item>
+        <item quantity="other">%1$d 個月又 %2$d 天</item>
+    </plurals>
+    <plurals name="info_days_since_birth">
+        <item quantity="one">今天剛出生唷</item>
+        <item quantity="other">%1$d 天大</item>
+    </plurals>
+</resources>

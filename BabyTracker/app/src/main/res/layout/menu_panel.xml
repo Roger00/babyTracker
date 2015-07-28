@@ -1,0 +1,39 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/menu_panel_height"
+    android:layout_alignParentBottom="true" >
+
+    <include layout="@layout/menu_buttons" />
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:id="@+id/counterPanel">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Small Text"
+            android:id="@+id/counterFunc" />
+
+        <Button
+            android:layout_width="@dimen/stop_button_size"
+            android:layout_height="@dimen/stop_button_size"
+            android:text="@string/stop"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            android:id="@+id/stopButton"
+            android:textColor="@android:color/white"
+            android:background="@drawable/counter_button_background"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/counterTime" />
+    </LinearLayout>
+</FrameLayout>

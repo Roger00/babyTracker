@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MEAL_TYPE_BREAST_BOTH"
+            android:id="@+id/radioButtonBreastBoth" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MEAL_TYPE_BREAST_LEFT"
+            android:id="@+id/radioButtonBreastLeft" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MEAL_TYPE_BREAST_RIGHT"
+            android:id="@+id/radioButtonBreastRight" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MEAL_TYPE_BOTTLED"
+            android:id="@+id/radioButtonBreastBottle" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MEAL_TYPE_MILK"
+            android:id="@+id/MEAL_TYPE_BREAST_LEFT" />
+    </RadioGroup>
+
+
+
+</LinearLayout>

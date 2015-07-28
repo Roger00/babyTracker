@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">BabyTracker</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="SLEEP">Sleep</string>
+    <string name="MEAL">Meal</string>
+    <string name="DIAPER">Diaper</string>
+    <string name="MILESTONES">Milestones</string>
+    <string name="MEDICATION">Medication</string>
+    <string name="GROW">Grow</string>
+    <string name="ALARM">Alarm</string>
+    <string name="STATS">Statistics</string>
+    <string name="SETTINGS">Settings</string>
+
+    <string name="MEAL_TYPE_BREAST_BOTH">Breast (BOTH SIDES)</string>
+    <string name="MEAL_TYPE_BREAST_LEFT">Breast (LEFT)</string>
+    <string name="MEAL_TYPE_BREAST_RIGHT">Breast (RIGHT)</string>
+    <string name="MEAL_TYPE_BOTTLED">Bottled</string>
+    <string name="MEAL_TYPE_MILK">Milk</string>
+
+    <string name="DIAPER_PEEPEE">PeePee</string>
+    <string name="DIAPER_POOPOO">PooPoo</string>
+    <string name="DIAPER_BOTH">Pee &amp; Poo</string>
+
+    <string name="stop">Stop</string>
+
+    <string name="last_info_sleep_title">Last sleep</string>
+    <string name="last_info_meal_title">Last meal</string>
+    <string name="last_info_diaper_title">Last diaper</string>
+
+    <string name="last_info_default_message">There is no info yet</string>
+    <plurals name="last_info_days_ago">
+        <item quantity="one">One day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="last_info_hours_ago">
+        <item quantity="one">One hour %2$d minutes ago</item>
+        <item quantity="other">%1$d hours %2$d minutes ago</item>
+    </plurals>
+    <plurals name="last_info_mins_ago">
+        <item quantity="one">One minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="last_info_secs_ago">
+        <item quantity="one">One second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+
+    <plurals name="info_years_since_birth">
+        <item quantity="one">One year %2$d months %3$d days old</item>
+        <item quantity="other">%1$d years %2$d months %3$d days old</item>
+    </plurals>
+    <plurals name="info_months_since_birth">
+        <item quantity="one">One month %2$d days old</item>
+        <item quantity="other">%1$d months %2$d days old</item>
+    </plurals>
+    <plurals name="info_days_since_birth">
+        <item quantity="one">One day old</item>
+        <item quantity="other">%1$d days old</item>
+    </plurals>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ID_SLEEP">SLEEP</string>
+    <string name="ID_MEAL">MEAL</string>
+    <string name="ID_DIAPER">DIAPER</string>
+    <string name="ID_MILESTONES">MILESTONES</string>
+    <string name="ID_MEDICATION">MEDICATION</string>
+    <string name="ID_GROW">GROW</string>
+    <string name="ID_ALARM">ALARM</string>
+    <string name="ID_STATS">STATS</string>
+    <string name="ID_SETTINGS">SETTINGS</string>
+    <string name="ID_MEAL_TYPE_BREAST_BOTH">MEAL_TYPE_BREAST_BOTH</string>
+    <string name="ID_MEAL_TYPE_BREAST_LEFT">MEAL_TYPE_BREAST_LEFT</string>
+    <string name="ID_MEAL_TYPE_BREAST_RIGHT">MEAL_TYPE_BREAST_RIGHT</string>
+    <string name="ID_MEAL_TYPE_BOTTLED">MEAL_TYPE_BOTTLED</string>
+    <string name="ID_MEAL_TYPE_MILK">MEAL_TYPE_MILK</string>
+    <string name="ID_DIAPER_PEEPEE">DIAPER_PEEPEE</string>
+    <string name="ID_DIAPER_POOPOO">DIAPER_POOPOO</string>
+    <string name="ID_DIAPER_BOTH">DIAPER_BOTH</string>
+</resources>
