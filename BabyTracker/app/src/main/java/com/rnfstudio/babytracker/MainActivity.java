@@ -50,13 +50,12 @@ public class MainActivity extends Activity {
     private List<SwipeButton> getSwipeButtons(View v) {
         List<SwipeButton> ret = new ArrayList<>();
 
-        if (v instanceof ViewGroup) {
+        if (v instanceof SwipeButton) {
+            ret.add((SwipeButton) v);
+
+        } else if (v instanceof ViewGroup) {
             for (int i = 0; i < ((ViewGroup) v).getChildCount(); i++) {
                 ret.addAll(getSwipeButtons(((ViewGroup) v).getChildAt(i)));
-            }
-        } else {
-            if (v instanceof SwipeButton) {
-                ret.add((SwipeButton) v);
             }
         }
         return ret;

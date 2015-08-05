@@ -3,16 +3,17 @@ package com.rnfstudio.babytracker.utility;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Drawable;
+import android.graphics.PointF;
 import android.os.Vibrator;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -21,14 +22,37 @@ import com.rnfstudio.babytracker.R;
 /**
  * Created by Roger on 2015/7/14.
  */
-public class SwipeButton extends TextView {
+public class SwipeButton extends LinearLayout {
+
+
+    // ------------------------------------------------------------------------
+    // TYPES
+    // ------------------------------------------------------------------------
+    public interface Handler {
+        public void OnClick(Context context, String cmd);
+        public void addSwipeButton(SwipeButton btn);
+    }
+
+    // ------------------------------------------------------------------------
+    // STATIC FIELDS
+    // ------------------------------------------------------------------------
     private static final String TAG = "SwipeButton";
     private static final boolean DEBUG = false;
 
     private static final String EMPTY_COMMAND = "";
-
     private static PopupWindow sPopup;
 
+    // ------------------------------------------------------------------------
+    // STATIC INITIALIZERS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // STATIC METHODS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // FIELDS
+    // ------------------------------------------------------------------------
     private PressState mPressedState;
     private String mMainFuncId;
     private String mLeftFuncId;
@@ -37,11 +61,22 @@ public class SwipeButton extends TextView {
     private String mDownFuncId;
     private Handler mHandler;
 
-    public interface Handler {
-        public void OnClick(Context context, String cmd);
-        public void addSwipeButton(SwipeButton btn);
-    }
+    private ViewGroup mMainPanel;
+    private TextView mTitle;
+    private TextView mDetail;
+    private TextView mCounter;
 
+    // ------------------------------------------------------------------------
+    // INITIALIZERS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // CONSTRUCTORS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // METHODS
+    // ------------------------------------------------------------------------
     public SwipeButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
@@ -63,6 +98,38 @@ public class SwipeButton extends TextView {
     }
 
     private void init(final Context context, AttributeSet attrs) {
+        // initialize sub-functions
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(
+                    attrs,
+                    R.styleable.SwipeButton,
+                    0, 0);
+            try {
+                mMainFuncId = a.getString(R.styleable.SwipeButton_main);
+                mLeftFuncId = a.getString(R.styleable.SwipeButton_left);
+                mRightFuncId = a.getString(R.styleable.SwipeButton_right);
+                mUpFuncId = a.getString(R.styleable.SwipeButton_up);
+                mDownFuncId = a.getString(R.styleable.SwipeButton_down);
+            } finally {
+                a.recycle();
+            }
+        }
+
+        // inflate views and set default states
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.swipe_button, this);
+        mMainPanel = (ViewGroup) findViewById(R.id.mainPanel);
+        mTitle = (TextView) mMainPanel.findViewById(R.id.title);
+        mDetail = (TextView) mMainPanel.findViewById(R.id.detail);
+        mCounter = (TextView) findViewById(R.id.counter);
+        setTitle(Utilities.getDisplayCmd(context, mMainFuncId));
+        showCounter(false);
+
+        // setOnTouchListener for popup tips
+        initTouchListener(context);
+    }
+
+    private void initTouchListener(final Context context) {
         mPressedState = new PressState();
 
         setOnTouchListener(new OnTouchListener() {
@@ -142,37 +209,31 @@ public class SwipeButton extends TextView {
                 return false;
             }
         });
+    }
 
-        if (attrs == null) {
-            return;
+    private void setTitle(String title) {
+        mTitle.setText(title);
+    }
+
+    public void setDetail(String detail) {
+        if (mDetail.getVisibility() == View.GONE) {
+            mDetail.setVisibility(View.VISIBLE);
         }
+        mDetail.setText(detail);
+    }
 
-        // initialize sub-functions
-        TypedArray a = context.getTheme().obtainStyledAttributes(
-                attrs,
-                R.styleable.SwipeButton,
-                0, 0);
+    public void setCounterText(String text) {
+        mCounter.setText(text);
+    }
 
-        try {
-            mMainFuncId = a.getString(R.styleable.SwipeButton_main);
-            mLeftFuncId = a.getString(R.styleable.SwipeButton_left);
-            mRightFuncId = a.getString(R.styleable.SwipeButton_right);
-            mUpFuncId = a.getString(R.styleable.SwipeButton_up);
-            mDownFuncId = a.getString(R.styleable.SwipeButton_down);
-        } finally {
-            a.recycle();
+    public void showCounter(boolean show) {
+        if (show) {
+            mMainPanel.setVisibility(INVISIBLE);
+            mCounter.setVisibility(VISIBLE);
+        } else {
+            mMainPanel.setVisibility(VISIBLE);
+            mCounter.setVisibility(INVISIBLE);
         }
-
-        Resources res = context.getResources();
-        int displayStrId = res.getIdentifier(mMainFuncId, "string", "com.rnfstudio.babytracker");
-        setText(res.getString(displayStrId));
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.menu_item_text_size));
-        setGravity(Gravity.CENTER);
-        setTextColor(getResources().getColor(android.R.color.white));
-
-        // set background
-        Drawable bgDrawable = context.getResources().getDrawable(R.drawable.swipe_button_background);
-        setBackground(bgDrawable);
     }
 
     private void showTooltip(Context context, View v, String command) {
@@ -232,6 +293,10 @@ public class SwipeButton extends TextView {
                 break;
         }
         return TextUtils.isEmpty(command) ? EMPTY_COMMAND : command;
+    }
+
+    public String getMainFuncId() {
+        return mMainFuncId;
     }
 
     public void setHandler(Handler handler) {

@@ -20,6 +20,7 @@ import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
+import com.rnfstudio.babytracker.utility.Utilities;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -102,6 +103,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     private Button mStopButton;
     private ViewGroup mLastInfoPanel;
     private ViewGroup mInfoPanel;
+    private SwipeButton mSleepButton;
+    private SwipeButton mMealButton;
+    private SwipeButton mDiaperButton;
 
     private LastInfo mLastInfo;
 
@@ -202,6 +206,14 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     @Override
     public void addSwipeButton(SwipeButton btn) {
         mButtons.add(btn);
+
+        if (btn.getMainFuncId().equals(MENU_ITEM_SLEEP)) {
+            mSleepButton = btn;
+        } else if (btn.getMainFuncId().equals(MENU_ITEM_MEAL_TYPE_BREAST_BOTH)) {
+            mMealButton = btn;
+        } else if (btn.getMainFuncId().equals(MENU_ITEM_DIAPER_BOTH)) {
+            mDiaperButton = btn;
+        }
     }
 
     public void setLogView(TextView logView) {
@@ -246,6 +258,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     private void showCounterPanel(boolean show) {
         mCounterPanel.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
         mMenuPanel.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+        if (show) refreshCounter();
     }
 
     public void setMenuPanel(ViewGroup menu) {
@@ -282,6 +295,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         TextView lastMealDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_meal_detail);
         TextView lastDiaperDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_diaper_detail);
 
+
         if (lastSleepDetail != null) {
             lastSleepDetail.setText(mLastInfo.getLastSleepMessage(mContext));
         }
@@ -292,6 +306,15 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             lastDiaperDetail.setText(mLastInfo.getLastDiaperMessage(mContext));
         }
 
+        if (mSleepButton != null) {
+            mSleepButton.setDetail(mLastInfo.getLastSleepMessage(mContext));
+        }
+        if (mMealButton != null) {
+            mMealButton.setDetail(mLastInfo.getLastMealMessage(mContext));
+        }
+        if (mDiaperButton != null) {
+            mDiaperButton.setDetail(mLastInfo.getLastDiaperMessage(mContext));
+        }
     }
 
     public void startTimeTicker() {
@@ -332,7 +355,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             TextView counterFunc = (TextView) mCounterPanel.findViewById(R.id.counterFunc);
             TextView counterTime = (TextView) mCounterPanel.findViewById(R.id.counterTime);
             counterTime.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-            counterFunc.setText(MainMenuItem.getDisplayCmd(mContext, getTimerFuncId()));
+            counterFunc.setText(Utilities.getDisplayCmd(mContext, getTimerFuncId()));
         }
     }
 
@@ -374,15 +397,19 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     public void saveStates() {
+        String startTimeStr = "";
+        String timerFuncId = "";
         if (isTimerRunning()) {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-            SharedPreferences.Editor editor = prefs.edit();
-
-            String startTimeStr = TimeUtils.flattenCalendarTimeSafely(getStartTime(), EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-            editor.putString(STATE_KEY_TIMER_START_TIME, startTimeStr);
-            editor.putString(STATE_KEY_TIMER_FUNCTION, getTimerFuncId());
-            editor.commit();
+            startTimeStr = TimeUtils.flattenCalendarTimeSafely(getStartTime(), EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+            timerFuncId = getTimerFuncId();
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putString(STATE_KEY_TIMER_START_TIME, startTimeStr);
+        editor.putString(STATE_KEY_TIMER_FUNCTION, timerFuncId);
+        editor.commit();
     }
 
     public void restoreStates() {
