@@ -2,11 +2,8 @@ package com.rnfstudio.babytracker;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Parcel;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -20,11 +17,14 @@ import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
-import com.rnfstudio.babytracker.utility.Utilities;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Roger on 2015/7/17.
@@ -38,8 +38,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     private static final String TAG = "SwipeButtonHandler";
-
     private static final boolean DEBUG = true;
+
     public static final String MENU_ITEM_SLEEP = "SLEEP";
     public static final String MENU_ITEM_MEAL_TYPE_BREAST_BOTH = "MEAL_TYPE_BREAST_BOTH";
     public static final String MENU_ITEM_MEAL_TYPE_BREAST_LEFT = "MEAL_TYPE_BREAST_LEFT";
@@ -69,8 +69,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
 
     // state preserving
     private static final String SP_KEY_SWIPE_BUTTON_HANDLER_STATES = "sp_key_swipe_button_handler_states";
-    private static final String STATE_KEY_TIMER_START_TIME = "timer_start_time";
-    private static final String STATE_KEY_TIMER_FUNCTION = "timer_function";
+    private static final String STATE_KEY_TIMER_START_TIMES = "timer_start_times";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -94,8 +93,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     private final Context mContext;
     private List<SwipeButton> mButtons = new ArrayList<SwipeButton>();
-    private Calendar mStartTime = null;
-    private String mTimerFuncId = null;
+    private Map<String, Calendar> mTimerMap = new HashMap<>();
     private TextView mLogView;
     private Handler mMainHandler;
     private ViewGroup mMenuPanel;
@@ -125,18 +123,27 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // METHODS
     // ------------------------------------------------------------------------
     @Override
-    public void OnClick(Context context, String cmd) {
-        switch(cmd) {
+    public void OnClick(Context context, String id) {
+        switch(id) {
             case MENU_ITEM_SLEEP:
             case MENU_ITEM_MEAL_TYPE_BREAST_BOTH:
             case MENU_ITEM_MEAL_TYPE_BREAST_LEFT:
             case MENU_ITEM_MEAL_TYPE_BREAST_RIGHT:
             case MENU_ITEM_MEAL_BOTTLED:
             case MENU_ITEM_MEAL_MILK:
-                if (!isTimerRunning()) {
+                if (isTimerRunning(id)) {
+                    Calendar start = getStartTime(id);
+                    Calendar end = Calendar.getInstance();
+                    stopTimer(id);
+                    asyncWriteDB(mContext, id, start, end);
+                    if (DEBUG) Log.v(TAG, "stopTime: " +
+                            TimeUtils.flattenCalendarTimeSafely(end, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT));
+                    showCounter(id, false);
+
+                } else {
                     Calendar startTime = Calendar.getInstance();
-                    startTimer(startTime, cmd);
-                    showCounterPanel(true);
+                    startTimer(startTime, id);
+                    showCounter(id, true);
                     if (DEBUG) Log.v(TAG, "startTime: " +
                             TimeUtils.flattenCalendarTimeSafely(startTime, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT));
                 }
@@ -148,7 +155,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 Calendar start = Calendar.getInstance();
                 Calendar end = (Calendar) start.clone();
                 end.add(Calendar.SECOND, 1);
-                asyncWriteDB(context, cmd, start, end);
+                asyncWriteDB(context, id, start, end);
                 break;
 
             case MENU_ITEM_SETTINGS:
@@ -183,35 +190,34 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         });
     }
 
-    private String getTimerFuncId() {
-        return mTimerFuncId;
+    private void stopTimer(String id) {
+        mTimerMap.remove(id);
     }
 
-    private void stopTimer() {
-        mStartTime = null;
-        mTimerFuncId = null;
+    private void startTimer(Calendar startTime, String id) {
+        mTimerMap.put(id, startTime);
     }
 
-    private void startTimer(Calendar startTime, String funcId) {
-        mStartTime = startTime;
-        mTimerFuncId = funcId;
+    private boolean isTimerRunning(String id) {
+        return mTimerMap.get(id) != null;
     }
 
-    private boolean isTimerRunning() {
-        return mStartTime != null;
+    private Set<String> getTimerIds() {
+        return mTimerMap.keySet();
     }
 
-    private Calendar getStartTime() { return mStartTime; }
+    private Calendar getStartTime(String id) { return mTimerMap.get(id); }
 
     @Override
     public void addSwipeButton(SwipeButton btn) {
+        final String id = btn.getMainFuncId();
         mButtons.add(btn);
 
-        if (btn.getMainFuncId().equals(MENU_ITEM_SLEEP)) {
+        if (id.equals(MENU_ITEM_SLEEP)) {
             mSleepButton = btn;
-        } else if (btn.getMainFuncId().equals(MENU_ITEM_MEAL_TYPE_BREAST_BOTH)) {
+        } else if (id.equals(MENU_ITEM_MEAL_TYPE_BREAST_BOTH)) {
             mMealButton = btn;
-        } else if (btn.getMainFuncId().equals(MENU_ITEM_DIAPER_BOTH)) {
+        } else if (id.equals(MENU_ITEM_DIAPER_BOTH)) {
             mDiaperButton = btn;
         }
     }
@@ -234,31 +240,28 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
     }
 
-    public void setCounterPanel(ViewGroup panel) {
-        mCounterPanel = panel;
-        mStopButton = (Button) panel.findViewById(R.id.stopButton);
-        mStopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isTimerRunning()) {
-                    Calendar start = getStartTime();
-                    Calendar end = Calendar.getInstance();
-                    String id = getTimerFuncId();
-                    stopTimer();
-                    asyncWriteDB(mContext, id, start, end);
-                    if (DEBUG) Log.v(TAG, "stopTime: " +
-                            TimeUtils.flattenCalendarTimeSafely(end, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT));
-                }
-
-                showCounterPanel(false);
-            }
-        });
+    private void showCounter(String id, boolean show) {
+        SwipeButton btn = getSwipeButtonById(id);
+        btn.showCounter(show);
+        btn.setTimerFunc(show ? id : null);
+        if (show) refreshCounters();
     }
 
-    private void showCounterPanel(boolean show) {
-        mCounterPanel.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
-        mMenuPanel.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
-        if (show) refreshCounter();
+    private SwipeButton getSwipeButtonById(String id) {
+        SwipeButton btn = null;
+        switch (id) {
+            case MENU_ITEM_SLEEP:
+                btn = mSleepButton;
+                break;
+            case MENU_ITEM_MEAL_TYPE_BREAST_BOTH:
+            case MENU_ITEM_MEAL_TYPE_BREAST_LEFT:
+            case MENU_ITEM_MEAL_TYPE_BREAST_RIGHT:
+            case MENU_ITEM_MEAL_BOTTLED:
+            case MENU_ITEM_MEAL_MILK:
+                btn = mMealButton;
+                break;
+        }
+        return btn;
     }
 
     public void setMenuPanel(ViewGroup menu) {
@@ -295,7 +298,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         TextView lastMealDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_meal_detail);
         TextView lastDiaperDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_diaper_detail);
 
-
         if (lastSleepDetail != null) {
             lastSleepDetail.setText(mLastInfo.getLastSleepMessage(mContext));
         }
@@ -331,7 +333,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                     sTimerHandler.postDelayed(this, 1000);
 
                     asyncRefreshLastInfo(mContext);
-                    refreshCounter();
+                    refreshCounters();
                 }
             };
         }
@@ -344,18 +346,16 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         if (daysFromBirth != null) daysFromBirth.setText(getDaysFromBirthString());
     }
 
-    private void refreshCounter() {
-        if (isTimerRunning()) {
-            Calendar now = Calendar.getInstance();
-            long diffInSecs = TimeUtils.secondsBetween(getStartTime(), now);
+    private void refreshCounters() {
+        Calendar now = Calendar.getInstance();
+
+        for (String id : getTimerIds()) {
+            long diffInSecs = TimeUtils.secondsBetween(getStartTime(id), now);
             int hours = TimeUtils.getRemainHours(diffInSecs);
             int minutes = TimeUtils.getRemainMinutes(diffInSecs);
             int seconds = TimeUtils.getRemainSeconds(diffInSecs);
 
-            TextView counterFunc = (TextView) mCounterPanel.findViewById(R.id.counterFunc);
-            TextView counterTime = (TextView) mCounterPanel.findViewById(R.id.counterTime);
-            counterTime.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
-            counterFunc.setText(Utilities.getDisplayCmd(mContext, getTimerFuncId()));
+            getSwipeButtonById(id).setCounterText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
         }
     }
 
@@ -370,7 +370,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
 
     public void refreshAll() {
         refreshBirthDays();
-        refreshCounter();
+        refreshCounters();
         asyncRefreshLastInfo(mContext);
     }
 
@@ -397,30 +397,28 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     public void saveStates() {
-        String startTimeStr = "";
-        String timerFuncId = "";
-        if (isTimerRunning()) {
-            startTimeStr = TimeUtils.flattenCalendarTimeSafely(getStartTime(), EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-            timerFuncId = getTimerFuncId();
+        Set<String> flattenTimers = new HashSet<>();
+        for (String id : getTimerIds()) {
+            String time = TimeUtils.flattenCalendarTimeSafely(getStartTime(id), EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+            flattenTimers.add(String.format("%s\t%s", id, time));
         }
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         SharedPreferences.Editor editor = prefs.edit();
 
-        editor.putString(STATE_KEY_TIMER_START_TIME, startTimeStr);
-        editor.putString(STATE_KEY_TIMER_FUNCTION, timerFuncId);
+        editor.putStringSet(STATE_KEY_TIMER_START_TIMES, flattenTimers);
         editor.commit();
     }
 
     public void restoreStates() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String startTimeStr = prefs.getString(STATE_KEY_TIMER_START_TIME, "");
-        String timerFuncId = prefs.getString(STATE_KEY_TIMER_FUNCTION, "");
+        Set<String> startTimes = prefs.getStringSet(STATE_KEY_TIMER_START_TIMES, new HashSet<String>());
 
-        if (!TextUtils.isEmpty(startTimeStr) && !TextUtils.isEmpty(timerFuncId)) {
-            mStartTime = TimeUtils.unFlattenCalendarTimeSafely(startTimeStr, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-            mTimerFuncId = timerFuncId;
-            showCounterPanel(true);
+        for (String startTimeStr : startTimes) {
+            String[] tokens = startTimeStr.split("\t");
+            Calendar startTime = TimeUtils.unFlattenCalendarTimeSafely(tokens[1], EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+            String id = tokens[0];
+            startTimer(startTime, id);
+            showCounter(id, true);
         }
 
     }

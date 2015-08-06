@@ -59,6 +59,7 @@ public class SwipeButton extends LinearLayout {
     private String mRightFuncId;
     private String mUpFuncId;
     private String mDownFuncId;
+    private String mTimerFuncId;    // the function id which is using timer
     private Handler mHandler;
 
     private ViewGroup mMainPanel;
@@ -216,9 +217,8 @@ public class SwipeButton extends LinearLayout {
     }
 
     public void setDetail(String detail) {
-        if (mDetail.getVisibility() == View.GONE) {
-            mDetail.setVisibility(View.VISIBLE);
-        }
+        // enable the detail text, which is gone by default
+        mDetail.setVisibility(View.VISIBLE);
         mDetail.setText(detail);
     }
 
@@ -227,16 +227,16 @@ public class SwipeButton extends LinearLayout {
     }
 
     public void showCounter(boolean show) {
-        if (show) {
-            mMainPanel.setVisibility(INVISIBLE);
-            mCounter.setVisibility(VISIBLE);
-        } else {
-            mMainPanel.setVisibility(VISIBLE);
-            mCounter.setVisibility(INVISIBLE);
-        }
+        mMainPanel.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+        mCounter.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
     }
 
     private void showTooltip(Context context, View v, String command) {
+        // do not display tooltip when running timer
+        if (getTimerFunc() != null) {
+            return;
+        }
+
         PopupWindow popup = getPopupWindow(context);
         popup.setHeight(v.getHeight());
         popup.setWidth(v.getWidth());
@@ -271,6 +271,11 @@ public class SwipeButton extends LinearLayout {
     }
 
     private String getCommand(Context context, boolean enabledSubFunc, int gestureDirection) {
+        // when running timer, the button should return the timer function id to stop the timer
+        if (getTimerFunc() != null) {
+            return getTimerFunc();
+        }
+
         if (!enabledSubFunc) {
             return TextUtils.isEmpty(mMainFuncId) ? EMPTY_COMMAND : mMainFuncId;
         }
@@ -297,6 +302,14 @@ public class SwipeButton extends LinearLayout {
 
     public String getMainFuncId() {
         return mMainFuncId;
+    }
+
+    public void setTimerFunc(String id) {
+        mTimerFuncId = id;
+    }
+
+    public String getTimerFunc() {
+        return mTimerFuncId;
     }
 
     public void setHandler(Handler handler) {

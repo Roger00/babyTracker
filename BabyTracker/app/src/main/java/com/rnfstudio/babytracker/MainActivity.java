@@ -33,8 +33,8 @@ public class MainActivity extends Activity {
             btn.setHandler(mManager);
         }
 
-        ViewGroup counterPanel = (ViewGroup) findViewById(R.id.counterPanel);
-        mManager.setCounterPanel(counterPanel);
+//        ViewGroup counterPanel = (ViewGroup) findViewById(R.id.counterPanel);
+//        mManager.setCounterPanel(counterPanel);
 
 //        TextView logView = (TextView) findViewById(R.id.logView);
 //        mManager.setLogView(logView);
