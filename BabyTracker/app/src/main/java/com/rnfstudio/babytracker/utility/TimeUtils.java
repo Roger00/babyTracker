@@ -2,6 +2,8 @@ package com.rnfstudio.babytracker.utility;
 
 import android.util.Log;
 
+import com.rnfstudio.babytracker.db.EventContract;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -156,5 +158,13 @@ public class TimeUtils {
         months = months % 60;
 
         return years;
+    }
+
+    public static Calendar unflattenEventTime(String timeStr) {
+        return unFlattenCalendarTimeSafely(timeStr, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+    }
+
+    public static String flattenEventTime(Calendar c) {
+        return flattenCalendarTimeSafely(c, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
     }
 }

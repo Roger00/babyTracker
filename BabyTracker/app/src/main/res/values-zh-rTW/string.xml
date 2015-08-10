@@ -60,4 +60,24 @@
         <item quantity="one">今天剛出生唷</item>
         <item quantity="other">%1$d 天大</item>
     </plurals>
+
+    <string name="hint_enter_milk_amount">輸入餵食量(毫升)</string>
+
+    <plurals name="duration_info_days">
+        <item quantity="one">一天又 %2$d 小時</item>
+        <item quantity="other">%1$d 天又 %2$d 小時</item>
+    </plurals>
+    <plurals name="duration_info_hours">
+        <item quantity="one">一小時又 %2$d 分鐘</item>
+        <item quantity="other">%1$d 小時又 %2$d 分鐘</item>
+    </plurals>
+    <plurals name="duration_info_minutes">
+        <item quantity="one">一分鐘</item>
+        <item quantity="other">%d 分鐘</item>
+    </plurals>
+    <plurals name="duration_info_seconds">
+        <item quantity="one">一秒</item>
+        <item quantity="other">%d 秒</item>
+    </plurals>
+    <string name="duration_info_pretty_short">非常短</string>
 </resources>

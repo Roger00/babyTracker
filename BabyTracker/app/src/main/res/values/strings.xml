@@ -60,4 +60,25 @@
         <item quantity="one">One day old</item>
         <item quantity="other">%1$d days old</item>
     </plurals>
+
+    <string name="hint_enter_milk_amount">Enter amount (ml)</string>
+
+    <plurals name="duration_info_days">
+        <item quantity="one">One day %2$d hours</item>
+        <item quantity="other">%1$d days %2$d hours</item>
+    </plurals>
+    <plurals name="duration_info_hours">
+        <item quantity="one">One hour %2$d minutes</item>
+        <item quantity="other">%1$d hours %2$d minutes</item>
+    </plurals>
+    <plurals name="duration_info_minutes">
+        <item quantity="one">One minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="duration_info_seconds">
+        <item quantity="one">One second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <string name="duration_info_pretty_short">Pretty short</string>
+
 </resources>

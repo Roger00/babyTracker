@@ -1,6 +1,9 @@
 package com.rnfstudio.babytracker;
 
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -39,6 +42,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     private static final String TAG = "SwipeButtonHandler";
     private static final boolean DEBUG = true;
+
+    private static final String TAG_MILK_PICKER_DIALOG = "MilkPickerDialogFragment";
 
     public static final String MENU_ITEM_SLEEP = "SLEEP";
     public static final String MENU_ITEM_MEAL_TYPE_BREAST_BOTH = "MEAL_TYPE_BREAST_BOTH";
@@ -125,27 +130,26 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     @Override
     public void OnClick(Context context, String id) {
         switch(id) {
-            case MENU_ITEM_SLEEP:
-            case MENU_ITEM_MEAL_TYPE_BREAST_BOTH:
-            case MENU_ITEM_MEAL_TYPE_BREAST_LEFT:
-            case MENU_ITEM_MEAL_TYPE_BREAST_RIGHT:
             case MENU_ITEM_MEAL_BOTTLED:
             case MENU_ITEM_MEAL_MILK:
                 if (isTimerRunning(id)) {
-                    Calendar start = getStartTime(id);
-                    Calendar end = Calendar.getInstance();
-                    stopTimer(id);
-                    asyncWriteDB(mContext, id, start, end);
-                    if (DEBUG) Log.v(TAG, "stopTime: " +
-                            TimeUtils.flattenCalendarTimeSafely(end, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT));
-                    showCounter(id, false);
-
+//                    Intent pickAmount = new Intent(context, MilkPicker.class);
+//                    ((Activity) mContext).startActivityForResult(pickAmount, MainActivity.REQUEST_CODE_PICK_MILK_AMOUNT);
+                    // start MilkPicker dialog
+                    // this will later trigger onMilkPickerResult() if user confirms the amount
+                    DialogFragment newFragment = MilkPickerDialogFragment.newInstance(id);
+                    newFragment.show(((Activity) mContext).getFragmentManager(), TAG_MILK_PICKER_DIALOG);
+                    break;
+                }
+            case MENU_ITEM_MEAL_TYPE_BREAST_LEFT:
+            case MENU_ITEM_MEAL_TYPE_BREAST_RIGHT:
+                // TODO: popup a dialog w/ 2 buttons: switch side or done
+            case MENU_ITEM_MEAL_TYPE_BREAST_BOTH:
+            case MENU_ITEM_SLEEP:
+                if (isTimerRunning(id)) {
+                    stopTimerForFuncId(id);
                 } else {
-                    Calendar startTime = Calendar.getInstance();
-                    startTimer(startTime, id);
-                    showCounter(id, true);
-                    if (DEBUG) Log.v(TAG, "startTime: " +
-                            TimeUtils.flattenCalendarTimeSafely(startTime, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT));
+                    startTimerForFuncId(id);
                 }
                 break;
 
@@ -155,11 +159,16 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 Calendar start = Calendar.getInstance();
                 Calendar end = (Calendar) start.clone();
                 end.add(Calendar.SECOND, 1);
-                asyncWriteDB(context, id, start, end);
+                asyncWriteDB(context, id, start, end, EventContract.EventEntry.EMPTY_AMOUNT);
                 break;
 
             case MENU_ITEM_SETTINGS:
 //                asyncClearDB(context);
+                break;
+
+            case MENU_ITEM_STATS:
+                Intent viewRecords = new Intent(mContext, RecordListActivity.class);
+                mContext.startActivity(viewRecords);
                 break;
 
             default:
@@ -167,6 +176,28 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
     }
 
+    private void startTimerForFuncId(String id) {
+        Calendar startTime = Calendar.getInstance();
+        startTimer(startTime, id);
+        showCounter(id, true);
+
+        if (DEBUG) Log.v(TAG, "startTime: " + TimeUtils.flattenEventTime(startTime));
+    }
+
+    private void stopTimerForFuncId(String id) {
+        stopTimerForFuncId(id, EventContract.EventEntry.EMPTY_AMOUNT);
+    }
+
+    private void stopTimerForFuncId(String id, int amount) {
+        Calendar start = getStartTime(id);
+        Calendar end = Calendar.getInstance();
+        stopTimer(id);
+        asyncWriteDB(mContext, id, start, end, amount);
+        showCounter(id, false);
+
+        if (DEBUG) Log.v(TAG, "stopTime: " + TimeUtils.flattenEventTime(end));
+        if (DEBUG) Log.v(TAG, "amount: " + amount);
+    }
 
     private void asyncClearDB(final Context context) {
         final EventDB db = MainApplication.getEventDatabase(context);
@@ -179,12 +210,12 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         });
     }
 
-    private void asyncWriteDB(final Context context, final String eventType, final Calendar startTime, final Calendar endTime) {
+    private void asyncWriteDB(final Context context, final String eventType, final Calendar startTime, final Calendar endTime, final int amount) {
         final EventDB db = MainApplication.getEventDatabase(context);
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-                db.addEvent(eventType, startTime, endTime);
+                db.addEvent(eventType, startTime, endTime, amount);
                 asyncRefreshLastInfo(context);
             }
         });
@@ -399,7 +430,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     public void saveStates() {
         Set<String> flattenTimers = new HashSet<>();
         for (String id : getTimerIds()) {
-            String time = TimeUtils.flattenCalendarTimeSafely(getStartTime(id), EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+            String time  = TimeUtils.flattenEventTime(getStartTime(id));
             flattenTimers.add(String.format("%s\t%s", id, time));
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
@@ -421,5 +452,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             showCounter(id, true);
         }
 
+    }
+
+    public void onMilkPickerResult(String id, int amount) {
+        stopTimerForFuncId(id, amount);
     }
 }

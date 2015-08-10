@@ -14,16 +14,20 @@ public class EventContract {
     /* Inner class that defines the table contents */
     public static abstract class EventEntry implements BaseColumns {
         public static final String TABLE_NAME = "eventLogs";
+        public static final String COLUMN_ID = "_id";
         public static final String COLUMN_NAME_EVENT_TYPE = "type";
         public static final String COLUMN_NAME_EVENT_SUBTYPE = "subtype";
         public static final String COLUMN_NAME_EVENT_START_TIME = "startTime";
         public static final String COLUMN_NAME_EVENT_END_TIME = "endTime";
         public static final String COLUMN_NAME_EVENT_DURATION = "duration";
+        public static final String COLUMN_NAME_EVENT_AMOUNT = "amount";
         public static final String SIMPLE_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
 //        public static final String SIMPLE_DATE_TIME_FORMAT = "yyyy-MM-dd HH:MM:SS.SSS";
 
         public static final int NO_TYPE = -1;
         public static final String NO_TYPE_STRING = "no_type";
+
+        public static final int EMPTY_AMOUNT = -1;
 
         public static final int EVENT_TYPE_SLEEP = 0;
         public static final int EVENT_TYPE_MEAL = 1;
@@ -126,6 +130,15 @@ public class EventContract {
         }
     }
 
+    public static class EventQuery {
+        public static final int EVENT_TYPE = 1;
+        public static final int EVENT_SUBTYPE = 2;
+        public static final int EVENT_START_TIME = 3;
+        public static final int EVENT_END_TIME = 4;
+        public static final int EVENT_DURATION = 5;
+        public static final int EVENT_AMOUNT = 6;
+    }
+
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
@@ -141,6 +154,7 @@ public class EventContract {
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + TEXT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_END_TIME + TEXT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_DURATION + INT_TYPE + COMMA_SEP +
+                    EventEntry.COLUMN_NAME_EVENT_AMOUNT + INT_TYPE + COMMA_SEP +
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + ")" + " )";
     public static final String SQL_DROP_TABLE = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;

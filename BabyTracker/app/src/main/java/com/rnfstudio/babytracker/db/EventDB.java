@@ -64,19 +64,21 @@ public class EventDB {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    public boolean addEvent(String type, Calendar startTime, Calendar endTime) {
+    public boolean addEvent(String type, Calendar startTime, Calendar endTime, int amount) {
         if (DEBUG) {
             Log.v(TAG, "[addCategoryID] package name: " + type + " category Id: " + startTime + " priority: " + endTime);
         }
-        String startTimeStr = TimeUtils.flattenCalendarTimeSafely(startTime, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-        String endTimeStr = TimeUtils.flattenCalendarTimeSafely(endTime, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+        String startTimeStr = TimeUtils.flattenEventTime(startTime);
+        String endTimeStr = TimeUtils.flattenEventTime(endTime);
         long durationMilliSec = endTime.getTimeInMillis() - startTime.getTimeInMillis();
 
         ContentValues values = new ContentValues();
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, EventContract.EventEntry.getMainType(type));
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, EventContract.EventEntry.getSubType(type));
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, startTimeStr);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME, endTimeStr);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION, durationMilliSec);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT, amount);
 
         Long ret = mDB.replace(EventContract.EventEntry.TABLE_NAME, null, values);
         return ret != -1;
@@ -103,7 +105,8 @@ public class EventDB {
                             EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION},
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
                     null, null,
                     null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
         } catch (SQLiteException e) {
@@ -120,17 +123,15 @@ public class EventDB {
                 String startTimeStr = cursor.getString(2);
                 String endTimeStr = cursor.getString(3);
                 int duration = cursor.getInt(4);
-                Calendar startTime = TimeUtils.unFlattenCalendarTimeSafely(startTimeStr,
-                        EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-                Calendar endTime = TimeUtils.unFlattenCalendarTimeSafely(endTimeStr,
-                        EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
-
+                int amount = cursor.getInt(5);
+                Calendar startTime = TimeUtils.unflattenEventTime(startTimeStr);
+                Calendar endTime = TimeUtils.unflattenEventTime(endTimeStr);
 
                 final String OUTPUT_DATE_TIME_FORMAT = "HH:mm:ss.SSS";
                 String outStartTimeStr = TimeUtils.flattenCalendarTimeSafely(startTime, OUTPUT_DATE_TIME_FORMAT);
                 String outEndTimeStr = TimeUtils.flattenCalendarTimeSafely(endTime, OUTPUT_DATE_TIME_FORMAT);
                 String logText = String.format("Event: %s, start: %s, end: %s, duration: %d", typeStr, startTimeStr, endTimeStr, duration);
-                String display = String.format("%s:\t%s - %s (%dms)\n", typeStr, outStartTimeStr, outEndTimeStr, duration);
+                String display = String.format("%s:\t%s - %s (%dms, amt:%d)\n", typeStr, outStartTimeStr, outEndTimeStr, duration, amount);
                 Log.d(TAG, logText);
                 results.add(display);
                 count++;
@@ -140,6 +141,26 @@ public class EventDB {
         }
 
         return results;
+    }
+
+    public Cursor listRecords() {
+        Cursor cursor = null;
+        try {
+            cursor = mDB.query(true,
+                    EventContract.EventEntry.TABLE_NAME,
+                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
+                    null, null,
+                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
+        } catch (SQLiteException e) {
+            Log.w(TAG, "[listRecords] exception during db query");
+        }
+        return cursor;
     }
 
     public void dropTable() {
@@ -173,8 +194,7 @@ public class EventDB {
         if (cursor != null && cursor.moveToNext()) {
             try {
                 String endTimeStr = cursor.getString(0);
-                result = TimeUtils.unFlattenCalendarTimeSafely(endTimeStr,
-                        EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
+                result = TimeUtils.unflattenEventTime(endTimeStr);
             } finally {
                 cursor.close();
             }
