@@ -9,15 +9,14 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
+import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
@@ -133,9 +132,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             case MENU_ITEM_MEAL_BOTTLED:
             case MENU_ITEM_MEAL_MILK:
                 if (isTimerRunning(id)) {
-//                    Intent pickAmount = new Intent(context, MilkPicker.class);
-//                    ((Activity) mContext).startActivityForResult(pickAmount, MainActivity.REQUEST_CODE_PICK_MILK_AMOUNT);
-                    // start MilkPicker dialog
+                    // start MilkPickerDialogFragment
                     // this will later trigger onMilkPickerResult() if user confirms the amount
                     DialogFragment newFragment = MilkPickerDialogFragment.newInstance(id);
                     newFragment.show(((Activity) mContext).getFragmentManager(), TAG_MILK_PICKER_DIALOG);

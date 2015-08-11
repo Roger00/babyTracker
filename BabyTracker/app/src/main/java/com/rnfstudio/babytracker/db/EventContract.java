@@ -131,6 +131,7 @@ public class EventContract {
     }
 
     public static class EventQuery {
+        public static final int EVENT_ID = 0;
         public static final int EVENT_TYPE = 1;
         public static final int EVENT_SUBTYPE = 2;
         public static final int EVENT_START_TIME = 3;

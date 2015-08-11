@@ -1,12 +1,11 @@
-package com.rnfstudio.babytracker;
+package com.rnfstudio.babytracker.utility;
 
-import android.app.Activity;
-import android.os.Bundle;
+import android.app.DialogFragment;
 
 /**
- * Created by Roger on 2015/8/6.
+ * Created by Roger on 2015/8/11.
  */
-public class MilkPicker extends Activity {
+public class EventTypeChooserDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -38,10 +37,4 @@ public class MilkPicker extends Activity {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_milk_picker);
-    }
 }

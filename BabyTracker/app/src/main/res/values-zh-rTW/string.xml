@@ -80,4 +80,16 @@
         <item quantity="other">%d 秒</item>
     </plurals>
     <string name="duration_info_pretty_short">非常短</string>
+
+    <string name="record_edit_type">活動類型</string>
+    <string name="record_edit_start">開始時間</string>
+    <string name="record_edit_end">結束時間</string>
+    <string name="record_edit_duration">持續時間</string>
+    <string name="record_edit_amount">餵食量</string>
+
+    <string name="record_edit_empty_data">無資料</string>
+    <string name="record_edit_amount_ml">%d 毫升</string>
+
+    <string name="record_list_title">所有紀錄</string>
+    <string name="record_editor_title">編輯記錄</string>
 </resources>

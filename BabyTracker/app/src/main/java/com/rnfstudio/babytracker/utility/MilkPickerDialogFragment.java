@@ -1,4 +1,4 @@
-package com.rnfstudio.babytracker;
+package com.rnfstudio.babytracker.utility;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -6,12 +6,14 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.IInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.rnfstudio.babytracker.MainActivity;
+import com.rnfstudio.babytracker.R;
 
 /**
  * Created by Roger on 2015/8/6.

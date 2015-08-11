@@ -81,4 +81,15 @@
     </plurals>
     <string name="duration_info_pretty_short">Pretty short</string>
 
+    <string name="record_edit_type">Type</string>
+    <string name="record_edit_start">Start time</string>
+    <string name="record_edit_end">End time</string>
+    <string name="record_edit_duration">Duration</string>
+    <string name="record_edit_amount">Amount</string>
+
+    <string name="record_edit_empty_data">Empty</string>
+    <string name="record_edit_amount_ml">%d ml</string>
+
+    <string name="record_list_title">All Records</string>
+    <string name="record_editor_title">Edit Record</string>
 </resources>

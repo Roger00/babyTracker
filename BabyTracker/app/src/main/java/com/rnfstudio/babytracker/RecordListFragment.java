@@ -3,6 +3,7 @@ package com.rnfstudio.babytracker;
 import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -15,6 +16,7 @@ import android.widget.CursorAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 import com.rnfstudio.babytracker.utility.Utilities;
@@ -58,36 +60,20 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
             TextView durationText = (TextView) view.findViewById(R.id.duration);
             TextView startTimeText = (TextView) view.findViewById(R.id.startTime);
 
-            int type = cursor.getInt(EventContract.EventQuery.EVENT_TYPE);
-            int subType = cursor.getInt(EventContract.EventQuery.EVENT_SUBTYPE);
-            String typeStr = Utilities.getDisplayCmd(getActivity(), EventContract.EventEntry.getTypeStr(type, subType));
-            Calendar startTime = TimeUtils.unflattenEventTime((cursor.getString(EventContract.EventQuery.EVENT_START_TIME)));
-            Calendar endTime = TimeUtils.unflattenEventTime((cursor.getString(EventContract.EventQuery.EVENT_END_TIME)));
-            int durationInSec = (int) (cursor.getLong(EventContract.EventQuery.EVENT_DURATION) / 1000);
-            int amountInMilliLiter = cursor.getInt(EventContract.EventQuery.EVENT_AMOUNT);
+            final Event event = Event.createFromCursor(cursor);
+            typeText.setText(event.getDisplayType(getActivity()));
+            startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd HH:mm"));
+            durationText.setText(event.getDisplayDuration(getActivity()));
 
-            typeText.setText(typeStr);
-            startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(startTime, "yyyy-MM-dd HH:mm"));
-
-            int secs = TimeUtils.getRemainSeconds(durationInSec);
-            int mins = TimeUtils.getRemainMinutes(durationInSec);
-            int hours = TimeUtils.getRemainHours(durationInSec);
-            int days = TimeUtils.getRemainDays(durationInSec);
-
-            Resources res = context.getResources();
-            String duration = "";
-            if (days > 0) {
-                duration =  res.getQuantityString(R.plurals.duration_info_days, days, days);
-            } else if (hours > 0) {
-                duration = res.getQuantityString(R.plurals.duration_info_hours, hours, hours, mins);
-            } else if (mins > 0) {
-                duration = res.getQuantityString(R.plurals.duration_info_minutes, mins, mins);
-            } else if (secs > 0) {
-                duration = res.getQuantityString(R.plurals.duration_info_seconds, secs, secs);
-            } else {
-                duration = res.getString(R.string.duration_info_pretty_short);
-            }
-            durationText.setText(duration);
+            // add OnClick callback
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent edit = new Intent(getActivity(), RecordEditActivity.class);
+                    edit.putExtras(event.toBundle());
+                    getActivity().startActivity(edit);
+                }
+            });
         }
     }
     // ------------------------------------------------------------------------

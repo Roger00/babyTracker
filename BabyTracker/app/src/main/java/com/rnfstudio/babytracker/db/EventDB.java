@@ -68,13 +68,25 @@ public class EventDB {
         if (DEBUG) {
             Log.v(TAG, "[addCategoryID] package name: " + type + " category Id: " + startTime + " priority: " + endTime);
         }
+
+        return addEvent(EventContract.EventEntry.getMainType(type),
+                EventContract.EventEntry.getSubType(type),
+                startTime, endTime, amount);
+    }
+
+    public boolean addEvent(int type, int subType, Calendar startTime, Calendar endTime, int amount) {
+        return updateEvent(-1, type, subType, startTime, endTime, amount);
+    }
+
+    public boolean updateEvent(int id, int type, int subType, Calendar startTime, Calendar endTime, int amount) {
         String startTimeStr = TimeUtils.flattenEventTime(startTime);
         String endTimeStr = TimeUtils.flattenEventTime(endTime);
         long durationMilliSec = endTime.getTimeInMillis() - startTime.getTimeInMillis();
 
         ContentValues values = new ContentValues();
-        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, EventContract.EventEntry.getMainType(type));
-        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, EventContract.EventEntry.getSubType(type));
+        if (id != -1) values.put(EventContract.EventEntry.COLUMN_ID, id);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, type);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, subType);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, startTimeStr);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME, endTimeStr);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION, durationMilliSec);
@@ -83,7 +95,6 @@ public class EventDB {
         Long ret = mDB.replace(EventContract.EventEntry.TABLE_NAME, null, values);
         return ret != -1;
     }
-
     
     public void close() {
         if (DEBUG) {
