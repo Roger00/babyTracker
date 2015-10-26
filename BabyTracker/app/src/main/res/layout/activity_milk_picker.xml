@@ -12,22 +12,41 @@
         android:gravity="center_vertical">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/milk_picker_button"
+            android:layout_height="@dimen/milk_picker_button"
             android:textAppearance="@android:style/TextAppearance.Large"
+            android:background="@drawable/milk_picker_add_button_bg"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="@dimen/milk_picker_button_margin"
             android:text="-"
             android:id="@+id/minus" />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView2"
-            android:src="@drawable/bottle" />
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="204dp" >
+
+            <ImageView
+                android:layout_width="68dp"
+                android:layout_height="@dimen/milk_body_height"
+                android:id="@+id/milkBody"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="6dp" />
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="204dp"
+                android:id="@+id/emptyBottle"
+                android:src="@drawable/bottle" />
+
+        </FrameLayout>
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/milk_picker_button"
+            android:layout_height="@dimen/milk_picker_button"
             android:textAppearance="@android:style/TextAppearance.Large"
+            android:background="@drawable/milk_picker_add_button_bg"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="@dimen/milk_picker_button_margin"
             android:text="+"
             android:id="@+id/plus" />
 

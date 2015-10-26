@@ -1,6 +1,8 @@
 package com.rnfstudio.babytracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
@@ -95,8 +97,10 @@ public class RecordEditActivity extends Activity {
 
     private void initViews() {
         TextView typeEdit = (TextView) findViewById(R.id.typeEdit);
-        TextView startEdit = (TextView) findViewById(R.id.startEdit);
-        TextView endEdit = (TextView) findViewById(R.id.endEdit);
+        TextView startDateEdit = (TextView) findViewById(R.id.startDateEdit);
+        TextView startTimeEdit = (TextView) findViewById(R.id.startTimeEdit);
+        TextView endDateEdit = (TextView) findViewById(R.id.endDateEdit);
+        TextView endTimeEdit = (TextView) findViewById(R.id.endTimeEdit);
         TextView durationEdit = (TextView) findViewById(R.id.durationEdit);
         TextView amountEdit = (TextView) findViewById(R.id.amountEdit);
 
@@ -105,15 +109,32 @@ public class RecordEditActivity extends Activity {
         if (event.getId() == 0) return;
 
         typeEdit.setText(event.getDisplayType(this));
-        startEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd HH:mm"));
-        endEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getEndTimeCopy(), "yyyy-MM-dd HH:mm"));
+        startDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd"));
+        startTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "HH:mm:SS"));
+        endDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getEndTimeCopy(), "yyyy-MM-dd"));
+        endTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getEndTimeCopy(), "HH:mm:SS"));
         durationEdit.setText(event.getDisplayDuration(this));
         amountEdit.setText(event.getDisplayAmount(this));
 
         typeEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                new AlertDialog.Builder(RecordEditActivity.this)
+                        .setSingleChoiceItems(R.array.record_edit_activity_type, 0, null)
+                        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        })
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                                int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                                // Do something useful with the the position of the selected radio button
+                            }
+                        })
+                        .show();
             }
         });
     }

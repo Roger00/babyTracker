@@ -89,7 +89,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     // ------------------------------------------------------------------------
-    // STATIC METHODS
+    // STATIC METHODSmil
     // ------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -383,6 +383,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             int minutes = TimeUtils.getRemainMinutes(diffInSecs);
             int seconds = TimeUtils.getRemainSeconds(diffInSecs);
 
+            Log.d("yyyyy", "Handler id:" + this.toString());
+            Log.d("yyyyy", "refresh timer:" + id + " seconds: " + seconds);
+            Log.d("yyyyy", getSwipeButtonById(id).toString());
             getSwipeButtonById(id).setCounterText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
         }
     }
@@ -390,6 +393,10 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     public void stopTimeTicker() {
         // remove timer
         sTimerHandler.removeCallbacks(sTimerRunnable);
+
+        // reset runnable
+        // this MUST be done to unbind old handler and views
+        sTimerRunnable = null;
     }
 
     public void setInfoPanel(ViewGroup panel) {

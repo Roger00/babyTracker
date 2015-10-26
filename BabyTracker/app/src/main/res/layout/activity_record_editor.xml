@@ -41,7 +41,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_type"
-                android:layout_gravity="end" />
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView
                 android:layout_width="0dp"
@@ -56,13 +57,29 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_start"
-                android:layout_gravity="end" />
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/startEdit" />
+                android:id="@+id/startDateEdit" />
+        </TableRow>
+        <TableRow>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/startTimeEdit" />
         </TableRow>
         <TableRow>
 
@@ -71,13 +88,29 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_end"
-                android:layout_gravity="end" />
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/endEdit" />
+                android:id="@+id/endDateEdit" />
+        </TableRow>
+        <TableRow>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/endTimeEdit" />
         </TableRow>
 
         <TableRow>
@@ -87,7 +120,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_duration"
-                android:layout_gravity="end" />
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView
                 android:layout_width="0dp"
@@ -103,7 +137,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_amount"
-                android:layout_gravity="end" />
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView
                 android:layout_width="0dp"

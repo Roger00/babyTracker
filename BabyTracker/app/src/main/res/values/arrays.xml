@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="record_edit_activity_type">
+        <item>@string/SLEEP</item>
+        <item>@string/MEAL_TYPE_BREAST_BOTH</item>
+        <item>@string/MEAL_TYPE_BREAST_LEFT</item>
+        <item>@string/MEAL_TYPE_BREAST_RIGHT</item>
+        <item>@string/MEAL_TYPE_BOTTLED</item>
+        <item>@string/MEAL_TYPE_MILK</item>
+        <item>@string/DIAPER_PEEPEE</item>
+        <item>@string/DIAPER_POOPOO</item>
+        <item>@string/DIAPER_BOTH</item>
+    </string-array>
+    <string-array name="record_edit_activity_type_cmdId">
+        <item>@string/SLEEP</item>
+        <item>@string/MEAL_TYPE_BREAST_BOTH</item>
+        <item>@string/MEAL_TYPE_BREAST_LEFT</item>
+        <item>@string/MEAL_TYPE_BREAST_RIGHT</item>
+        <item>@string/MEAL_TYPE_BOTTLED</item>
+        <item>@string/MEAL_TYPE_MILK</item>
+        <item>@string/DIAPER_PEEPEE</item>
+        <item>@string/DIAPER_POOPOO</item>
+        <item>@string/DIAPER_BOTH</item>
+    </string-array>
+</resources>

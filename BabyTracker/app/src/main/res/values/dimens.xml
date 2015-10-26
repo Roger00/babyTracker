@@ -14,4 +14,9 @@
     <dimen name="info_panel_text_padding">20dp</dimen>
     <dimen name="stop_button_size">100dp</dimen>
     <dimen name="last_info_title_detail_space">20dp</dimen>
+    <dimen name="record_edit_field_name_padding">10dp</dimen>
+
+    <dimen name="milk_body_height">93dp</dimen>
+    <dimen name="milk_picker_button">60dp</dimen>
+    <dimen name="milk_picker_button_margin">10dp</dimen>
 </resources>
