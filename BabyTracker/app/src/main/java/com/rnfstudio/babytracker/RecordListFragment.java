@@ -5,7 +5,6 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,15 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
-import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.utility.TimeUtils;
-import com.rnfstudio.babytracker.utility.Utilities;
-
-import java.util.Calendar;
 
 /**
  * Created by Roger on 2015/8/10.
