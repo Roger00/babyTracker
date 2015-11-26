@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -16,10 +17,15 @@ import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
+import com.rnfstudio.babytracker.db.EventDBHelper;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -160,6 +166,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 break;
 
             case MENU_ITEM_SETTINGS:
+                copyDB2SDcard();
 //                asyncClearDB(context);
                 break;
 
@@ -170,6 +177,37 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
 
             default:
                 break;
+        }
+    }
+
+    /**
+     * See <a href="http://stackoverflow.com/questions/9997976/android-pulling-sqlite-database-android-device">Pull database</>
+     */
+    private void copyDB2SDcard() {
+        try {
+            Log.d(TAG, "[copyDB2SDcard] called");
+            File sd = mContext.getExternalFilesDir(null);
+
+            if (sd.canWrite()) {
+                String currentDBPath = mContext.getDatabasePath(EventDBHelper.DATABASE_NAME).getPath();
+                String backupDBPath = "backupname.db";
+
+                Log.d(TAG, "[copyDB2SDcard] current path: " + currentDBPath);
+                Log.d(TAG, "[copyDB2SDcard] backupDBPath: " + backupDBPath);
+
+                File currentDB = new File(currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "[copyDB2SDcard] Exception: " + e.toString());
         }
     }
 

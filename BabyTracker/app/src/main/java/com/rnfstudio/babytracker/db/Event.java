@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.rnfstudio.babytracker.MainApplication;
 import com.rnfstudio.babytracker.R;
@@ -14,7 +15,7 @@ import com.rnfstudio.babytracker.utility.Utilities;
 import java.util.Calendar;
 
 /**
- * Event object which carries basic infomation
+ * Event object which carries basic information
  *
  * Created by Roger on 2015/8/11.
  */
@@ -26,6 +27,8 @@ public class Event {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
+    public static final String TAG = "[Event]";
+
     public static final String EXTRA_EVENT_ID = "event.id";
     public static final String EXTRA_EVENT_TYPE = "event.type";
     public static final String EXTRA_EVENT_SUBTYPE = "event.subtype";
@@ -162,8 +165,36 @@ public class Event {
     }
 
     public boolean writeDB(Context context) {
+        return writeDB(context, true);
+    }
+
+    public boolean writeDB(Context context, boolean createEndTime) {
         EventDB db = MainApplication.getEventDatabase(context);
-        mEndTime = Calendar.getInstance();
+        if (createEndTime) mEndTime = Calendar.getInstance();
+
+        Log.v(TAG, "[writeDB] startTime: " + mStartTime);
+        Log.v(TAG, "[writeDB] endTime: " + mEndTime);
+
         return db.updateEvent(mId, mType, mSubType, mStartTime, mEndTime, mAmount);
+    }
+
+    public void setStartDate(int year, int month, int day) {
+        mStartTime.set(year, month, day);
+    }
+
+    public void setStartTime(int hour, int minute, int second) {
+        mStartTime.set(Calendar.HOUR_OF_DAY, hour);
+        mStartTime.set(Calendar.MINUTE, minute);
+        mStartTime.set(Calendar.SECOND, second);
+    }
+
+    public void setEndDate(int year, int month, int day) {
+        mEndTime.set(year, month, day);
+    }
+
+    public void setEndTime(int hour, int minute, int second) {
+        mEndTime.set(Calendar.HOUR_OF_DAY, hour);
+        mEndTime.set(Calendar.MINUTE, minute);
+        mEndTime.set(Calendar.SECOND, second);
     }
 }

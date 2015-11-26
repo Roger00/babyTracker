@@ -16,6 +16,8 @@ import android.widget.Button;
 import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
+import java.util.Calendar;
+
 /**
  * Created by Roger on 2015/8/11.
  */
@@ -59,6 +61,8 @@ public class RecordEditFragment extends Fragment {
     private TextView endTimeEdit;
     private TextView durationEdit;
     private TextView amountEdit;
+    private Button buttonCancel;
+    private Button buttonOkay;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -89,6 +93,7 @@ public class RecordEditFragment extends Fragment {
         // inflate views and initialize them
         View rootView = inflater.inflate(R.layout.record_editor, container, false);
         initViews(rootView);
+        refreshViews();
 
         return rootView;
     }
@@ -101,18 +106,6 @@ public class RecordEditFragment extends Fragment {
         endTimeEdit = (TextView) root.findViewById(R.id.endTimeEdit);
         durationEdit = (TextView) root.findViewById(R.id.durationEdit);
         amountEdit = (TextView) root.findViewById(R.id.amountEdit);
-
-        Intent i = getActivity().getIntent();
-        Event event = Event.createFromBundle(i.getExtras());
-        if (event.getId() == 0) return;
-
-        typeEdit.setText(event.getDisplayType(getActivity()));
-        startDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd"));
-        startTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "HH:mm:SS"));
-        endDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getEndTimeCopy(), "yyyy-MM-dd"));
-        endTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(event.getEndTimeCopy(), "HH:mm:SS"));
-        durationEdit.setText(event.getDisplayDuration(getActivity()));
-        amountEdit.setText(event.getDisplayAmount(getActivity()));
 
         typeEdit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,6 +135,11 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new DatePickerDialogFragment();
+                Bundle args = new Bundle();
+                args.putInt(DatePickerDialogFragment.KEY_YEAR, mEvent.getStartTimeCopy().get(Calendar.YEAR));
+                args.putInt(DatePickerDialogFragment.KEY_MONTH, mEvent.getStartTimeCopy().get(Calendar.MONTH));
+                args.putInt(DatePickerDialogFragment.KEY_DAY, mEvent.getStartTimeCopy().get(Calendar.DAY_OF_MONTH));
+                newFragment.setArguments(args);
                 newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_START_DATE);
                 newFragment.show(RecordEditFragment.this.getFragmentManager(), DatePickerDialogFragment.TAG);
             }
@@ -160,6 +158,11 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new DatePickerDialogFragment();
+                Bundle args = new Bundle();
+                args.putInt(DatePickerDialogFragment.KEY_YEAR, mEvent.getEndTimeCopy().get(Calendar.YEAR));
+                args.putInt(DatePickerDialogFragment.KEY_MONTH, mEvent.getEndTimeCopy().get(Calendar.MONTH));
+                args.putInt(DatePickerDialogFragment.KEY_DAY, mEvent.getEndTimeCopy().get(Calendar.DAY_OF_MONTH));
+                newFragment.setArguments(args);
                 newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_END_DATE);
                 newFragment.show(RecordEditFragment.this.getFragmentManager(), DatePickerDialogFragment.TAG);
             }
@@ -175,8 +178,8 @@ public class RecordEditFragment extends Fragment {
         });
 
         // ok/cancel buttons
-        Button buttonCancel = (Button) root.findViewById(R.id.button_cancel);
-        Button buttonOkay = (Button) root.findViewById(R.id.button_ok);
+        buttonCancel = (Button) root.findViewById(R.id.button_cancel);
+        buttonOkay = (Button) root.findViewById(R.id.button_ok);
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -188,7 +191,7 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // TODO: maybe we can write db in worker thread
-                mEvent.writeDB(getActivity());
+                mEvent.writeDB(getActivity(), false);
 
                 // FIXME: this doesn't seem to work
 //                // notify RecordLoader that data has changed
@@ -200,6 +203,18 @@ public class RecordEditFragment extends Fragment {
         });
     }
 
+    private void refreshViews() {
+        Log.v(TAG, "[refreshViews] called");
+
+        typeEdit.setText(mEvent.getDisplayType(getActivity()));
+        startDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getStartTimeCopy(), "yyyy-MM-dd"));
+        startTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getStartTimeCopy(), "HH:mm:SS"));
+        endDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getEndTimeCopy(), "yyyy-MM-dd"));
+        endTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getEndTimeCopy(), "HH:mm:SS"));
+        durationEdit.setText(mEvent.getDisplayDuration(getActivity()));
+        amountEdit.setText(mEvent.getDisplayAmount(getActivity()));
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -207,14 +222,18 @@ public class RecordEditFragment extends Fragment {
         Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data.toUri(0));
 
         int year = data.getIntExtra(DatePickerDialogFragment.KEY_YEAR, 0);
-        int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, 0) + 1;
+        int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, 0);
         int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY, 0);
-        String dateStr = String.format("%04d-%02d-%02d", year, month, day);
+
+        Log.v(TAG, String.format("Set default date: %04d/%02d/%02d", year, month, day));
 
         if (requestCode == REQUEST_CODE_SET_START_DATE) {
-            startDateEdit.setText(dateStr);
+            mEvent.setStartDate(year, month, day);
+
         } else if (requestCode == REQUEST_CODE_SET_END_DATE) {
-            endDateEdit.setText(dateStr);
+            mEvent.setEndDate(year, month, day);
         }
+
+        refreshViews();
     }
 }
