@@ -22,7 +22,7 @@ public class DatePickerDialogFragment extends DialogFragment
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
-    public static final String TAG = "[DatePickerDialogFragment]";
+    public static final String TAG = "[DatePicker]";
 
     public static final String KEY_YEAR = "year";
     public static final String KEY_MONTH = "month";

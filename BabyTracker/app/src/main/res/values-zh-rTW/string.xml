@@ -92,4 +92,7 @@
 
     <string name="record_list_title">所有紀錄</string>
     <string name="record_editor_title">編輯記錄</string>
+
+    <string name="edit_successful">資料修改成功</string>
+    <string name="error_negative_duration">修改失敗，持續時間為負值</string>
 </resources>

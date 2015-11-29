@@ -65,9 +65,15 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
                 public void onClick(View v) {
                     Intent edit = new Intent(getActivity(), RecordEditActivity.class);
                     edit.putExtras(event.toBundle());
-                    getActivity().startActivity(edit);
+                    startActivityForResult(edit, REQUEST_CODE_EDIT);
                 }
             });
+
+            // show/hide duration
+            boolean showDuration = !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
+                    !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_PEEPEE) &&
+                    !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_POOPOO);
+            durationText.setVisibility(showDuration ? View.VISIBLE : View.INVISIBLE);
         }
     }
     // ------------------------------------------------------------------------
@@ -75,6 +81,11 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
     // ------------------------------------------------------------------------
     private static final String TAG = "[RecordListFragment]";
     private static final boolean DEBUG = true;
+
+    public static final int REQUEST_CODE_EDIT = 0;
+    public static final String KEY_RESULT_CODE = "result";
+    public static final int RESULT_CODE_CONFIRM = 0;
+    public static final int RESULT_CODE_CANCEL = 1;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -135,6 +146,20 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (loader.getId() == RecordLoader.LOADER_ID) {
             mAdapter.swapCursor(data);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
+
+        if (requestCode == REQUEST_CODE_EDIT) {
+            if (data != null && data.getIntExtra(KEY_RESULT_CODE, RESULT_CODE_CANCEL) == RESULT_CODE_CONFIRM) {
+                Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
+                getLoaderManager().restartLoader(RecordLoader.LOADER_ID, null, this);
+            }
         }
     }
 

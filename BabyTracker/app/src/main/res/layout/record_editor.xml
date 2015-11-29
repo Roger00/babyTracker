@@ -33,8 +33,10 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:dividerPadding="18dp"
         android:stretchColumns="*">
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -50,7 +52,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/typeEdit" />
         </TableRow>
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -66,7 +69,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/startDateEdit" />
         </TableRow>
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -81,7 +85,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/startTimeEdit" />
         </TableRow>
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -97,7 +102,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/endDateEdit" />
         </TableRow>
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -113,13 +119,15 @@
                 android:id="@+id/endTimeEdit" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_duration"
+                android:id="@+id/durationLabel"
                 android:layout_gravity="end"
                 android:paddingRight="@dimen/record_edit_field_name_padding" />
 
@@ -130,7 +138,8 @@
                 android:id="@+id/durationEdit" />
         </TableRow>
 
-        <TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
 
             <TextView
                 android:layout_width="0dp"
@@ -138,6 +147,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/record_edit_amount"
                 android:layout_gravity="end"
+                android:id="@+id/amountLabel"
                 android:paddingRight="@dimen/record_edit_field_name_padding" />
 
             <TextView

@@ -12,14 +12,14 @@
         <item>@string/DIAPER_BOTH</item>
     </string-array>
     <string-array name="record_edit_activity_type_cmdId">
-        <item>@string/SLEEP</item>
-        <item>@string/MEAL_TYPE_BREAST_BOTH</item>
-        <item>@string/MEAL_TYPE_BREAST_LEFT</item>
-        <item>@string/MEAL_TYPE_BREAST_RIGHT</item>
-        <item>@string/MEAL_TYPE_BOTTLED</item>
-        <item>@string/MEAL_TYPE_MILK</item>
-        <item>@string/DIAPER_PEEPEE</item>
-        <item>@string/DIAPER_POOPOO</item>
-        <item>@string/DIAPER_BOTH</item>
+        <item>"SLEEP"</item>
+        <item>"MEAL_TYPE_BREAST_BOTH"</item>
+        <item>"MEAL_TYPE_BREAST_LEFT"</item>
+        <item>"MEAL_TYPE_BREAST_RIGHT"</item>
+        <item>"MEAL_TYPE_BOTTLED"</item>
+        <item>"MEAL_TYPE_MILK"</item>
+        <item>"DIAPER_PEEPEE"</item>
+        <item>"DIAPER_POOPOO"</item>
+        <item>"DIAPER_BOTH"</item>
     </string-array>
 </resources>

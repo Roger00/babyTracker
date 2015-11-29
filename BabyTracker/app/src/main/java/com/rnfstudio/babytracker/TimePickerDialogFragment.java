@@ -3,8 +3,10 @@ package com.rnfstudio.babytracker;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
@@ -21,7 +23,10 @@ public class TimePickerDialogFragment extends DialogFragment
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
-    public static final String TAG = "[TimePickerDialogFragment]";
+    public static final String TAG = "[TimePicker]";
+
+    public static final String KEY_HOUR_OF_DAY = "hour.of.day";
+    public static final String KEY_MINUTE = "minute";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -48,10 +53,23 @@ public class TimePickerDialogFragment extends DialogFragment
     // ------------------------------------------------------------------------
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the current time as the default values for the picker
-        final Calendar c = Calendar.getInstance();
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
+        int hour;
+        int minute;
+
+        Bundle args = getArguments();
+
+        // Use the current date as the default date in the picker
+        if (args == null) {
+            final Calendar c = Calendar.getInstance();
+            hour = c.get(Calendar.HOUR_OF_DAY);
+            minute = c.get(Calendar.MINUTE);
+
+        } else {
+            hour = args.getInt(KEY_HOUR_OF_DAY);
+            minute = args.getInt(KEY_MINUTE);
+        }
+
+        Log.v(TAG, String.format("Set default time: %02d/%02d", hour, minute));
 
         // Create a new instance of TimePickerDialog and return it
         return new TimePickerDialog(getActivity(), this, hour, minute,
@@ -59,6 +77,9 @@ public class TimePickerDialogFragment extends DialogFragment
     }
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        // Do something with the time chosen by the user
+        final int requestCode = getTargetRequestCode();
+        Intent result = new Intent();
+        result.putExtra(KEY_HOUR_OF_DAY, hourOfDay).putExtra(KEY_MINUTE, minute);
+        getTargetFragment().onActivityResult(requestCode, RecordEditFragment.RESULT_CODE_SUCCESS, result);
     }
 }

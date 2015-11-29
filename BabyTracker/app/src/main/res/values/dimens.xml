@@ -19,4 +19,6 @@
     <dimen name="milk_body_height">93dp</dimen>
     <dimen name="milk_picker_button">60dp</dimen>
     <dimen name="milk_picker_button_margin">10dp</dimen>
+
+    <dimen name="record_edit_row_margin">10dp</dimen>
 </resources>

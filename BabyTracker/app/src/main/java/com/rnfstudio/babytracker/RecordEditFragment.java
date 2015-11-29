@@ -12,10 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
+import java.sql.Time;
 import java.util.Calendar;
 
 /**
@@ -47,6 +50,11 @@ public class RecordEditFragment extends Fragment {
 
     // ------------------------------------------------------------------------
     // STATIC METHODS
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
     // ------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -59,7 +67,9 @@ public class RecordEditFragment extends Fragment {
     private TextView startTimeEdit;
     private TextView endDateEdit;
     private TextView endTimeEdit;
+    private TextView durationLabel;
     private TextView durationEdit;
+    private TextView amountLabel;
     private TextView amountEdit;
     private Button buttonCancel;
     private Button buttonOkay;
@@ -104,7 +114,9 @@ public class RecordEditFragment extends Fragment {
         startTimeEdit = (TextView) root.findViewById(R.id.startTimeEdit);
         endDateEdit = (TextView) root.findViewById(R.id.endDateEdit);
         endTimeEdit = (TextView) root.findViewById(R.id.endTimeEdit);
+        durationLabel = (TextView) root.findViewById(R.id.durationLabel);
         durationEdit = (TextView) root.findViewById(R.id.durationEdit);
+        amountLabel = (TextView) root.findViewById(R.id.amountLabel);
         amountEdit = (TextView) root.findViewById(R.id.amountEdit);
 
         typeEdit.setOnClickListener(new View.OnClickListener() {
@@ -122,9 +134,12 @@ public class RecordEditFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();
                                 int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                                // Do something useful with the the position of the selected radio button
-                                String type = getResources().getStringArray(R.array.record_edit_activity_type)[selectedPosition];
-                                Log.d("xxxxx", "type: " + type + ", pos: " + selectedPosition);
+                                String typeStr = getResources().getStringArray(R.array.record_edit_activity_type_cmdId)[selectedPosition];
+
+                                Log.v(TAG, "[onClickTypeEdit] typeStr: " + typeStr + ", pos: " + selectedPosition);
+                                mEvent.setEventType(typeStr);
+
+                                refreshViews();
                             }
                         })
                         .show();
@@ -135,11 +150,13 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new DatePickerDialogFragment();
+
                 Bundle args = new Bundle();
                 args.putInt(DatePickerDialogFragment.KEY_YEAR, mEvent.getStartTimeCopy().get(Calendar.YEAR));
                 args.putInt(DatePickerDialogFragment.KEY_MONTH, mEvent.getStartTimeCopy().get(Calendar.MONTH));
                 args.putInt(DatePickerDialogFragment.KEY_DAY, mEvent.getStartTimeCopy().get(Calendar.DAY_OF_MONTH));
                 newFragment.setArguments(args);
+
                 newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_START_DATE);
                 newFragment.show(RecordEditFragment.this.getFragmentManager(), DatePickerDialogFragment.TAG);
             }
@@ -149,6 +166,12 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new TimePickerDialogFragment();
+
+                Bundle args = new Bundle();
+                args.putInt(TimePickerDialogFragment.KEY_HOUR_OF_DAY, mEvent.getStartTimeCopy().get(Calendar.HOUR_OF_DAY));
+                args.putInt(TimePickerDialogFragment.KEY_MINUTE, mEvent.getStartTimeCopy().get(Calendar.MINUTE));
+                newFragment.setArguments(args);
+
                 newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_START_TIME);
                 newFragment.show(RecordEditFragment.this.getFragmentManager(), TimePickerDialogFragment.TAG);
             }
@@ -172,6 +195,12 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 DialogFragment newFragment = new TimePickerDialogFragment();
+
+                Bundle args = new Bundle();
+                args.putInt(TimePickerDialogFragment.KEY_HOUR_OF_DAY, mEvent.getEndTimeCopy().get(Calendar.HOUR_OF_DAY));
+                args.putInt(TimePickerDialogFragment.KEY_MINUTE, mEvent.getEndTimeCopy().get(Calendar.MINUTE));
+                newFragment.setArguments(args);
+
                 newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_END_TIME);
                 newFragment.show(RecordEditFragment.this.getFragmentManager(), TimePickerDialogFragment.TAG);
             }
@@ -183,6 +212,9 @@ public class RecordEditFragment extends Fragment {
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent result = new Intent();
+                result.putExtra(RecordListFragment.KEY_RESULT_CODE, RecordListFragment.RESULT_CODE_CANCEL);
+                getActivity().setResult(RecordListFragment.REQUEST_CODE_EDIT, result);
                 getActivity().finish();
             }
         });
@@ -190,21 +222,31 @@ public class RecordEditFragment extends Fragment {
         buttonOkay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: maybe we can write db in worker thread
-                mEvent.writeDB(getActivity(), false);
+                if (mEvent.calculateDuration() <= 0) {
+                    Toast.makeText(getActivity(), R.string.error_negative_duration, Toast.LENGTH_LONG).show();
 
-                // FIXME: this doesn't seem to work
-//                // notify RecordLoader that data has changed
-//                Loader loader = RecordEditFragment.this.getLoaderManager().getLoader(RecordLoader.LOADER_ID);
-//                if (loader != null) loader.onContentChanged();
+                    Intent result = new Intent();
+                    result.putExtra(RecordListFragment.KEY_RESULT_CODE, RecordListFragment.RESULT_CODE_CANCEL);
+                    getActivity().setResult(RecordListFragment.REQUEST_CODE_EDIT, result);
+                    getActivity().finish();
 
-                getActivity().finish();
+                } else {
+                    Toast.makeText(getActivity(), R.string.edit_successful, Toast.LENGTH_LONG).show();
+
+                    // TODO: maybe we can write db in worker thread
+                    mEvent.writeDB(getActivity(), false);
+
+                    Intent result = new Intent();
+                    result.putExtra(RecordListFragment.KEY_RESULT_CODE, RecordListFragment.RESULT_CODE_CONFIRM);
+                    getActivity().setResult(RecordListFragment.REQUEST_CODE_EDIT, result);
+                    getActivity().finish();
+                }
             }
         });
     }
 
     private void refreshViews() {
-        Log.v(TAG, "[refreshViews] called");
+        Log.v(TAG, "[refreshViews] called, event: " + mEvent);
 
         typeEdit.setText(mEvent.getDisplayType(getActivity()));
         startDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getStartTimeCopy(), "yyyy-MM-dd"));
@@ -213,25 +255,46 @@ public class RecordEditFragment extends Fragment {
         endTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getEndTimeCopy(), "HH:mm:SS"));
         durationEdit.setText(mEvent.getDisplayDuration(getActivity()));
         amountEdit.setText(mEvent.getDisplayAmount(getActivity()));
+
+        // show/hide information
+        boolean showAmount = mEvent.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_MEAL_BOTTLED) ||
+                mEvent.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_MEAL_MILK);
+        amountLabel.setVisibility(showAmount ? View.VISIBLE : View.INVISIBLE);
+        amountEdit.setVisibility(showAmount ? View.VISIBLE : View.INVISIBLE);
+
+        boolean showDuration = !mEvent.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
+                !mEvent.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_PEEPEE) &&
+                !mEvent.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_POOPOO);
+        durationLabel.setVisibility(showDuration ? View.VISIBLE : View.INVISIBLE);
+        durationEdit.setVisibility(showDuration ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data.toUri(0));
+        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
 
         int year = data.getIntExtra(DatePickerDialogFragment.KEY_YEAR, 0);
         int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, 0);
         int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY, 0);
+        int hourOfDay = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR_OF_DAY, 0);
+        int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, 0);
 
-        Log.v(TAG, String.format("Set default date: %04d/%02d/%02d", year, month, day));
+        Log.v(TAG, String.format("[onActivityResult] Receive date: %04d/%02d/%02d", year, month, day));
+        Log.v(TAG, String.format("[onActivityResult] Receive time: %02d/%02d", hourOfDay, minute));
 
         if (requestCode == REQUEST_CODE_SET_START_DATE) {
             mEvent.setStartDate(year, month, day);
 
         } else if (requestCode == REQUEST_CODE_SET_END_DATE) {
             mEvent.setEndDate(year, month, day);
+
+        } else if (requestCode == REQUEST_CODE_SET_START_TIME) {
+            mEvent.setStartTime(hourOfDay, minute);
+
+        } else if (requestCode == REQUEST_CODE_SET_END_TIME) {
+            mEvent.setEndTime(hourOfDay, minute);
         }
 
         refreshViews();

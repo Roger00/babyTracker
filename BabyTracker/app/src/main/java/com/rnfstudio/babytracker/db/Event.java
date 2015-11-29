@@ -143,6 +143,10 @@ public class Event {
         return mId;
     }
 
+    public String getTypeStr() {
+        return EventContract.EventEntry.getTypeStr(mType, mSubType);
+    }
+
     public Calendar getStartTimeCopy() {
         return (Calendar) mStartTime.clone();
     }
@@ -178,23 +182,46 @@ public class Event {
         return db.updateEvent(mId, mType, mSubType, mStartTime, mEndTime, mAmount);
     }
 
-    public void setStartDate(int year, int month, int day) {
-        mStartTime.set(year, month, day);
+    public void setEventType(String typeStr) {
+        setEventType(EventContract.EventEntry.getMainType(typeStr), EventContract.EventEntry.getSubType(typeStr));
     }
 
-    public void setStartTime(int hour, int minute, int second) {
+    public void setEventType(int type, int subType) {
+        mType = type;
+        mSubType = subType;
+    }
+
+    public void setStartDate(int year, int month, int day) {
+        mStartTime.set(year, month, day);
+        setDuration();
+    }
+
+    public void setStartTime(int hour, int minute) {
         mStartTime.set(Calendar.HOUR_OF_DAY, hour);
         mStartTime.set(Calendar.MINUTE, minute);
-        mStartTime.set(Calendar.SECOND, second);
+        setDuration();
     }
 
     public void setEndDate(int year, int month, int day) {
         mEndTime.set(year, month, day);
+        setDuration();
     }
 
-    public void setEndTime(int hour, int minute, int second) {
+    public void setEndTime(int hour, int minute) {
         mEndTime.set(Calendar.HOUR_OF_DAY, hour);
         mEndTime.set(Calendar.MINUTE, minute);
-        mEndTime.set(Calendar.SECOND, second);
+        setDuration();
+    }
+
+    public long calculateDuration() {
+        return mEndTime.getTimeInMillis() - mStartTime.getTimeInMillis();
+    }
+
+    private void setDuration() {
+        setDuration(calculateDuration());
+    }
+
+    private void setDuration(long millis) {
+        mDuration = millis;
     }
 }
