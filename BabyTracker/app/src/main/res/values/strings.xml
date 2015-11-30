@@ -93,6 +93,13 @@
     <string name="record_list_title">All Records</string>
     <string name="record_editor_title">Edit Record</string>
 
-    <string name="edit_successful">Changed successfully.</string>
+    <string name="menu_item_edit">Edit Record</string>
+    <string name="menu_item_delete">Delete Record</string>
+
+    <string name="edit_successful">Record edited.</string>
     <string name="error_negative_duration">Write fail. Do not accept negative duration</string>
+
+    <string name="delete_successful">Record deleted.</string>
+    <string name="error_unknown">Unknown failure.</string>
+
 </resources>

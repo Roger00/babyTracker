@@ -1,5 +1,7 @@
 package com.rnfstudio.babytracker;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.ListFragment;
 import android.app.LoaderManager;
 import android.content.Context;
@@ -9,13 +11,19 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.utility.DatePickerDialogFragment;
+import com.rnfstudio.babytracker.utility.MenuDialogFragment;
 import com.rnfstudio.babytracker.utility.TimeUtils;
+
+import java.util.Calendar;
 
 /**
  * Created by Roger on 2015/8/10.
@@ -63,9 +71,19 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent edit = new Intent(getActivity(), RecordEditActivity.class);
-                    edit.putExtras(event.toBundle());
-                    startActivityForResult(edit, REQUEST_CODE_EDIT);
+                    startRecordEditor(event);
+                }
+            });
+
+            view.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    DialogFragment newFragment = new MenuDialogFragment();
+                    newFragment.setArguments(event.toBundle());
+                    newFragment.setTargetFragment(RecordListFragment.this, REQUEST_CODE_MENU);
+                    newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
+
+                    return true;
                 }
             });
 
@@ -83,6 +101,7 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
     private static final boolean DEBUG = true;
 
     public static final int REQUEST_CODE_EDIT = 0;
+    public static final int REQUEST_CODE_MENU = 1;
     public static final String KEY_RESULT_CODE = "result";
     public static final int RESULT_CODE_CONFIRM = 0;
     public static final int RESULT_CODE_CANCEL = 1;
@@ -160,6 +179,21 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
                 Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
                 getLoaderManager().restartLoader(RecordLoader.LOADER_ID, null, this);
             }
+        } else if (requestCode == REQUEST_CODE_MENU) {
+            Bundle bundle = data.getExtras();
+            Event event = Event.createFromBundle(bundle);
+            int moreAction = bundle.getInt(MenuDialogFragment.EXTRA_MORE_ACTION, -1);
+            switch (moreAction) {
+                case 0:
+                    startRecordEditor(event);
+                    break;
+                case 1:
+                    Log.v(TAG, "[onActivityResult] restart loader for deletion");
+                    getLoaderManager().restartLoader(RecordLoader.LOADER_ID, null, this);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -168,5 +202,13 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
         if (loader.getId() == RecordLoader.LOADER_ID) {
             mAdapter.swapCursor(null);
         }
+    }
+
+    private void startRecordEditor(Event event) {
+        Log.v(TAG, "startRecordEditor");
+
+        Intent edit = new Intent(getActivity(), RecordEditActivity.class);
+        edit.putExtras(event.toBundle());
+        startActivityForResult(edit, REQUEST_CODE_EDIT);
     }
 }

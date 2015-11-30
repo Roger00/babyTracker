@@ -11,6 +11,7 @@
         <item>@string/DIAPER_POOPOO</item>
         <item>@string/DIAPER_BOTH</item>
     </string-array>
+
     <string-array name="record_edit_activity_type_cmdId">
         <item>"SLEEP"</item>
         <item>"MEAL_TYPE_BREAST_BOTH"</item>
@@ -21,5 +22,10 @@
         <item>"DIAPER_PEEPEE"</item>
         <item>"DIAPER_POOPOO"</item>
         <item>"DIAPER_BOTH"</item>
+    </string-array>
+
+    <string-array name="menu_record_item">
+        <item>@string/menu_item_edit</item>
+        <item>@string/menu_item_delete</item>
     </string-array>
 </resources>

@@ -93,6 +93,12 @@
     <string name="record_list_title">所有紀錄</string>
     <string name="record_editor_title">編輯記錄</string>
 
-    <string name="edit_successful">資料修改成功</string>
+    <string name="menu_item_edit">編輯紀錄</string>
+    <string name="menu_item_delete">刪除紀錄</string>
+
+    <string name="edit_successful">編輯成功</string>
     <string name="error_negative_duration">修改失敗，持續時間為負值</string>
+
+    <string name="delete_successful">刪除成功</string>
+    <string name="error_unknown">發生未知的錯誤</string>
 </resources>

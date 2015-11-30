@@ -95,7 +95,19 @@ public class EventDB {
         Long ret = mDB.replace(EventContract.EventEntry.TABLE_NAME, null, values);
         return ret != -1;
     }
-    
+
+    /**
+     * See <a href="http://stackoverflow.com/questions/7510219/deleting-row-in-sqlite-in-android">Delete row in SQLite</a>
+     */
+    public boolean removeEvent(int id) {
+        String table = EventContract.EventEntry.TABLE_NAME;
+        String whereClause = "_id" + "=?";
+        String[] whereArgs = new String[] { String.valueOf(id) };
+
+        int cRowsAffected = mDB.delete(table, whereClause, whereArgs);
+        return cRowsAffected != 0;
+    }
+
     public void close() {
         if (DEBUG) {
             Log.v(TAG, "[close] called");

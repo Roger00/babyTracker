@@ -182,6 +182,11 @@ public class Event {
         return db.updateEvent(mId, mType, mSubType, mStartTime, mEndTime, mAmount);
     }
 
+    public boolean removeFromDB(Context context) {
+        EventDB db = MainApplication.getEventDatabase(context);
+        return db.removeEvent(mId);
+    }
+
     public void setEventType(String typeStr) {
         setEventType(EventContract.EventEntry.getMainType(typeStr), EventContract.EventEntry.getSubType(typeStr));
     }
