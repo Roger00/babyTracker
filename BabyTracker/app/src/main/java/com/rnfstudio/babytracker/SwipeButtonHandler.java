@@ -2,11 +2,11 @@ package com.rnfstudio.babytracker;
 
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -100,6 +100,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
+    private Fragment mFragment;
     private final Context mContext;
     private List<SwipeButton> mButtons = new ArrayList<SwipeButton>();
     private Map<String, Calendar> mTimerMap = new HashMap<>();
@@ -123,9 +124,10 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    public SwipeButtonHandler(Context context) {
-        mContext = context;
-        mMainHandler = new Handler(context.getMainLooper());
+    public SwipeButtonHandler(Fragment fragment) {
+        mFragment = fragment;
+        mContext = fragment.getActivity();
+        mMainHandler = new Handler(fragment.getActivity().getMainLooper());
     }
 
     // ------------------------------------------------------------------------
@@ -140,11 +142,12 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                     DialogFragment newFragment = new MilkPickerDialogFragment();
 
                     Bundle args = new Bundle();
+                    args.putString(MilkPickerDialogFragment.EXTRA_FUNCTION_ID, id);
                     args.putInt(MilkPickerDialogFragment.EXTRA_DEFAULT_AMOUNT, MilkPickerDialogFragment.DEFAULT_AMOUNT);
                     newFragment.setArguments(args);
 
-//                    newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_AMOUNT);
-//                    newFragment.show(((Activity) mContext).getFragmentManager(), MilkPickerDialogFragment.TAG);
+                    newFragment.setTargetFragment(mFragment, MainFragment.REQUEST_CODE_SET_AMOUNT);
+                    newFragment.show(((Activity) mContext).getFragmentManager(), MilkPickerDialogFragment.TAG);
 
                     break;
                 }
@@ -425,9 +428,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             int minutes = TimeUtils.getRemainMinutes(diffInSecs);
             int seconds = TimeUtils.getRemainSeconds(diffInSecs);
 
-            Log.d("yyyyy", "Handler id:" + this.toString());
-            Log.d("yyyyy", "refresh timer:" + id + " seconds: " + seconds);
-            Log.d("yyyyy", getSwipeButtonById(id).toString());
             getSwipeButtonById(id).setCounterText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
         }
     }
@@ -497,7 +497,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             startTimer(startTime, id);
             showCounter(id, true);
         }
-
     }
 
     public void onMilkPickerResult(String id, int amount) {

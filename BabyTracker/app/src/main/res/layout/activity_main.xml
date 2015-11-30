@@ -1,50 +1,5 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:splitMotionEvents="false"
-    tools:context=".MainActivity">
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/holo_orange_light"
-        android:padding="@dimen/info_panel_padding"
-        android:id="@+id/linearLayout4">
-
-        <com.rnfstudio.babytracker.utility.RoundedImageView
-            android:layout_width="@dimen/baby_icon_size"
-            android:layout_height="@dimen/baby_icon_size"
-            android:id="@+id/imageView"
-            android:src="@drawable/baby"/>
-
-        <include layout="@layout/info_panel" />
-    </LinearLayout>
-
-    <include layout="@layout/menu_panel"
-        android:id="@+id/include" />
-
-    <include layout="@layout/last_info_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout4"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:layout_above="@+id/include" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:visibility="gone"
-        android:text="Small Text"
-        android:id="@+id/logView"
-        android:layout_below="@+id/linearLayout4"
-        android:layout_above="@+id/main_menu"
-        android:layout_centerHorizontal="true" />
-
-</RelativeLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:name="com.rnfstudio.babytracker.MainFragment">
+</fragment>

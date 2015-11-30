@@ -15,11 +15,11 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.utility.DatePickerDialogFragment;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
-import com.rnfstudio.babytracker.utility.SwipeButton;
+import com.rnfstudio.babytracker.utility.TimePickerDialogFragment;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
-import java.sql.Time;
 import java.util.Calendar;
 
 /**
@@ -51,11 +51,6 @@ public class RecordEditFragment extends Fragment {
 
     // ------------------------------------------------------------------------
     // STATIC METHODS
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
     // ------------------------------------------------------------------------
 
     // ------------------------------------------------------------------------
@@ -295,7 +290,7 @@ public class RecordEditFragment extends Fragment {
         int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY, 0);
         int hourOfDay = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR_OF_DAY, 0);
         int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, 0);
-        int amountInML = data.getIntExtra(MilkPickerDialogFragment.KEY_MILLI_LITER, 0);
+        int amountInML = data.getIntExtra(MilkPickerDialogFragment.EXTRA_MILLI_LITER, 0);
 
         Log.v(TAG, String.format("[onActivityResult] Receive date: %04d/%02d/%02d", year, month, day));
         Log.v(TAG, String.format("[onActivityResult] Receive time: %02d/%02d", hourOfDay, minute));

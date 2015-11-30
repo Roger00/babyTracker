@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.rnfstudio.babytracker.MainActivity;
 import com.rnfstudio.babytracker.R;
 import com.rnfstudio.babytracker.RecordEditFragment;
 
@@ -48,7 +46,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
 
     public static final String EXTRA_FUNCTION_ID = "function id";
     public static final String EXTRA_DEFAULT_AMOUNT = "default amount";
-    public static final String KEY_MILLI_LITER = "ml";
+    public static final String EXTRA_MILLI_LITER = "ml";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -69,7 +67,6 @@ public class MilkPickerDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
-    private String mFuncId = null;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -86,7 +83,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
-        mFuncId = args.getString(EXTRA_FUNCTION_ID);
+        final String functionId = args.getString(EXTRA_FUNCTION_ID);
         int defaultAmount = args.getInt(EXTRA_DEFAULT_AMOUNT, DEFAULT_AMOUNT);
 
         // load sound effects
@@ -127,12 +124,11 @@ public class MilkPickerDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.v(TAG, "ok" + getAmountFromEdit(amountEdit));
-//                        MainActivity caller = (MainActivity) getActivity();
-//                        caller.onMilkPickerResult(mFuncId, getAmountFromEdit(amountEdit));
 
                         final int requestCode = getTargetRequestCode();
                         Intent result = new Intent();
-                        result.putExtra(KEY_MILLI_LITER, getAmountFromEdit(amountEdit));
+                        result.putExtra(EXTRA_FUNCTION_ID, functionId);
+                        result.putExtra(EXTRA_MILLI_LITER, getAmountFromEdit(amountEdit));
                         getTargetFragment().onActivityResult(requestCode, RecordEditFragment.RESULT_CODE_SUCCESS, result);
 
                         dismiss();
