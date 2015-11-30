@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -20,6 +21,7 @@ import android.widget.ImageView;
 
 import com.rnfstudio.babytracker.MainActivity;
 import com.rnfstudio.babytracker.R;
+import com.rnfstudio.babytracker.RecordEditFragment;
 
 /**
  * Created by Roger on 2015/8/6.
@@ -32,17 +34,21 @@ public class MilkPickerDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
-    private static final String TAG = "MilkPicker";
+    public static final String TAG = "MilkPicker";
     private static final int INCREMENT_DECREMENT_AMOUNT = 10;
     private static final int MAX_AMOUNT = 250;
     private static final int MIN_AMOUNT = 0;
-    private static final int DEFAULT_AMOUNT = 100;
+    public static final int DEFAULT_AMOUNT = 100;
 
     private static SoundPool sSoundPool;
     private static int[] sSoundIds;
     private static final int MAX_AUDIO_STREAMS = 10;
     private static final int ID_SOUND_EFFECT_INCREASE = 0;
     private static final int ID_SOUND_EFFECT_DECREASE = 1;
+
+    public static final String EXTRA_FUNCTION_ID = "function id";
+    public static final String EXTRA_DEFAULT_AMOUNT = "default amount";
+    public static final String KEY_MILLI_LITER = "ml";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -72,20 +78,17 @@ public class MilkPickerDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    // @FIXME: do use default constructor ONLY
-    public MilkPickerDialogFragment(String id) {
-        mFuncId = id;
-    }
-
-    public static MilkPickerDialogFragment newInstance(String id) {
-        MilkPickerDialogFragment fragment = new MilkPickerDialogFragment(id);
-        return fragment;
+    public MilkPickerDialogFragment() {
     }
 
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        mFuncId = args.getString(EXTRA_FUNCTION_ID);
+        int defaultAmount = args.getInt(EXTRA_DEFAULT_AMOUNT, DEFAULT_AMOUNT);
+
         // load sound effects
         sSoundIds[ID_SOUND_EFFECT_INCREASE] = sSoundPool.load(getActivity(), R.raw.sound_effect_inc, 1);
         sSoundIds[ID_SOUND_EFFECT_DECREASE] = sSoundPool.load(getActivity(), R.raw.sound_effect_dec, 1);
@@ -99,11 +102,11 @@ public class MilkPickerDialogFragment extends DialogFragment {
         Button minusBtn = (Button) layout.findViewById(R.id.minus);
         Button plusBtn = (Button) layout.findViewById(R.id.plus);
         final EditText amountEdit = (EditText) layout.findViewById(R.id.amount);
-        amountEdit.setText(String.valueOf(DEFAULT_AMOUNT));
+        amountEdit.setText(String.valueOf(defaultAmount));
         final ImageView milkBody = (ImageView) layout.findViewById(R.id.milkBody);
         milkBody.setImageDrawable(getResources().getDrawable(R.drawable.milk_body, null));
         milkBody.setPivotY(getResources().getDimension(R.dimen.milk_body_height));
-        milkBody.setScaleY(((float) DEFAULT_AMOUNT) / MAX_AMOUNT);
+        milkBody.setScaleY(((float) defaultAmount) / MAX_AMOUNT);
         minusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,8 +127,15 @@ public class MilkPickerDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.v(TAG, "ok" + getAmountFromEdit(amountEdit));
-                        MainActivity caller = (MainActivity) getActivity();
-                        caller.onMilkPickerResult(mFuncId, getAmountFromEdit(amountEdit));
+//                        MainActivity caller = (MainActivity) getActivity();
+//                        caller.onMilkPickerResult(mFuncId, getAmountFromEdit(amountEdit));
+
+                        final int requestCode = getTargetRequestCode();
+                        Intent result = new Intent();
+                        result.putExtra(KEY_MILLI_LITER, getAmountFromEdit(amountEdit));
+                        getTargetFragment().onActivityResult(requestCode, RecordEditFragment.RESULT_CODE_SUCCESS, result);
+
+                        dismiss();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

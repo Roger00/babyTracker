@@ -224,4 +224,8 @@ public class Event {
     private void setDuration(long millis) {
         mDuration = millis;
     }
+
+    public void setAmount(int amount) {
+        mAmount = amount;
+    }
 }

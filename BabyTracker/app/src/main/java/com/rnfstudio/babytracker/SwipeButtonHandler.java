@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -47,8 +48,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     private static final String TAG = "SwipeButtonHandler";
     private static final boolean DEBUG = true;
-
-    private static final String TAG_MILK_PICKER_DIALOG = "MilkPickerDialogFragment";
 
     public static final String MENU_ITEM_SLEEP = "SLEEP";
     public static final String MENU_ITEM_MEAL_TYPE_BREAST_BOTH = "MEAL_TYPE_BREAST_BOTH";
@@ -138,10 +137,15 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             case MENU_ITEM_MEAL_BOTTLED:
             case MENU_ITEM_MEAL_MILK:
                 if (isTimerRunning(id)) {
-                    // start MilkPickerDialogFragment
-                    // this will later trigger onMilkPickerResult() if user confirms the amount
-                    DialogFragment newFragment = MilkPickerDialogFragment.newInstance(id);
-                    newFragment.show(((Activity) mContext).getFragmentManager(), TAG_MILK_PICKER_DIALOG);
+                    DialogFragment newFragment = new MilkPickerDialogFragment();
+
+                    Bundle args = new Bundle();
+                    args.putInt(MilkPickerDialogFragment.EXTRA_DEFAULT_AMOUNT, MilkPickerDialogFragment.DEFAULT_AMOUNT);
+                    newFragment.setArguments(args);
+
+//                    newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_AMOUNT);
+//                    newFragment.show(((Activity) mContext).getFragmentManager(), MilkPickerDialogFragment.TAG);
+
                     break;
                 }
             case MENU_ITEM_MEAL_TYPE_BREAST_LEFT:

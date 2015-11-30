@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
@@ -206,6 +207,20 @@ public class RecordEditFragment extends Fragment {
             }
         });
 
+        amountEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new MilkPickerDialogFragment();
+
+                Bundle args = new Bundle();
+                args.putInt(MilkPickerDialogFragment.EXTRA_DEFAULT_AMOUNT, mEvent.getAmount());
+                newFragment.setArguments(args);
+
+                newFragment.setTargetFragment(RecordEditFragment.this, REQUEST_CODE_SET_AMOUNT);
+                newFragment.show(RecordEditFragment.this.getFragmentManager(), MilkPickerDialogFragment.TAG);
+            }
+        });
+
         // ok/cancel buttons
         buttonCancel = (Button) root.findViewById(R.id.button_cancel);
         buttonOkay = (Button) root.findViewById(R.id.button_ok);
@@ -223,7 +238,7 @@ public class RecordEditFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (mEvent.calculateDuration() <= 0) {
-                    Toast.makeText(getActivity(), R.string.error_negative_duration, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), R.string.error_negative_duration, Toast.LENGTH_SHORT).show();
 
                     Intent result = new Intent();
                     result.putExtra(RecordListFragment.KEY_RESULT_CODE, RecordListFragment.RESULT_CODE_CANCEL);
@@ -231,7 +246,7 @@ public class RecordEditFragment extends Fragment {
                     getActivity().finish();
 
                 } else {
-                    Toast.makeText(getActivity(), R.string.edit_successful, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), R.string.edit_successful, Toast.LENGTH_SHORT).show();
 
                     // TODO: maybe we can write db in worker thread
                     mEvent.writeDB(getActivity(), false);
@@ -280,9 +295,11 @@ public class RecordEditFragment extends Fragment {
         int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY, 0);
         int hourOfDay = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR_OF_DAY, 0);
         int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, 0);
+        int amountInML = data.getIntExtra(MilkPickerDialogFragment.KEY_MILLI_LITER, 0);
 
         Log.v(TAG, String.format("[onActivityResult] Receive date: %04d/%02d/%02d", year, month, day));
         Log.v(TAG, String.format("[onActivityResult] Receive time: %02d/%02d", hourOfDay, minute));
+        Log.v(TAG, String.format("[onActivityResult] Receive amount: %d", amountInML));
 
         if (requestCode == REQUEST_CODE_SET_START_DATE) {
             mEvent.setStartDate(year, month, day);
@@ -295,6 +312,9 @@ public class RecordEditFragment extends Fragment {
 
         } else if (requestCode == REQUEST_CODE_SET_END_TIME) {
             mEvent.setEndTime(hourOfDay, minute);
+
+        } else if (requestCode == REQUEST_CODE_SET_AMOUNT) {
+            mEvent.setAmount(amountInML);
         }
 
         refreshViews();
