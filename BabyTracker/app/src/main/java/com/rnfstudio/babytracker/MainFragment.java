@@ -7,7 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 
+import com.rnfstudio.babytracker.utility.CircleAngleAnimation;
+import com.rnfstudio.babytracker.utility.CircleView;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 
@@ -41,6 +44,8 @@ public class MainFragment extends Fragment {
     // FIELDS
     // ------------------------------------------------------------------------
     private SwipeButtonHandler mManager;
+    private CircleView mCircle;
+    private Animation mAnimation;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -72,6 +77,12 @@ public class MainFragment extends Fragment {
         ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
         mManager.setInfoPanel(infoPanel);
 
+        mCircle = (CircleView) rootView.findViewById(R.id.circle);
+
+        mAnimation = new CircleAngleAnimation(mCircle, 240);
+        mAnimation.setDuration(1000);
+
+
         return rootView;
     }
 
@@ -94,6 +105,8 @@ public class MainFragment extends Fragment {
         super.onResume();
         mManager.startTimeTicker();
         mManager.refreshAll();
+
+        mCircle.startAnimation(mAnimation);
     }
 
     @Override

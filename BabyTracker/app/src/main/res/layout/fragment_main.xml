@@ -36,15 +36,11 @@
         android:layout_alignParentStart="false"
         android:layout_above="@+id/include" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:visibility="gone"
-        android:text="Small Text"
-        android:id="@+id/logView"
+    <com.rnfstudio.babytracker.utility.CircleView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/circle"
         android:layout_below="@+id/linearLayout4"
-        android:layout_above="@+id/main_menu"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
