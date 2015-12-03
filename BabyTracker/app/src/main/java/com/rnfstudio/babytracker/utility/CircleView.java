@@ -6,7 +6,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.util.Pair;
 import android.view.View;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Modified from example:
@@ -44,17 +52,18 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    private static final int START_ANGLE_POINT = -90;
+    private static final int START_ANGLE_POINT = 0;
 
     private final Paint paint;
     private final RectF rect;
 
     private float angle;
+    private List<Pair<Float, Float>> mDataPairs;
 
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        final int strokeWidth = 40;
+        final int strokeWidth = 20;
 
         paint = new Paint();
         paint.setAntiAlias(true);
@@ -64,16 +73,43 @@ public class CircleView extends View {
         paint.setColor(Color.RED);
 
         //size 200x200 example
-        rect = new RectF(strokeWidth, strokeWidth, 200 + strokeWidth, 200 + strokeWidth);
+        rect = new RectF(strokeWidth, strokeWidth, 300 + strokeWidth, 300 + strokeWidth);
 
         //Initial Angle (optional, it can be zero)
-        angle = 0;
+        angle = START_ANGLE_POINT;
+
+        initData();
+    }
+
+    private void initData() {
+        mDataPairs = new ArrayList<>();
+        mDataPairs.add(new Pair<>(new Float(0), new Float(20)));
+        mDataPairs.add(new Pair<>(new Float(40), new Float(60)));
+        mDataPairs.add(new Pair<>(new Float(80), new Float(100)));
+        mDataPairs.add(new Pair<>(new Float(180), new Float(190)));
+        mDataPairs.add(new Pair<>(new Float(240), new Float(270)));
+        mDataPairs.add(new Pair<>(new Float(299), new Float(350)));
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawArc(rect, START_ANGLE_POINT, angle, false, paint);
+
+        // draw underlying circle
+        paint.setColor(Color.GRAY);
+        canvas.drawArc(rect, START_ANGLE_POINT, 360, false, paint);
+
+        // draw data
+        paint.setColor(Color.RED);
+        for (Pair<Float, Float> p : mDataPairs) {
+            if (p.first > angle) break;
+
+            float startAngle = p.first;
+            float endAngle = p.second > angle ? angle : p.second;
+            float sweepAngle = endAngle - startAngle;
+
+            canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+        }
     }
 
     public float getAngle() {

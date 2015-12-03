@@ -367,6 +367,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     public void refreshLastInfo() {
+        if (mLastInfoPanel == null) return;
+
         TextView lastSleepDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_sleep_detail);
         TextView lastMealDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_meal_detail);
         TextView lastDiaperDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_diaper_detail);

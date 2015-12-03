@@ -28,19 +28,21 @@
     <include layout="@layout/menu_panel"
         android:id="@+id/include" />
 
-    <include layout="@layout/last_info_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout4"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:layout_above="@+id/include" />
+    <!--<include layout="@layout/last_info_panel"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/linearLayout4"-->
+        <!--android:layout_alignParentEnd="false"-->
+        <!--android:layout_alignParentStart="false"-->
+        <!--android:layout_above="@+id/include" />-->
 
     <com.rnfstudio.babytracker.utility.CircleView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
         android:id="@+id/circle"
-        android:layout_below="@+id/linearLayout4"
-        android:layout_centerHorizontal="true" />
+        android:layout_width="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/include"
+        android:layout_alignParentEnd="true"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout4" />
 
 </RelativeLayout>

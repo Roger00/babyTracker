@@ -11,6 +11,7 @@ import com.rnfstudio.babytracker.utility.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -165,6 +166,31 @@ public class EventDB {
 
         return results;
     }
+
+//    public Cursor queryRecords(Date date, int mainType) {
+//        Cursor cursor = null;
+//        cursor = mDB.query(true,
+//                EventContract.EventEntry.TABLE_NAME,
+//                new String[] {EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
+//                EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?", new String[] {Integer.toString(mainType)},
+//                null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+//        try {
+//            cursor = mDB.query(true,
+//                    EventContract.EventEntry.TABLE_NAME,
+//                    new String[] {EventContract.EventEntry.COLUMN_ID,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
+//                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ?", new String[] {Integer.toString(mainType)},
+//                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+//        } catch (SQLiteException e) {
+//            Log.w(TAG, "[listRecords] exception during db query");
+//        }
+//        return cursor;
+//    }
 
     public Cursor listRecords() {
         Cursor cursor = null;

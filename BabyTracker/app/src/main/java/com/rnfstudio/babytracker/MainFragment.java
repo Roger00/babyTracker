@@ -2,6 +2,9 @@ package com.rnfstudio.babytracker;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
+import android.opengl.Visibility;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
+import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.CircleAngleAnimation;
 import com.rnfstudio.babytracker.utility.CircleView;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
@@ -71,17 +75,13 @@ public class MainFragment extends Fragment {
             btn.setHandler(mManager);
         }
 
-        ViewGroup lastInfoPanel = (ViewGroup) rootView.findViewById(R.id.lastInfoPanel);
-        mManager.setLastInfoPanel(lastInfoPanel);
+//        ViewGroup lastInfoPanel = (ViewGroup) rootView.findViewById(R.id.lastInfoPanel);
+//        mManager.setLastInfoPanel(lastInfoPanel);
 
         ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
         mManager.setInfoPanel(infoPanel);
 
         mCircle = (CircleView) rootView.findViewById(R.id.circle);
-
-        mAnimation = new CircleAngleAnimation(mCircle, 240);
-        mAnimation.setDuration(1000);
-
 
         return rootView;
     }
@@ -102,11 +102,31 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onResume() {
+        Log.d("xxxxx", "onResume");
         super.onResume();
         mManager.startTimeTicker();
         mManager.refreshAll();
 
+        mCircle.setAngle(0);
+        mAnimation = new CircleAngleAnimation(mCircle, 360);
+        mAnimation.setDuration(2500);
         mCircle.startAnimation(mAnimation);
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                EventDB db = MainApplication.getEventDatabase(getActivity());
+//                db.queryLatestEvent()
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+            }
+
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
