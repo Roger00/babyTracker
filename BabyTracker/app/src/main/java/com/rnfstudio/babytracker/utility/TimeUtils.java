@@ -64,54 +64,36 @@ public class TimeUtils {
         return f.format(c.getTime());
     }
 
-    public static long secondsBetween(Calendar c1, Calendar c2) {
-        long timeInMillis1 = c1.getTimeInMillis();
-        long timeInMillis2 = c2.getTimeInMillis();
-        long diffInMillis = Math.abs(timeInMillis1 - timeInMillis2);
-        return (long) (diffInMillis / 1000.0);
+    public static long secondsUntilNow(long t) {
+        return (long) (Math.abs(Calendar.getInstance().getTimeInMillis() - t) / 1000.0);
     }
 
     public static int getRemainSeconds(long seconds) {
-        long minutes = seconds / 60;
-        seconds = seconds % 60;
-
-        return (int) seconds;
+        return (int) seconds % 60;
     }
 
     public static int getRemainMinutes(long seconds) {
-        long minutes = seconds / 60;
-        seconds = seconds % 60;
-
-        long hours = minutes / 60;
-        minutes = minutes % 60;
-
-        return (int) minutes;
+        return (int) ((seconds / 60) % 60);
     }
 
     public static int getRemainHours(long seconds) {
-        long minutes = seconds / 60;
-        seconds = seconds % 60;
-
-        long hours = minutes / 60;
-        minutes = minutes % 60;
-
-        long days = hours / 24;
-        hours = hours % 24;
-
-        return (int) hours;
+        return (int) (((seconds / 60) / 60) % 24);
     }
 
     public static int getRemainDays(long seconds) {
-        long minutes = seconds / 60;
-        seconds = seconds % 60;
+        return (int) (((seconds / 60) / 60) / 24);
+    }
 
-        long hours = minutes / 60;
-        minutes = minutes % 60;
+    public static int getRemainDaysInMonth(int days) {
+        return days % 30;
+    }
 
-        long days = hours / 24;
-        hours = hours % 24;
+    public static int getRemainMonthsInYear(int days) {
+        return ((days / 30) % 60);
+    }
 
-        return (int) days;
+    public static int getRemainYears(int days) {
+        return ((days / 30) / 12);
     }
 
     public static int daysBetween(Calendar c1, Calendar c2) {
@@ -134,31 +116,6 @@ public class TimeUtils {
         return days;
     }
 
-    public static int getRemainDaysInMonth(int days) {
-        int months = days / 30;
-        days = days % 30;
-        return days;
-    }
-
-    public static int getRemainMonthsInYear(int days) {
-        int months = days / 30;
-        days = days % 30;
-
-        int years = months / 60;
-        months = months % 60;
-
-        return months;
-    }
-
-    public static int getRemainYears(int days) {
-        int months = days / 30;
-        days = days % 30;
-
-        int years = months / 60;
-        months = months % 60;
-
-        return years;
-    }
 
     public static Calendar unflattenEventTime(String timeStr) {
         return unFlattenCalendarTimeSafely(timeStr, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);

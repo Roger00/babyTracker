@@ -56,7 +56,7 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public Cursor loadInBackground() {
         EventDB db = MainApplication.getEventDatabase(mContext);
-        mCursor = db.listRecords();
+        mCursor = db.queryAllEvents();
         return mCursor;
     }
 

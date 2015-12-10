@@ -30,9 +30,9 @@ public class LastInfo {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
-    public Calendar mLastSleep = null;
-    public Calendar mLastMeal = null;
-    public Calendar mLastDiaper = null;
+    public long mLastSleep;
+    public long mLastMeal;
+    public long mLastDiaper;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -41,7 +41,7 @@ public class LastInfo {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    public LastInfo(Calendar lastSleep, Calendar lastMeal, Calendar lastDiaper) {
+    public LastInfo(long lastSleep, long lastMeal, long lastDiaper) {
         mLastSleep = lastSleep;
         mLastMeal = lastMeal;
         mLastDiaper = lastDiaper;
@@ -50,13 +50,12 @@ public class LastInfo {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    public String getLastInfoMessage(Context context, Calendar c) {
-        if (c == null) {
+    public String getLastInfoMessage(Context context, long t) {
+        if (t == 0) {
             return getDefaultMessage(context);
         }
 
-        Calendar now = Calendar.getInstance();
-        long diff = TimeUtils.secondsBetween(c, now);
+        long diff = TimeUtils.secondsUntilNow(t);
         int secs = TimeUtils.getRemainSeconds(diff);
         int mins = TimeUtils.getRemainMinutes(diff);
         int hours = TimeUtils.getRemainHours(diff);

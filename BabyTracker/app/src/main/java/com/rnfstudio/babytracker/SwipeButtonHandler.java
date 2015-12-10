@@ -13,7 +13,6 @@ import android.os.Process;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.EventContract;
@@ -102,13 +101,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     // ------------------------------------------------------------------------
     private Fragment mFragment;
     private final Context mContext;
-    private List<SwipeButton> mButtons = new ArrayList<SwipeButton>();
+    private List<SwipeButton> mButtons = new ArrayList<>();
     private Map<String, Calendar> mTimerMap = new HashMap<>();
-    private TextView mLogView;
     private Handler mMainHandler;
-    private ViewGroup mMenuPanel;
-    private ViewGroup mCounterPanel;
-    private Button mStopButton;
     private ViewGroup mLastInfoPanel;
     private ViewGroup mInfoPanel;
     private SwipeButton mSleepButton;
@@ -246,7 +241,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-                db.clearEvents();
+                db.clearAllEvents();
                 asyncRefreshLastInfo(context);
             }
         });
@@ -257,7 +252,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-                db.addEvent(eventType, startTime, endTime, amount);
+                db.insertEvent(eventType, startTime, endTime, amount);
                 asyncRefreshLastInfo(context);
             }
         });
@@ -295,24 +290,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
     }
 
-    public void setLogView(TextView logView) {
-        mLogView = logView;
-        mLogView.setText("LogView init complete");
-    }
-
-    public void refreshLogView(Context context) {
-        Log.v(TAG, "refreshLogView called");
-        if (mLogView != null) {
-            EventDB db = MainApplication.getEventDatabase(context);
-            List<String> outputs = db.queryLatestEvent(20);
-            StringBuilder sb = new StringBuilder();
-            for (String s : outputs) {
-                sb.append(s);
-            }
-            mLogView.setText(sb.toString());
-        }
-    }
-
     private void showCounter(String id, boolean show) {
         SwipeButton btn = getSwipeButtonById(id);
         btn.showCounter(show);
@@ -337,10 +314,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         return btn;
     }
 
-    public void setMenuPanel(ViewGroup menu) {
-        mMenuPanel = menu;
-    }
-
     public void setLastInfoPanel(ViewGroup panel) {
         mLastInfoPanel = panel;
     }
@@ -351,9 +324,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
             public void run() {
                 EventDB db = MainApplication.getEventDatabase(context);
 
-                Calendar lastSleep = db.queryLatestTimeForType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
-                Calendar lastMeal = db.queryLatestTimeForType(EventContract.EventEntry.EVENT_TYPE_MEAL);
-                Calendar lastDiaper = db.queryLatestTimeForType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
+                long lastSleep = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
+                long lastMeal = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_MEAL);
+                long lastDiaper = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
                 mLastInfo = new LastInfo(lastSleep, lastMeal, lastDiaper);
 
                 mMainHandler.post(new Runnable() {
@@ -422,10 +395,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     private void refreshCounters() {
-        Calendar now = Calendar.getInstance();
-
         for (String id : getTimerIds()) {
-            long diffInSecs = TimeUtils.secondsBetween(getStartTime(id), now);
+            long diffInSecs = TimeUtils.secondsUntilNow(getStartTime(id).getTimeInMillis());
             int hours = TimeUtils.getRemainHours(diffInSecs);
             int minutes = TimeUtils.getRemainMinutes(diffInSecs);
             int seconds = TimeUtils.getRemainSeconds(diffInSecs);

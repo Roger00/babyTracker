@@ -9,10 +9,8 @@ import android.util.Log;
 
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Roger on 2015/7/22.
@@ -65,32 +63,34 @@ public class EventDB {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    public boolean addEvent(String type, Calendar startTime, Calendar endTime, int amount) {
+    public boolean insertEvent(String type, Calendar startTime, Calendar endTime, int amount) {
         if (DEBUG) {
             Log.v(TAG, "[addCategoryID] package name: " + type + " category Id: " + startTime + " priority: " + endTime);
         }
 
-        return addEvent(EventContract.EventEntry.getMainType(type),
+        return insertEvent(EventContract.EventEntry.getMainType(type),
                 EventContract.EventEntry.getSubType(type),
                 startTime, endTime, amount);
     }
 
-    public boolean addEvent(int type, int subType, Calendar startTime, Calendar endTime, int amount) {
+    public boolean insertEvent(int type, int subType, Calendar startTime, Calendar endTime, int amount) {
         return updateEvent(-1, type, subType, startTime, endTime, amount);
     }
 
     public boolean updateEvent(int id, int type, int subType, Calendar startTime, Calendar endTime, int amount) {
-        String startTimeStr = TimeUtils.flattenEventTime(startTime);
-        String endTimeStr = TimeUtils.flattenEventTime(endTime);
-        long durationMilliSec = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+        long startTimeInMillis = startTime.getTimeInMillis();
+        long endTimeInMillis = endTime.getTimeInMillis();
+        return updateEvent(id, type, subType, startTimeInMillis, endTimeInMillis, amount);
+    }
 
+    public boolean updateEvent(int id, int type, int subType, long startTime, long endTime, int amount) {
         ContentValues values = new ContentValues();
         if (id != -1) values.put(EventContract.EventEntry.COLUMN_ID, id);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, type);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, subType);
-        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, startTimeStr);
-        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME, endTimeStr);
-        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION, durationMilliSec);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, startTime);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME, endTime);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION, endTime - startTime);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT, amount);
 
         Long ret = mDB.replace(EventContract.EventEntry.TABLE_NAME, null, values);
@@ -100,7 +100,7 @@ public class EventDB {
     /**
      * See <a href="http://stackoverflow.com/questions/7510219/deleting-row-in-sqlite-in-android">Delete row in SQLite</a>
      */
-    public boolean removeEvent(int id) {
+    public boolean deleteEvent(int id) {
         String table = EventContract.EventEntry.TABLE_NAME;
         String whereClause = "_id" + "=?";
         String[] whereArgs = new String[] { String.valueOf(id) };
@@ -119,55 +119,7 @@ public class EventDB {
         }
     }
 
-    public List<String> queryLatestEvent(int max) {
-        List<String> results = new ArrayList<>();
-        Cursor cursor = null;
-        try {
-            cursor = mDB.query(true,
-                    EventContract.EventEntry.TABLE_NAME,
-                    new String[] {EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
-                    null, null,
-                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
-        } catch (SQLiteException e) {
-            Log.w(TAG, "[queryLatestEvent] exception during db query");
-        }
-
-        if (cursor == null) return results;
-        try {
-            int count = 0;
-            while (count < max && cursor.moveToNext()) {
-                int mainType = cursor.getInt(0);
-                int subType = cursor.getInt(1);
-                String typeStr = EventContract.EventEntry.getTypeStr(mainType, subType);
-                String startTimeStr = cursor.getString(2);
-                String endTimeStr = cursor.getString(3);
-                int duration = cursor.getInt(4);
-                int amount = cursor.getInt(5);
-                Calendar startTime = TimeUtils.unflattenEventTime(startTimeStr);
-                Calendar endTime = TimeUtils.unflattenEventTime(endTimeStr);
-
-                final String OUTPUT_DATE_TIME_FORMAT = "HH:mm:ss.SSS";
-                String outStartTimeStr = TimeUtils.flattenCalendarTimeSafely(startTime, OUTPUT_DATE_TIME_FORMAT);
-                String outEndTimeStr = TimeUtils.flattenCalendarTimeSafely(endTime, OUTPUT_DATE_TIME_FORMAT);
-                String logText = String.format("Event: %s, start: %s, end: %s, duration: %d", typeStr, startTimeStr, endTimeStr, duration);
-                String display = String.format("%s:\t%s - %s (%dms, amt:%d)\n", typeStr, outStartTimeStr, outEndTimeStr, duration, amount);
-                Log.d(TAG, logText);
-                results.add(display);
-                count++;
-            }
-        } finally {
-            cursor.close();
-        }
-
-        return results;
-    }
-
-//    public Cursor queryRecords(Date date, int mainType) {
+//    public Cursor queryEventsForMainType(Date date, int mainType) {
 //        Cursor cursor = null;
 //        cursor = mDB.query(true,
 //                EventContract.EventEntry.TABLE_NAME,
@@ -184,15 +136,24 @@ public class EventDB {
 //                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
 //                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
 //                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
-//                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ?", new String[] {Integer.toString(mainType)},
-//                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+//                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
+//                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME +
+//                            " BETWEEN ? AND ?", new String[] { Integer.toString(mainType) },
+//                    null,
+//                    null,
+//                    EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+//
 //        } catch (SQLiteException e) {
-//            Log.w(TAG, "[listRecords] exception during db query");
+//            Log.w(TAG, "[queryAllEvents] exception during db query");
 //        }
 //        return cursor;
 //    }
 
-    public Cursor listRecords() {
+
+    /**
+     * Query all events in db, for RecordLoader.
+     */
+    public Cursor queryAllEvents() {
         Cursor cursor = null;
         try {
             cursor = mDB.query(true,
@@ -207,7 +168,7 @@ public class EventDB {
                     null, null,
                     null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
         } catch (SQLiteException e) {
-            Log.w(TAG, "[listRecords] exception during db query");
+            Log.w(TAG, "[queryAllEvents] exception during db query");
         }
         return cursor;
     }
@@ -216,7 +177,7 @@ public class EventDB {
         mDB.execSQL(EventContract.SQL_DROP_TABLE);
     }
 
-    public void clearEvents() {
+    public void clearAllEvents() {
         mDB.delete(EventContract.EventEntry.TABLE_NAME, null, null);
     }
 
@@ -226,29 +187,21 @@ public class EventDB {
      * @param mainType: the query type for events
      * @return: the Calendar object representing the occurence time
      */
-    public Calendar queryLatestTimeForType(int mainType) {
-        Calendar result = null;
+    public long queryLatestTimeForMainType(int mainType) {
+        try (
+            Cursor cursor = mDB.query(true,
+                EventContract.EventEntry.TABLE_NAME,
+                new String[] {EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
+                EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?", new String[] {Integer.toString(mainType)},
+                null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null)) {
 
-        Cursor cursor = null;
-        try {
-            cursor = mDB.query(true,
-                    EventContract.EventEntry.TABLE_NAME,
-                    new String[] {EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
-                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?", new String[] {Integer.toString(mainType)},
-                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+            if (cursor != null && cursor.moveToNext()) {
+                return cursor.getLong(0);
+            }
+
         } catch (SQLiteException e) {
             Log.w(TAG, "[queryLatestEvent] exception during db query");
         }
-
-        if (cursor != null && cursor.moveToNext()) {
-            try {
-                String endTimeStr = cursor.getString(0);
-                result = TimeUtils.unflattenEventTime(endTimeStr);
-            } finally {
-                cursor.close();
-            }
-        }
-
-        return result;
+        return 0;
     }
 }

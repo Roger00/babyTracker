@@ -144,7 +144,6 @@ public class EventContract {
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     // SQL statements
-    private static final String TEXT_TYPE = " TEXT";
     private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
     public static final String SQL_CREATE_ENTRIES =
@@ -152,8 +151,8 @@ public class EventContract {
                     EventEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_TYPE + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_SUBTYPE + INT_TYPE + COMMA_SEP +
-                    EventEntry.COLUMN_NAME_EVENT_START_TIME + TEXT_TYPE + COMMA_SEP +
-                    EventEntry.COLUMN_NAME_EVENT_END_TIME + TEXT_TYPE + COMMA_SEP +
+                    EventEntry.COLUMN_NAME_EVENT_START_TIME + INT_TYPE + COMMA_SEP +
+                    EventEntry.COLUMN_NAME_EVENT_END_TIME + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_DURATION + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_AMOUNT + INT_TYPE + COMMA_SEP +
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +

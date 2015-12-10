@@ -70,13 +70,13 @@ public class MainFragment extends Fragment {
 
         mManager = new SwipeButtonHandler(this);
         ViewGroup menu = (ViewGroup) rootView.findViewById(R.id.main_menu);
-        mManager.setMenuPanel(menu);
+
         for (SwipeButton btn : getSwipeButtons(menu)) {
             btn.setHandler(mManager);
         }
 
-//        ViewGroup lastInfoPanel = (ViewGroup) rootView.findViewById(R.id.lastInfoPanel);
-//        mManager.setLastInfoPanel(lastInfoPanel);
+        ViewGroup lastInfoPanel = (ViewGroup) rootView.findViewById(R.id.lastInfoPanel);
+        mManager.setLastInfoPanel(lastInfoPanel);
 
         ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
         mManager.setInfoPanel(infoPanel);
@@ -102,7 +102,6 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onResume() {
-        Log.d("xxxxx", "onResume");
         super.onResume();
         mManager.startTimeTicker();
         mManager.refreshAll();

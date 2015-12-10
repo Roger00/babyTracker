@@ -1,7 +1,6 @@
 package com.rnfstudio.babytracker.db;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -51,8 +50,8 @@ public class Event {
     private int mId;
     private int mType;
     private int mSubType;
-    private Calendar mStartTime;
-    private Calendar mEndTime;
+    private long mStartTime;
+    private long mEndTime;
     private long mDuration;
     private int mAmount;
 
@@ -63,8 +62,8 @@ public class Event {
         int id = c.getInt(EventContract.EventQuery.EVENT_ID);
         int type = c.getInt(EventContract.EventQuery.EVENT_TYPE);
         int subType = c.getInt(EventContract.EventQuery.EVENT_SUBTYPE);
-        Calendar startTime = TimeUtils.unflattenEventTime((c.getString(EventContract.EventQuery.EVENT_START_TIME)));
-        Calendar endTime = TimeUtils.unflattenEventTime((c.getString(EventContract.EventQuery.EVENT_END_TIME)));
+        long startTime = c.getLong(EventContract.EventQuery.EVENT_START_TIME);
+        long endTime = c.getLong(EventContract.EventQuery.EVENT_END_TIME);
         long duration = c.getLong(EventContract.EventQuery.EVENT_DURATION);
         int amount = c.getInt(EventContract.EventQuery.EVENT_AMOUNT);
 
@@ -75,8 +74,8 @@ public class Event {
         int id = extras.getInt(EXTRA_EVENT_ID, 0);
         int type = extras.getInt(EXTRA_EVENT_TYPE, 0);
         int subType = extras.getInt(EXTRA_EVENT_SUBTYPE, 0);
-        Calendar startTime = TimeUtils.unflattenEventTime(extras.getString(EXTRA_EVENT_START_TIME));
-        Calendar endTime = TimeUtils.unflattenEventTime(extras.getString(EXTRA_EVENT_END_TIME));
+        long startTime = extras.getLong(EXTRA_EVENT_START_TIME);
+        long endTime = extras.getLong(EXTRA_EVENT_END_TIME);
         long duration = extras.getLong(EXTRA_EVENT_DURATION, 0);
         int amount = extras.getInt(EXTRA_EVENT_AMOUNT, 0);
 
@@ -85,7 +84,7 @@ public class Event {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    private Event(int id, int type, int subType, Calendar startTime, Calendar endTime, long durationInMilliSec, int amountInMilliLiter) {
+    private Event(int id, int type, int subType, long startTime, long endTime, long durationInMilliSec, int amountInMilliLiter) {
         mId = id;
         mType = type;
         mSubType = subType;
@@ -103,8 +102,8 @@ public class Event {
         bundle.putInt(EXTRA_EVENT_ID, mId);
         bundle.putInt(EXTRA_EVENT_TYPE, mType);
         bundle.putInt(EXTRA_EVENT_SUBTYPE, mSubType);
-        bundle.putString(EXTRA_EVENT_START_TIME, TimeUtils.flattenEventTime(mStartTime));
-        bundle.putString(EXTRA_EVENT_END_TIME, TimeUtils.flattenEventTime(mEndTime));
+        bundle.putLong(EXTRA_EVENT_START_TIME, mStartTime);
+        bundle.putLong(EXTRA_EVENT_END_TIME, mEndTime);
         bundle.putLong(EXTRA_EVENT_DURATION, mDuration);
         bundle.putInt(EXTRA_EVENT_AMOUNT, mAmount);
 
@@ -124,7 +123,7 @@ public class Event {
         int hours = TimeUtils.getRemainHours(durationInSec);
         int days = TimeUtils.getRemainDays(durationInSec);
 
-        String duration = "";
+        String duration;
         if (days > 0) {
             duration =  res.getQuantityString(R.plurals.duration_info_days, days, days, hours);
         } else if (hours > 0) {
@@ -148,11 +147,15 @@ public class Event {
     }
 
     public Calendar getStartTimeCopy() {
-        return (Calendar) mStartTime.clone();
+        Calendar startTime = Calendar.getInstance();
+        startTime.setTimeInMillis(mStartTime);
+        return startTime;
     }
 
     public Calendar getEndTimeCopy() {
-        return (Calendar) mEndTime.clone();
+        Calendar endTime = Calendar.getInstance();
+        endTime.setTimeInMillis(mEndTime);
+        return endTime;
     }
 
     public int getAmount() {
@@ -174,7 +177,7 @@ public class Event {
 
     public boolean writeDB(Context context, boolean createEndTime) {
         EventDB db = MainApplication.getEventDatabase(context);
-        if (createEndTime) mEndTime = Calendar.getInstance();
+        if (createEndTime) mEndTime = Calendar.getInstance().getTimeInMillis();
 
         Log.v(TAG, "[writeDB] startTime: " + mStartTime);
         Log.v(TAG, "[writeDB] endTime: " + mEndTime);
@@ -184,7 +187,7 @@ public class Event {
 
     public boolean removeFromDB(Context context) {
         EventDB db = MainApplication.getEventDatabase(context);
-        return db.removeEvent(mId);
+        return db.deleteEvent(mId);
     }
 
     public void setEventType(String typeStr) {
@@ -197,32 +200,52 @@ public class Event {
     }
 
     public void setStartDate(int year, int month, int day) {
-        mStartTime.set(year, month, day);
-        setDuration();
+        Calendar newTime = Calendar.getInstance();
+        newTime.setTimeInMillis(mStartTime);
+        newTime.set(year, month, day);
+
+        mStartTime = newTime.getTimeInMillis();
+
+        updateDuration();
     }
 
     public void setStartTime(int hour, int minute) {
-        mStartTime.set(Calendar.HOUR_OF_DAY, hour);
-        mStartTime.set(Calendar.MINUTE, minute);
-        setDuration();
+        Calendar newTime = Calendar.getInstance();
+        newTime.setTimeInMillis(mStartTime);
+        newTime.set(Calendar.HOUR_OF_DAY, hour);
+        newTime.set(Calendar.MINUTE, minute);
+
+        mStartTime = newTime.getTimeInMillis();
+
+        updateDuration();
     }
 
     public void setEndDate(int year, int month, int day) {
-        mEndTime.set(year, month, day);
-        setDuration();
+        Calendar newTime = Calendar.getInstance();
+        newTime.setTimeInMillis(mEndTime);
+        newTime.set(year, month, day);
+
+        mEndTime = newTime.getTimeInMillis();
+
+        updateDuration();
     }
 
     public void setEndTime(int hour, int minute) {
-        mEndTime.set(Calendar.HOUR_OF_DAY, hour);
-        mEndTime.set(Calendar.MINUTE, minute);
-        setDuration();
+        Calendar newTime = Calendar.getInstance();
+        newTime.setTimeInMillis(mEndTime);
+        newTime.set(Calendar.HOUR_OF_DAY, hour);
+        newTime.set(Calendar.MINUTE, minute);
+
+        mEndTime = newTime.getTimeInMillis();
+
+        updateDuration();
     }
 
     public long calculateDuration() {
-        return mEndTime.getTimeInMillis() - mStartTime.getTimeInMillis();
+        return mEndTime - mStartTime;
     }
 
-    private void setDuration() {
+    private void updateDuration() {
         setDuration(calculateDuration());
     }
 
