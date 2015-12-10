@@ -124,4 +124,16 @@ public class TimeUtils {
     public static String flattenEventTime(Calendar c) {
         return flattenCalendarTimeSafely(c, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
     }
+
+    public static long getTodayMidnightInMillis() {
+        Calendar time = Calendar.getInstance();
+        time.set(Calendar.HOUR_OF_DAY, 0);
+        time.set(Calendar.MINUTE, 0);
+        time.set(Calendar.MILLISECOND, 0);
+        return time.getTimeInMillis();
+    }
+
+    public static long getTomorrowMidnightInMillis() {
+        return getTodayMidnightInMillis() + 86400000;
+    }
 }

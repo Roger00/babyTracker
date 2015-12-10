@@ -10,10 +10,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -89,6 +86,10 @@ public class CircleView extends View {
         mDataPairs.add(new Pair<>(new Float(180), new Float(190)));
         mDataPairs.add(new Pair<>(new Float(240), new Float(270)));
         mDataPairs.add(new Pair<>(new Float(299), new Float(350)));
+    }
+
+    public void setData(List<Pair<Float, Float>> data) {
+        mDataPairs = data;
     }
 
     @Override

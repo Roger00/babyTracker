@@ -154,7 +154,7 @@ public class EventDB {
      * Query all events in db, for RecordLoader.
      */
     public Cursor queryAllEvents() {
-        Cursor cursor = null;
+        Cursor cursor;
         try {
             cursor = mDB.query(true,
                     EventContract.EventEntry.TABLE_NAME,
@@ -167,11 +167,43 @@ public class EventDB {
                             EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
                     null, null,
                     null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
-        } catch (SQLiteException e) {
-            Log.w(TAG, "[queryAllEvents] exception during db query");
+
+            return cursor;
+
+        } catch (SQLiteException se) {
+            Log.w(TAG, "[queryAllEvents] exception during db query: " + se.toString());
         }
-        return cursor;
+
+        return null;
     }
+
+    public Cursor queryEventsForMainTypeAndPeriod(int mainType, long from, long to) {
+        Cursor cursor;
+
+        try {
+            cursor = mDB.query(true,
+                    EventContract.EventEntry.TABLE_NAME,
+                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ?",
+                    new String[] {Integer.toString(mainType), Long.toString(from), Long.toString(to)},
+                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+
+            return cursor;
+
+        } catch (SQLiteException e) {
+            Log.w(TAG, "[queryLatestEvent] exception during db query");
+        }
+
+        return null;
+    }
+
 
     public void dropTable() {
         mDB.execSQL(EventContract.SQL_DROP_TABLE);
@@ -185,7 +217,7 @@ public class EventDB {
      * Query the latest occurrence time for events
      *
      * @param mainType: the query type for events
-     * @return: the Calendar object representing the occurence time
+     * @return: the occurence time in milli-second since epoch
      */
     public long queryLatestTimeForMainType(int mainType) {
         try (
@@ -202,6 +234,7 @@ public class EventDB {
         } catch (SQLiteException e) {
             Log.w(TAG, "[queryLatestEvent] exception during db query");
         }
+
         return 0;
     }
 }

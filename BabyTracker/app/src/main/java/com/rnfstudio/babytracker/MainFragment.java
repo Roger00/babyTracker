@@ -2,21 +2,26 @@ package com.rnfstudio.babytracker;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
+import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.CircleAngleAnimation;
 import com.rnfstudio.babytracker.utility.CircleView;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
+import com.rnfstudio.babytracker.utility.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,23 +111,52 @@ public class MainFragment extends Fragment {
         mManager.startTimeTicker();
         mManager.refreshAll();
 
-        mCircle.setAngle(0);
-        mAnimation = new CircleAngleAnimation(mCircle, 360);
-        mAnimation.setDuration(2500);
-        mCircle.startAnimation(mAnimation);
-
-        new AsyncTask<Void, Void, Void>() {
+        // TODO: 1. create inner class and use composition for data adapter
+        // 2. create manager or loader class for this type of querying
+        // 3. load event, store event, calculate time segments, and set data to circle view
+        // 4. remember to use composition when i want to add features to the original circle view
+        new AsyncTask<Void, Void, List<Pair<Float, Float>>>() {
 
             @Override
-            protected Void doInBackground(Void... params) {
+            protected List<Pair<Float, Float>> doInBackground(Void... params) {
                 EventDB db = MainApplication.getEventDatabase(getActivity());
-//                db.queryLatestEvent()
-                return null;
+                List<Pair<Float, Float>> dataPairs = new ArrayList<>();
+
+                try (
+                    Cursor cursor = db.queryEventsForMainTypeAndPeriod(EventContract.EventEntry.EVENT_TYPE_SLEEP,
+                            TimeUtils.getTodayMidnightInMillis(),
+                            TimeUtils.getTomorrowMidnightInMillis())) {
+
+                    if (cursor == null) {
+                        Log.w(TAG, "fail to query events for circle view");
+                        return null;
+                    }
+
+                    long todayStartSecond = TimeUtils.getTodayMidnightInMillis() / 1000;
+
+                    while (cursor.moveToNext()) {
+                        long startTime = cursor.getLong(EventContract.EventQuery.EVENT_START_TIME) / 1000;
+                        long duration = cursor.getLong(EventContract.EventQuery.EVENT_DURATION) / 1000;
+                        Float startOffset = ((float) startTime - todayStartSecond) / 86400 * 360;
+                        Float endOffset = (float) duration / 86400 * 360 + startOffset;
+
+                        dataPairs.add(new Pair<>(startOffset, endOffset));
+                    }
+                }
+
+                return dataPairs;
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
+            protected void onPostExecute(List<Pair<Float, Float>> circleViewData) {
+                super.onPostExecute(circleViewData);
+
+                mCircle.setData(circleViewData);
+
+                mCircle.setAngle(0);
+                mAnimation = new CircleAngleAnimation(mCircle, 360);
+                mAnimation.setDuration(2500);
+                mCircle.startAnimation(mAnimation);
             }
 
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
