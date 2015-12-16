@@ -125,6 +125,10 @@ public class TimeUtils {
         return flattenCalendarTimeSafely(c, EventContract.EventEntry.SIMPLE_DATE_TIME_FORMAT);
     }
 
+    public static long getYesterdayMidnightInMillis() {
+        return getTodayMidnightInMillis() - 86400000;
+    }
+
     public static long getTodayMidnightInMillis() {
         Calendar time = Calendar.getInstance();
         time.set(Calendar.HOUR_OF_DAY, 0);
@@ -135,5 +139,13 @@ public class TimeUtils {
 
     public static long getTomorrowMidnightInMillis() {
         return getTodayMidnightInMillis() + 86400000;
+    }
+
+    public static long getTodayAMStartMillis() {
+        return getTodayMidnightInMillis();
+    }
+
+    public static long getTodayPMStartMillis() {
+        return getTodayAMStartMillis() + 43200000;
     }
 }

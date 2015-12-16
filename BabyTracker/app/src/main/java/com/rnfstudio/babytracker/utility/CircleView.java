@@ -10,6 +10,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 
+import com.rnfstudio.babytracker.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
+    public static final String TAG = "CircleView";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -49,7 +52,7 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    private static final int START_ANGLE_POINT = 0;
+    private static final int START_ANGLE_POINT = 270;
 
     private final Paint paint;
     private final RectF rect;
@@ -60,7 +63,8 @@ public class CircleView extends View {
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        final int strokeWidth = 30;
+        int size = (int) context.getResources().getDimension(R.dimen.circle_view_inner_size);
+        int strokeWidth = (int) context.getResources().getDimension(R.dimen.circle_view_stroke_width);
 
         paint = new Paint();
         paint.setAntiAlias(true);
@@ -69,8 +73,7 @@ public class CircleView extends View {
         //Circle color
         paint.setColor(Color.RED);
 
-        //size 200x200 example
-        rect = new RectF(strokeWidth, strokeWidth, 300 + strokeWidth, 300 + strokeWidth);
+        rect = new RectF(strokeWidth, strokeWidth, size + strokeWidth, size + strokeWidth);
 
         //Initial Angle (optional, it can be zero)
         angle = START_ANGLE_POINT;
@@ -90,6 +93,20 @@ public class CircleView extends View {
 
     public void setData(List<Pair<Float, Float>> data) {
         mDataPairs = data;
+
+        dumpData();
+
+    }
+
+    public void dumpData() {
+        if (mDataPairs == null) {
+            Log.d(TAG, "dumpData: data is null");
+            return;
+        }
+
+        for (Pair<Float, Float> p : mDataPairs) {
+            Log.d(TAG, "dumpData: start: " + p.first + ", end: " + p.second);
+        }
     }
 
     @Override
@@ -100,6 +117,10 @@ public class CircleView extends View {
         paint.setColor(Color.GRAY);
         canvas.drawArc(rect, START_ANGLE_POINT, 360, false, paint);
 
+        if (mDataPairs == null) {
+            return;
+        }
+
         // draw data
         paint.setColor(Color.RED);
         for (Pair<Float, Float> p : mDataPairs) {
@@ -109,7 +130,7 @@ public class CircleView extends View {
             float endAngle = p.second > angle ? angle : p.second;
             float sweepAngle = endAngle - startAngle;
 
-            canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+            canvas.drawArc(rect, START_ANGLE_POINT + startAngle, sweepAngle, false, paint);
         }
     }
 

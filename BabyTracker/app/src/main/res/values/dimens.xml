@@ -21,4 +21,7 @@
     <dimen name="milk_picker_button_margin">10dp</dimen>
 
     <dimen name="record_edit_row_margin">10dp</dimen>
+    <dimen name="circle_view_inner_size">230dp</dimen>
+    <dimen name="circle_view_total_size">254dp</dimen>
+    <dimen name="circle_view_stroke_width">12dp</dimen>
 </resources>

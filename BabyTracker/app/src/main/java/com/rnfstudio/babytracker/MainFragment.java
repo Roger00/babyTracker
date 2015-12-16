@@ -3,10 +3,9 @@ package com.rnfstudio.babytracker;
 import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -14,7 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 
-import com.rnfstudio.babytracker.db.Event;
+import android.support.v4.view.ViewPager;
+
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.CircleAngleAnimation;
@@ -55,6 +55,8 @@ public class MainFragment extends Fragment {
     private SwipeButtonHandler mManager;
     private CircleView mCircle;
     private Animation mAnimation;
+    private ViewPager mPager;
+    private PagerAdapter mPagerAdapter;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -86,7 +88,12 @@ public class MainFragment extends Fragment {
         ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
         mManager.setInfoPanel(infoPanel);
 
-        mCircle = (CircleView) rootView.findViewById(R.id.circle);
+//        mCircle = (CircleView) rootView.findViewById(R.id.circle);
+
+        // Instantiate a ViewPager and a PagerAdapter.
+        mPager = (ViewPager) rootView.findViewById(R.id.pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getActivity());
+        mPager.setAdapter(mPagerAdapter);
 
         return rootView;
     }
@@ -122,23 +129,35 @@ public class MainFragment extends Fragment {
                 EventDB db = MainApplication.getEventDatabase(getActivity());
                 List<Pair<Float, Float>> dataPairs = new ArrayList<>();
 
+
+                long todayAMStart = TimeUtils.getTodayAMStartMillis();
+                long todayPMStart = todayAMStart + 43200000;
+                long yesterdayPMStart = todayAMStart - 43200000;
+
                 try (
                     Cursor cursor = db.queryEventsForMainTypeAndPeriod(EventContract.EventEntry.EVENT_TYPE_SLEEP,
-                            TimeUtils.getTodayMidnightInMillis(),
-                            TimeUtils.getTomorrowMidnightInMillis())) {
+                            yesterdayPMStart,
+                            todayPMStart)) {
 
                     if (cursor == null) {
                         Log.w(TAG, "fail to query events for circle view");
                         return null;
                     }
 
-                    long todayStartSecond = TimeUtils.getTodayMidnightInMillis() / 1000;
-
                     while (cursor.moveToNext()) {
-                        long startTime = cursor.getLong(EventContract.EventQuery.EVENT_START_TIME) / 1000;
-                        long duration = cursor.getLong(EventContract.EventQuery.EVENT_DURATION) / 1000;
-                        Float startOffset = ((float) startTime - todayStartSecond) / 86400 * 360;
-                        Float endOffset = (float) duration / 86400 * 360 + startOffset;
+                        long startTime = cursor.getLong(EventContract.EventQuery.EVENT_START_TIME);
+                        long endTime = cursor.getLong(EventContract.EventQuery.EVENT_END_TIME);
+
+                        // only interested in today's part
+                        if (startTime < todayAMStart) {
+                            startTime = todayAMStart;
+                        }
+                        if (endTime > todayPMStart) {
+                            endTime = todayPMStart;
+                        }
+
+                        Float startOffset = ((float) startTime - todayAMStart) / 43200000 * 360;
+                        Float endOffset = ((float) endTime - todayAMStart) / 43200000 * 360;
 
                         dataPairs.add(new Pair<>(startOffset, endOffset));
                     }
@@ -151,12 +170,12 @@ public class MainFragment extends Fragment {
             protected void onPostExecute(List<Pair<Float, Float>> circleViewData) {
                 super.onPostExecute(circleViewData);
 
-                mCircle.setData(circleViewData);
-
-                mCircle.setAngle(0);
-                mAnimation = new CircleAngleAnimation(mCircle, 360);
-                mAnimation.setDuration(2500);
-                mCircle.startAnimation(mAnimation);
+//                mCircle.setData(circleViewData);
+//
+//                mCircle.setAngle(0);
+//                mAnimation = new CircleAngleAnimation(mCircle, 360);
+//                mAnimation.setDuration(2500);
+//                mCircle.startAnimation(mAnimation);
             }
 
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
