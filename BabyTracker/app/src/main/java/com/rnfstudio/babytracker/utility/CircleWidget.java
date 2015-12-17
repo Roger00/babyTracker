@@ -76,10 +76,6 @@ public class CircleWidget implements CircleView.OnCircleTouchListener {
         // 2. update info panel
         // 3. make circle draw highlights -> this can be done by circle itself
         mInfoPanel.setText(String.format("D:%.2f, A: %.2f", (float)index, 11.5));
-
-        // send haptic feedback
-        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(20);
     }
 
     public void setCircleData(List<Pair<Float, Float>> circleViewData) {

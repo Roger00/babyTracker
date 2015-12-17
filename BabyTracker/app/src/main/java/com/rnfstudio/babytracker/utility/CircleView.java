@@ -1,10 +1,12 @@
 package com.rnfstudio.babytracker.utility;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
@@ -59,6 +61,8 @@ public class CircleView extends View {
     private static final int START_ANGLE_POINT = 270;
     private static float size = 0;
     private static float strokeWidth = 0;
+    private static float strokeWidthNormal = 0;
+    private static float strokeWidthTouched = 0;
     private static float innerRadius = 0;
     private static float outerRadius = 0;
 
@@ -73,10 +77,13 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
+    private final Context mContext;
     private final Paint paint;
     private final RectF rect;
     private float angle;
     private Animation mAnimation;
+    private ValueAnimator mStrokeWidthAnim;
+    private boolean mCircleTouched = false;
 
     private List<Pair<Float, Float>> mDataPairs = new ArrayList<>();
     private List<OnCircleTouchListener> mListeners = new ArrayList<>();
@@ -95,8 +102,11 @@ public class CircleView extends View {
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        mContext = context;
         size = context.getResources().getDimension(R.dimen.circle_view_inner_size);
         strokeWidth = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
+        strokeWidthNormal = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
+        strokeWidthTouched = context.getResources().getDimension(R.dimen.circle_view_stroke_width_touched);
         innerRadius = getResources().getDimension(R.dimen.circle_view_touch_inner_radius);
         outerRadius = getResources().getDimension(R.dimen.circle_view_touch_outer_radius);
 
@@ -105,7 +115,7 @@ public class CircleView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(strokeWidth);
         paint.setColor(Color.RED);
-        rect = new RectF(strokeWidth, strokeWidth, size + strokeWidth, size + strokeWidth);
+        rect = new RectF(strokeWidthTouched, strokeWidthTouched, size + strokeWidthTouched, size + strokeWidthTouched);
         angle = START_ANGLE_POINT;
 
         initialize();
@@ -116,6 +126,8 @@ public class CircleView extends View {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+
                 // decide gesture
                 float x = event.getX();
                 float y = event.getY();
@@ -125,11 +137,29 @@ public class CircleView extends View {
                 float distance = DirectionUtils.getDistance(x, y, centerX, centerY);
                 boolean touched = distance >= innerRadius && distance <= outerRadius;
 
+                if (action == MotionEvent.ACTION_UP ||
+                        action == MotionEvent.ACTION_CANCEL) {
+
+                    // cancel when previously touched
+                    boolean prevState = getCircleTouchState();
+                    if (prevState) {
+                        startStrokeAnim(true);
+                    }
+                    setCircleTouchState(false);
+
+                } else if (action == MotionEvent.ACTION_DOWN ||
+                        action == MotionEvent.ACTION_MOVE) {
+
+                    // update touch state
+                    setCircleTouchState(touched);
+                }
+
                 if (touched) {
                     for (OnCircleTouchListener listener : mListeners) {
                         listener.onCircleTouch((int) distance);
                     }
                 }
+
                 return true;
             }
         });
@@ -146,6 +176,19 @@ public class CircleView extends View {
         // animation
         mAnimation = new CircleAngleAnimation(this, 360);
         mAnimation.setDuration(2500);
+
+        // adapted from: https://gist.github.com/rogerpujol/99b3e8229b7a958d0930
+        mStrokeWidthAnim = ValueAnimator.ofFloat(strokeWidthNormal, strokeWidthTouched);
+        mStrokeWidthAnim.setDuration(200);
+        mStrokeWidthAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            public void onAnimationUpdate(ValueAnimator animation) {
+                Float value = (Float) animation.getAnimatedValue();
+                paint.setStrokeWidth(value.floatValue());
+                //Do whatever you need to to with the value and...
+                //Call invalidate if it's necessary to update the canvas
+                CircleView.this.invalidate();
+            }
+        });
     }
 
     public void setData(List<Pair<Float, Float>> data) {
@@ -211,8 +254,41 @@ public class CircleView extends View {
     }
 
     private void sendHapticFeedback() {
-
+        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(20);
     }
 
-    
+    public void setCircleTouchState(boolean touched) {
+        boolean prevState = mCircleTouched;
+        mCircleTouched = touched;
+
+        boolean enter = !prevState && touched;
+        boolean leave = prevState && !touched;
+
+        if (enter) {
+            sendHapticFeedback();
+        }
+
+        if (enter) {
+            startStrokeAnim(false);
+        } else if (leave) {
+            startStrokeAnim(true);
+        }
+    }
+
+    private boolean getCircleTouchState() {
+        return mCircleTouched;
+    }
+
+    private void startStrokeAnim(boolean reverse) {
+        if (mStrokeWidthAnim.isRunning()) {
+            mStrokeWidthAnim.cancel();
+        }
+
+        if (reverse) {
+            mStrokeWidthAnim.reverse();
+        } else {
+            mStrokeWidthAnim.start();
+        }
+    }
 }
