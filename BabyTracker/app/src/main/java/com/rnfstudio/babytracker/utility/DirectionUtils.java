@@ -1,7 +1,5 @@
 package com.rnfstudio.babytracker.utility;
 
-import android.util.Log;
-
 /**
  * Created by Roger on 2015/7/10.
  */
@@ -27,8 +25,16 @@ public class DirectionUtils {
         }
     }
 
+    public static float getDistance(float x1, float y1, float x2, float y2) {
+        return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
+    public static float getAngle(float x1, float y1, float x2, float y2) {
+        return getAngle(x1 - x2, y1 - y2);
+    }
+
     // refer to: http://stackoverflow.com/questions/9970281/java-calculating-the-angle-between-two-points-in-degrees
-    public static float getAngle(int diffX, int diffY) {
+    public static float getAngle(float diffX, float diffY) {
         float angle = (float) Math.toDegrees(Math.atan2(diffY, diffX));
 
         if(angle < 0){

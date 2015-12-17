@@ -8,7 +8,10 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 
 import com.rnfstudio.babytracker.R;
 
@@ -23,11 +26,41 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
+    class CircleAngleAnimation extends Animation {
+        private CircleView circle;
+
+        private float oldAngle;
+        private float newAngle;
+
+        public CircleAngleAnimation(CircleView circle, int newAngle) {
+            this.oldAngle = circle.getAngle();
+            this.newAngle = newAngle;
+            this.circle = circle;
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation transformation) {
+            float angle = oldAngle + ((newAngle - oldAngle) * interpolatedTime);
+
+            circle.setAngle(angle);
+            circle.requestLayout();
+        }
+    }
+
+    interface OnCircleTouchListener {
+        void onCircleTouch(int index);
+    }
 
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     public static final String TAG = "CircleView";
+
+    private static final int START_ANGLE_POINT = 270;
+    private static float size = 0;
+    private static float strokeWidth = 0;
+    private static float innerRadius = 0;
+    private static float outerRadius = 0;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -40,6 +73,13 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
+    private final Paint paint;
+    private final RectF rect;
+    private float angle;
+    private Animation mAnimation;
+
+    private List<Pair<Float, Float>> mDataPairs = new ArrayList<>();
+    private List<OnCircleTouchListener> mListeners = new ArrayList<>();
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -52,36 +92,49 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
-    private static final int START_ANGLE_POINT = 270;
-
-    private final Paint paint;
-    private final RectF rect;
-
-    private float angle;
-    private List<Pair<Float, Float>> mDataPairs;
-
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        int size = (int) context.getResources().getDimension(R.dimen.circle_view_inner_size);
-        int strokeWidth = (int) context.getResources().getDimension(R.dimen.circle_view_stroke_width);
+        size = context.getResources().getDimension(R.dimen.circle_view_inner_size);
+        strokeWidth = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
+        innerRadius = getResources().getDimension(R.dimen.circle_view_touch_inner_radius);
+        outerRadius = getResources().getDimension(R.dimen.circle_view_touch_outer_radius);
 
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(strokeWidth);
-        //Circle color
         paint.setColor(Color.RED);
-
         rect = new RectF(strokeWidth, strokeWidth, size + strokeWidth, size + strokeWidth);
-
-        //Initial Angle (optional, it can be zero)
         angle = START_ANGLE_POINT;
 
-        initData();
+        initialize();
     }
 
-    private void initData() {
+    private void initialize() {
+        this.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // decide gesture
+                float x = event.getX();
+                float y = event.getY();
+                float centerX = rect.centerX();
+                float centerY = rect.centerY();
+                float angle = DirectionUtils.getAngle(x, y, centerX, centerY);
+                float distance = DirectionUtils.getDistance(x, y, centerX, centerY);
+                boolean touched = distance >= innerRadius && distance <= outerRadius;
+
+                if (touched) {
+                    for (OnCircleTouchListener listener : mListeners) {
+                        listener.onCircleTouch((int) distance);
+                    }
+                }
+                return true;
+            }
+        });
+
+        // default data
         mDataPairs = new ArrayList<>();
         mDataPairs.add(new Pair<>(new Float(0), new Float(20)));
         mDataPairs.add(new Pair<>(new Float(40), new Float(60)));
@@ -89,13 +142,15 @@ public class CircleView extends View {
         mDataPairs.add(new Pair<>(new Float(180), new Float(190)));
         mDataPairs.add(new Pair<>(new Float(240), new Float(270)));
         mDataPairs.add(new Pair<>(new Float(299), new Float(350)));
+
+        // animation
+        mAnimation = new CircleAngleAnimation(this, 360);
+        mAnimation.setDuration(2500);
     }
 
     public void setData(List<Pair<Float, Float>> data) {
         mDataPairs = data;
-
-        dumpData();
-
+        startAnimation(mAnimation);
     }
 
     public void dumpData() {
@@ -134,11 +189,30 @@ public class CircleView extends View {
         }
     }
 
-    public float getAngle() {
+    private float getAngle() {
         return angle;
     }
 
-    public void setAngle(float angle) {
+    private void setAngle(float angle) {
         this.angle = angle;
     }
+
+    public void addListener(OnCircleTouchListener listener) {
+        mListeners.add(listener);
+    }
+
+    public void removeListener(OnCircleTouchListener listener) {
+        if (mListeners.contains(listener)) {
+            mListeners.remove(listener);
+        }
+    }
+
+    private void showHighlight(boolean animated) {
+    }
+
+    private void sendHapticFeedback() {
+
+    }
+
+    
 }

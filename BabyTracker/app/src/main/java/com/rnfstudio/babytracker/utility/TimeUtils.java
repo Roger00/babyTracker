@@ -148,4 +148,10 @@ public class TimeUtils {
     public static long getTodayPMStartMillis() {
         return getTodayAMStartMillis() + 43200000;
     }
+
+    public static boolean isNowAM() {
+        long now = Calendar.getInstance().getTimeInMillis();
+        long todayAMStart = getTodayAMStartMillis();
+        return (now - todayAMStart) < 43200000;
+    }
 }
