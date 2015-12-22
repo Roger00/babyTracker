@@ -177,7 +177,7 @@ public class EventDB {
         return null;
     }
 
-    public Cursor queryEventsForMainTypeAndPeriod(int mainType, long from, long to) {
+    public Cursor queryEventsForMainTypeAndPeriod(int mainType, long startFrom, long startTo, long endFrom, long endTo) {
         Cursor cursor;
 
         try {
@@ -191,9 +191,11 @@ public class EventDB {
                             EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ?",
-                    new String[] {Integer.toString(mainType), Long.toString(from), Long.toString(to)},
-                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null);
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ? AND " +
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " BETWEEN ? AND ?",
+                    new String[] {Integer.toString(mainType), Long.toString(startFrom), Long.toString(startTo),
+                            Long.toString(endFrom), Long.toString(endTo)},
+                    null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " ASC", null);
 
             return cursor;
 

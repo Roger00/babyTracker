@@ -23,6 +23,8 @@ public class TimeUtils {
     private static final boolean DEBUG = true;
 
     public static final String TIME_FORMAT_HH_MM_SS = "HH:mm:ss";
+    public static final long DAY_IN_MILLIS = 86400000;
+    public static final long HALF_DAY_IN_MILLIS = 43200000;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -126,7 +128,7 @@ public class TimeUtils {
     }
 
     public static long getYesterdayMidnightInMillis() {
-        return getTodayMidnightInMillis() - 86400000;
+        return getTodayMidnightInMillis() - DAY_IN_MILLIS;
     }
 
     public static long getTodayMidnightInMillis() {
@@ -138,7 +140,7 @@ public class TimeUtils {
     }
 
     public static long getTomorrowMidnightInMillis() {
-        return getTodayMidnightInMillis() + 86400000;
+        return getTodayMidnightInMillis() + DAY_IN_MILLIS;
     }
 
     public static long getTodayAMStartMillis() {
@@ -146,12 +148,12 @@ public class TimeUtils {
     }
 
     public static long getTodayPMStartMillis() {
-        return getTodayAMStartMillis() + 43200000;
+        return getTodayAMStartMillis() + HALF_DAY_IN_MILLIS;
     }
 
     public static boolean isNowAM() {
         long now = Calendar.getInstance().getTimeInMillis();
         long todayAMStart = getTodayAMStartMillis();
-        return (now - todayAMStart) < 43200000;
+        return (now - todayAMStart) < HALF_DAY_IN_MILLIS;
     }
 }

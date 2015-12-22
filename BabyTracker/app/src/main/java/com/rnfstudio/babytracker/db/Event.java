@@ -115,9 +115,13 @@ public class Event {
     }
 
     public String getDisplayDuration(Context context) {
+        return getDisplayDuration(context, mDuration);
+    }
+
+    public static String getDisplayDuration(Context context, long durationInMillis) {
         Resources res = context.getResources();
 
-        int durationInSec = (int) (mDuration / 1000);
+        int durationInSec = (int) (durationInMillis / 1000);
         int secs = TimeUtils.getRemainSeconds(durationInSec);
         int mins = TimeUtils.getRemainMinutes(durationInSec);
         int hours = TimeUtils.getRemainHours(durationInSec);
@@ -144,6 +148,14 @@ public class Event {
 
     public String getTypeStr() {
         return EventContract.EventEntry.getTypeStr(mType, mSubType);
+    }
+
+    public long getStartTime() {
+        return mStartTime;
+    }
+
+    public long getEndTime() {
+        return mEndTime;
     }
 
     public Calendar getStartTimeCopy() {

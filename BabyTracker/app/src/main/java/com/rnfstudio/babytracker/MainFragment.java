@@ -12,13 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 import com.rnfstudio.babytracker.utility.CircleView;
 import com.rnfstudio.babytracker.utility.CircleWidget;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
-import com.rnfstudio.babytracker.utility.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,61 +109,36 @@ public class MainFragment extends Fragment {
         mManager.startTimeTicker();
         mManager.refreshAll();
 
-        // TODO: 1. create inner class and use composition for data adapter
-        // 2. create manager or loader class for this type of querying
-        // 3. load event, store event, calculate time segments, and set data to circle view
-        // 4. remember to use composition when i want to add features to the original circle view
-        new AsyncTask<Void, Void, List<Pair<Float, Float>>>() {
+        new AsyncTask<Void, Void, List<Event>>() {
 
             @Override
-            protected List<Pair<Float, Float>> doInBackground(Void... params) {
+            protected List<Event> doInBackground(Void... params) {
                 EventDB db = MainApplication.getEventDatabase(getActivity());
-                List<Pair<Float, Float>> dataPairs = new ArrayList<>();
 
-
-                long queryStart = TimeUtils.isNowAM() ? TimeUtils.getTodayAMStartMillis() :
-                            TimeUtils.getTodayPMStartMillis();
-                long queryEnd = queryStart + 43200000;
-                long queryAhead = queryStart - 43200000;
-
+                List<Event> events = new ArrayList<>();
                 try (
                     Cursor cursor = db.queryEventsForMainTypeAndPeriod(EventContract.EventEntry.EVENT_TYPE_SLEEP,
-                            queryAhead,
-                            queryEnd)) {
+                            CircleWidget.getQueryAheadTIme(),
+                            CircleWidget.getQueryEndTime(),
+                            CircleWidget.getQueryStartTime(),
+                            CircleWidget.getQueryEndTime())) {
 
-                    Log.w(TAG, "start quering data");
                     if (cursor == null) {
                         Log.w(TAG, "fail to query events for circle view");
                         return null;
                     }
 
                     while (cursor.moveToNext()) {
-                        long startTime = cursor.getLong(EventContract.EventQuery.EVENT_START_TIME);
-                        long endTime = cursor.getLong(EventContract.EventQuery.EVENT_END_TIME);
-
-                        // only interested in today's part
-                        if (startTime < queryStart) {
-                            startTime = queryStart;
-                        }
-                        if (endTime > queryEnd) {
-                            endTime = queryEnd;
-                        }
-
-                        Float startOffset = ((float) startTime - queryStart) / 43200000 * 360;
-                        Float endOffset = ((float) endTime - queryStart) / 43200000 * 360;
-
-                        dataPairs.add(new Pair<>(startOffset, endOffset));
+                        events.add(Event.createFromCursor(cursor));
                     }
                 }
 
-                return dataPairs;
+                return events;
             }
 
             @Override
-            protected void onPostExecute(List<Pair<Float, Float>> circleViewData) {
-                super.onPostExecute(circleViewData);
-                Log.w(TAG, "end quering data, " + circleViewData);
-                mCircleWidget.setCircleData(circleViewData);
+            protected void onPostExecute(List<Event> events) {
+                mCircleWidget.setEvents(events);
             }
 
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

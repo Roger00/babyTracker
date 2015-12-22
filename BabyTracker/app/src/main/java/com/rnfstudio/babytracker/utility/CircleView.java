@@ -58,6 +58,7 @@ public class CircleView extends View {
     // ------------------------------------------------------------------------
     public static final String TAG = "CircleView";
 
+    // the angle the drawing starts
     private static final int START_ANGLE_POINT = 270;
     private static float size = 0;
     private static float strokeWidth = 0;
@@ -65,6 +66,8 @@ public class CircleView extends View {
     private static float strokeWidthTouched = 0;
     private static float innerRadius = 0;
     private static float outerRadius = 0;
+
+    private static final int INDEX_NO_FOUND = -1;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -87,6 +90,7 @@ public class CircleView extends View {
 
     private List<Pair<Float, Float>> mDataPairs = new ArrayList<>();
     private List<OnCircleTouchListener> mListeners = new ArrayList<>();
+    private int mHighlightIndex = INDEX_NO_FOUND;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -116,7 +120,7 @@ public class CircleView extends View {
         paint.setStrokeWidth(strokeWidth);
         paint.setColor(Color.RED);
         rect = new RectF(strokeWidthTouched, strokeWidthTouched, size + strokeWidthTouched, size + strokeWidthTouched);
-        angle = START_ANGLE_POINT;
+        angle = 0;
 
         initialize();
     }
@@ -134,6 +138,7 @@ public class CircleView extends View {
                 float centerX = rect.centerX();
                 float centerY = rect.centerY();
                 float angle = DirectionUtils.getAngle(x, y, centerX, centerY);
+                float dataAngle = (angle - START_ANGLE_POINT + 360) % 360;
                 float distance = DirectionUtils.getDistance(x, y, centerX, centerY);
                 boolean touched = distance >= innerRadius && distance <= outerRadius;
 
@@ -155,8 +160,14 @@ public class CircleView extends View {
                 }
 
                 if (touched) {
+                    int dataIndex = searchDataIndex(dataAngle);
+
+                    // highlight selected data
+                    setHighlightedData(dataIndex);
+
+                    // notify listeners the highlighted data
                     for (OnCircleTouchListener listener : mListeners) {
-                        listener.onCircleTouch((int) distance);
+                        listener.onCircleTouch(dataIndex);
                     }
                 }
 
@@ -175,7 +186,7 @@ public class CircleView extends View {
 
         // animation
         mAnimation = new CircleAngleAnimation(this, 360);
-        mAnimation.setDuration(2500);
+        mAnimation.setDuration(1200);
 
         // adapted from: https://gist.github.com/rogerpujol/99b3e8229b7a958d0930
         mStrokeWidthAnim = ValueAnimator.ofFloat(strokeWidthNormal, strokeWidthTouched);
@@ -193,6 +204,7 @@ public class CircleView extends View {
 
     public void setData(List<Pair<Float, Float>> data) {
         mDataPairs = data;
+        setAngle(0);
         startAnimation(mAnimation);
     }
 
@@ -220,7 +232,7 @@ public class CircleView extends View {
         }
 
         // draw data
-        paint.setColor(Color.RED);
+        int index = 0;
         for (Pair<Float, Float> p : mDataPairs) {
             if (p.first > angle) break;
 
@@ -228,7 +240,10 @@ public class CircleView extends View {
             float endAngle = p.second > angle ? angle : p.second;
             float sweepAngle = endAngle - startAngle;
 
+            paint.setColor(mHighlightIndex == index ? Color.MAGENTA : Color.RED);
+
             canvas.drawArc(rect, START_ANGLE_POINT + startAngle, sweepAngle, false, paint);
+            index++;
         }
     }
 
@@ -250,7 +265,9 @@ public class CircleView extends View {
         }
     }
 
-    private void showHighlight(boolean animated) {
+    private void setHighlightedData(int index) {
+        mHighlightIndex = index;
+        requestLayout();
     }
 
     private void sendHapticFeedback() {
@@ -290,5 +307,20 @@ public class CircleView extends View {
         } else {
             mStrokeWidthAnim.start();
         }
+    }
+
+    private int searchDataIndex(float point) {
+        if (mDataPairs == null || mDataPairs.size() == 0) {
+            return INDEX_NO_FOUND;
+        }
+
+        for (int i = 0; i < mDataPairs.size(); i++) {
+            Pair<Float, Float> p = mDataPairs.get(i);
+            if (point >= p.first && point <= p.second) {
+                return i;
+            }
+        }
+
+        return INDEX_NO_FOUND;
     }
 }

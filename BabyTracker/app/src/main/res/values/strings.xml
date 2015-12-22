@@ -102,4 +102,8 @@
     <string name="delete_successful">Record deleted.</string>
     <string name="error_unknown">Unknown failure.</string>
 
+    <string name="circle_info_default_am">This morning:\n%s in total.</string>
+    <string name="circle_info_default_pm">This afternoon:\n%s in total.</string>
+    <string name="circle_info_default_add_data_hint">No data yet. How about adding a new one?</string>
+
 </resources>
