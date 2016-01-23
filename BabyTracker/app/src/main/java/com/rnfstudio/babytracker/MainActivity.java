@@ -20,15 +20,91 @@ import com.rnfstudio.babytracker.utility.SlidingTabLayout;
  * Modified from example:
  * http://developer.android.com/intl/zh-tw/training/implementing-navigation/lateral.html
  */
-
 public class MainActivity extends FragmentActivity {
-    DemoCollectionPagerAdapter mDemoCollectionPagerAdapter;
+    // ------------------------------------------------------------------------
+    // TYPES
+    // ------------------------------------------------------------------------
+    public static class SubCategoryPagerAdapter extends FragmentPagerAdapter {
+        private Context mContext;
 
-    public static final String TAG = "[MainActivity]";
+        private int[] imageResId = {
+                R.drawable.star_pressed_resized,
+                R.drawable.star_pressed_resized,
+                R.drawable.star_pressed_resized,
+                R.drawable.star_pressed_resized
+        };
 
+        public SubCategoryPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            Fragment fragment = i == TAB_ID_MAIN ? new MainFragment() : new SubCategoryFragment();
+
+            Bundle args = new Bundle();
+            args.putInt(SubCategoryFragment.ARG_TAB_ID, i);
+            fragment.setArguments(args);
+
+            return fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 4;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            Drawable image = mContext.getResources().getDrawable(imageResId[position]);
+            image.setBounds(0, 0, image.getIntrinsicWidth(), image.getIntrinsicHeight());
+            SpannableString sb = new SpannableString(" ");
+            ImageSpan imageSpan = new ImageSpan(image, ImageSpan.ALIGN_BOTTOM);
+            sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return sb;
+        }
+
+        public void setContext(Context context) {
+            mContext = context;
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // STATIC FIELDS
+    // ------------------------------------------------------------------------
+    private static final String TAG = "[MainActivity]";
+
+    public static final int TAB_ID_MAIN = 0;
+    public static final int TAB_ID_SLEEP = 1;
+    public static final int TAB_ID_MEAL = 2;
+    public static final int TAB_ID_DIAPER = 3;
+
+    // ------------------------------------------------------------------------
+    // STATIC INITIALIZERS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // STATIC METHODS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // FIELDS
+    // ------------------------------------------------------------------------
     ViewPager mViewPager;
+    SubCategoryPagerAdapter mSubCategoryPagerAdapter;
     SlidingTabLayout mSlidingTabLayout;
 
+    // ------------------------------------------------------------------------
+    // INITIALIZERS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // CONSTRUCTORS
+    // ------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------
+    // METHODS
+    // ------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState) {
         Log.v(TAG, "onCreate called");
 
@@ -39,82 +115,20 @@ public class MainActivity extends FragmentActivity {
 
         // ViewPager and its adapters use support library
         // fragments, so use getSupportFragmentManager.
-        mDemoCollectionPagerAdapter =
-                new DemoCollectionPagerAdapter(getSupportFragmentManager());
-        mDemoCollectionPagerAdapter.setContext(this);
+        mSubCategoryPagerAdapter =
+                new SubCategoryPagerAdapter(getSupportFragmentManager());
+        mSubCategoryPagerAdapter.setContext(this);
 
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mDemoCollectionPagerAdapter);
+        mViewPager.setAdapter(mSubCategoryPagerAdapter);
 
-        // Initialize the SlidingTabLayout. Note that the order is important. First init ViewPager and Adapter and only then init SlidingTabLayout
+        // Initialize the SlidingTabLayout. Note that the order is important.
+        // First init ViewPager and Adapter and only then init SlidingTabLayout
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setCustomTabView(R.layout.custom_tab, 0);
         mSlidingTabLayout.setViewPager(mViewPager);
-
-//        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                // This space for rent
-////                Log.d(TAG, String.format("[onPageScrolled] position: %d, positionOffset: %.1f, positionOffsetPixels: %d",
-////                        position, positionOffset, positionOffsetPixels));
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                // This space for rent
-//                Log.d(TAG, "[onPageSelected] position: " + position);
-//
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//                // This space for rent
-//                Log.d(TAG, "[onPageScrollStateChanged] state: " + state);
-//            }
-//        });
     }
 }
 
-class DemoCollectionPagerAdapter extends FragmentPagerAdapter {
-    private Context mContext;
-    private int[] imageResId = {
-            R.drawable.star_pressed_resized,
-            R.drawable.star_pressed_resized,
-            R.drawable.star_pressed_resized,
-            R.drawable.star_pressed_resized
-    };
 
-    public DemoCollectionPagerAdapter(FragmentManager fm) {
-        super(fm);
-    }
-
-    @Override
-    public Fragment getItem(int i) {
-        Fragment fragment = i == 0 ? new MainFragment() : new SubCategoryFragment();
-        Bundle args = new Bundle();
-        // Our object is just an integer :-P
-        args.putInt(SubCategoryFragment.ARG_OBJECT, i + 1);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public int getCount() {
-        return 4;
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-        Drawable image = mContext.getResources().getDrawable(imageResId[position]);
-        image.setBounds(0, 0, image.getIntrinsicWidth(), image.getIntrinsicHeight());
-        SpannableString sb = new SpannableString(" ");
-        ImageSpan imageSpan = new ImageSpan(image, ImageSpan.ALIGN_BOTTOM);
-        sb.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return sb;
-    }
-
-    public void setContext(Context context) {
-        mContext = context;
-    }
-}
 

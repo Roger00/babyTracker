@@ -4,6 +4,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
 
+import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
 
 /**
@@ -21,7 +22,11 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
-    public static final int LOADER_ID = 0;
+    public static final int LOADER_ID_DEFAULT = 0;
+    public static final int LOADER_ID_CIRCLE = 1;
+
+    public static final int QUERY_TYPE_ALL = 0;
+    public static final int QUERY_TYPE_CIRCLE = 1;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -35,6 +40,8 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     // FIELDS
     // ------------------------------------------------------------------------
     private Context mContext;
+    private int mMainType = EventContract.EventEntry.NO_TYPE;
+    private int mQueryType = QUERY_TYPE_ALL;
     private Cursor mCursor;
 
     // ------------------------------------------------------------------------
@@ -44,9 +51,18 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    public RecordLoader(Context context) {
+
+    /**
+     * Constructs RecordLoader instance
+     *
+     * @param queryType: type of query you want to perform. E.g., all events or today events
+     * @param mainType: main type of events you want to query. E.g., sleep, meal or diaper
+     */
+    public RecordLoader(Context context, int queryType, int mainType) {
         super(context);
         mContext = context;
+        mQueryType = queryType;
+        mMainType = mainType;
     }
 
     // ------------------------------------------------------------------------
@@ -56,7 +72,7 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public Cursor loadInBackground() {
         EventDB db = MainApplication.getEventDatabase(mContext);
-        mCursor = db.queryAllEvents();
+        mCursor = db.queryAllEvents(mMainType);
         return mCursor;
     }
 

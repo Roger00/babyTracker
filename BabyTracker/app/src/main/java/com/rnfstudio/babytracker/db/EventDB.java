@@ -152,10 +152,17 @@ public class EventDB {
 
     /**
      * Query all events in db, for RecordLoader.
+     *
+     * @param mainType: Query event type. Returns all events if not provided.
      */
-    public Cursor queryAllEvents() {
+    public Cursor queryAllEvents(int mainType) {
         Cursor cursor;
         try {
+            String selection = mainType == EventContract.EventEntry.NO_TYPE ?
+                    null : EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
+            String[] selectionArgs = mainType == EventContract.EventEntry.NO_TYPE ?
+                    null : new String[] {Integer.toString(mainType)};
+
             cursor = mDB.query(true,
                     EventContract.EventEntry.TABLE_NAME,
                     new String[] {EventContract.EventEntry.COLUMN_ID,
@@ -165,7 +172,7 @@ public class EventDB {
                             EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
-                    null, null,
+                    selection, selectionArgs,
                     null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC", null);
 
             return cursor;

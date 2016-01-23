@@ -1,6 +1,5 @@
 package com.rnfstudio.babytracker;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -9,85 +8,20 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
+import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.utility.MenuDialogFragment;
-import com.rnfstudio.babytracker.utility.TimeUtils;
 
 /**
  * Created by Roger on 2015/8/10.
  */
-public class RecordListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RecordListFragment extends ListFragment
+        implements LoaderManager.LoaderCallbacks<Cursor>, RecordAdapter.RecordItemCallbacks {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
-    private class RecordAdapter extends CursorAdapter {
-        private LayoutInflater mInflater; // Stores the layout inflater
 
-        public RecordAdapter(Context context) {
-            super(context, null, 0);
-
-            // Stores inflater for use later
-            mInflater = LayoutInflater.from(context);
-        }
-
-        /**
-         * Find layout and controls, the returned view will be passed to bindView()
-         */
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            // Inflates the list item layout.
-            final View itemLayout =
-                    mInflater.inflate(R.layout.record_list_item, viewGroup, false);
-            return itemLayout;
-        }
-
-        /**
-         * Set data to controls
-         */
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            TextView typeText = (TextView) view.findViewById(R.id.type);
-            TextView durationText = (TextView) view.findViewById(R.id.duration);
-            TextView startTimeText = (TextView) view.findViewById(R.id.startTime);
-
-            final Event event = Event.createFromCursor(cursor);
-            typeText.setText(event.getDisplayType(getActivity()));
-            startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd HH:mm"));
-            durationText.setText(event.getDisplayDuration(getActivity()));
-
-            // add OnClick callback
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startRecordEditor(event);
-                }
-            });
-
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    DialogFragment newFragment = new MenuDialogFragment();
-                    newFragment.setArguments(event.toBundle());
-                    newFragment.setTargetFragment(RecordListFragment.this, REQUEST_CODE_MENU);
-                    newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
-
-                    return true;
-                }
-            });
-
-            // show/hide duration
-            boolean showDuration = !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
-                    !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_PEEPEE) &&
-                    !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_POOPOO);
-            durationText.setVisibility(showDuration ? View.VISIBLE : View.INVISIBLE);
-        }
-    }
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
@@ -112,6 +46,7 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
     // FIELDS
     // ------------------------------------------------------------------------
     private RecordAdapter mAdapter;
+    private int mMainType = EventContract.EventEntry.NO_TYPE;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -128,8 +63,8 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // create ContactsAdapter
-        mAdapter = new RecordAdapter(getActivity());
+        // create RecordAdapter
+        mAdapter = new RecordAdapter(getActivity(), this);
     }
 
     @Override
@@ -140,15 +75,15 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
         setListAdapter(mAdapter);
 
         // initialize cursor loader
-        getLoaderManager().initLoader(RecordLoader.LOADER_ID, null, this);
+        getLoaderManager().initLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id);
 
-        if (id == RecordLoader.LOADER_ID) {
-            return new RecordLoader(getActivity());
+        if (id == RecordLoader.LOADER_ID_DEFAULT) {
+            return new RecordLoader(getActivity(), RecordLoader.QUERY_TYPE_ALL, getMainType());
         }
 
         if (DEBUG) Log.w(TAG, "[onCreateLoader] incorrect ID");
@@ -157,7 +92,7 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == RecordLoader.LOADER_ID) {
+        if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
             mAdapter.swapCursor(data);
         }
     }
@@ -171,7 +106,7 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
         if (requestCode == REQUEST_CODE_EDIT) {
             if (data != null && data.getIntExtra(KEY_RESULT_CODE, RESULT_CODE_CANCEL) == RESULT_CODE_CONFIRM) {
                 Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
-                getLoaderManager().restartLoader(RecordLoader.LOADER_ID, null, this);
+                getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
             }
         } else if (requestCode == REQUEST_CODE_MENU) {
             Bundle bundle = data.getExtras();
@@ -183,7 +118,7 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
                     break;
                 case 1:
                     Log.v(TAG, "[onActivityResult] restart loader for deletion");
-                    getLoaderManager().restartLoader(RecordLoader.LOADER_ID, null, this);
+                    getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
                     break;
                 default:
                     break;
@@ -193,16 +128,37 @@ public class RecordListFragment extends ListFragment implements LoaderManager.Lo
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        if (loader.getId() == RecordLoader.LOADER_ID) {
+        if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
             mAdapter.swapCursor(null);
         }
     }
 
-    private void startRecordEditor(Event event) {
+    protected void startRecordEditor(Event event) {
         Log.v(TAG, "startRecordEditor");
 
         Intent edit = new Intent(getActivity(), RecordEditActivity.class);
         edit.putExtras(event.toBundle());
         startActivityForResult(edit, REQUEST_CODE_EDIT);
+    }
+
+    public void setMainType(int type) {
+        mMainType = type;
+    }
+
+    public int getMainType() {
+        return mMainType;
+    }
+
+    @Override
+    public void onRecordClick(Event e) {
+        startRecordEditor(e);
+    }
+
+    @Override
+    public void onRecordLongClick(Event e) {
+        DialogFragment newFragment = new MenuDialogFragment();
+        newFragment.setArguments(e.toBundle());
+        newFragment.setTargetFragment(RecordListFragment.this, REQUEST_CODE_MENU);
+        newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
     }
 }
