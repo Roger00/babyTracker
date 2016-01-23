@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--Refer to http://stackoverflow.com/questions/7690416/android-border-for-button-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+android:shape="oval">
+<corners android:radius="3dp" />
+<stroke android:width="5px" android:color="#ff69b4" />
+</shape>

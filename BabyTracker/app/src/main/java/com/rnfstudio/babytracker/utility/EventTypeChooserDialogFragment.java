@@ -1,6 +1,6 @@
 package com.rnfstudio.babytracker.utility;
 
-import android.app.DialogFragment;
+import android.support.v4.app.DialogFragment;
 
 /**
  * Created by Roger on 2015/8/11.

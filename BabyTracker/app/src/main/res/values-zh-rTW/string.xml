@@ -105,4 +105,6 @@
     <string name="circle_info_default_am">今日上午，總計:\n%s</string>
     <string name="circle_info_default_pm">今日下午，總計:\n%s</string>
     <string name="circle_info_default_add_data_hint">尚無資料，新增一筆記錄吧！</string>
+
+    <string name="add_successful">紀錄成功</string>
 </resources>

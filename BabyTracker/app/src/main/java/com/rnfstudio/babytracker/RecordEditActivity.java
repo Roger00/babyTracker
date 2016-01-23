@@ -1,12 +1,12 @@
 package com.rnfstudio.babytracker;
 
-import android.app.Activity;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 /**
  * Created by Roger on 2015/11/26.
  */
-public class RecordEditActivity extends Activity {
+public class RecordEditActivity extends FragmentActivity {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------

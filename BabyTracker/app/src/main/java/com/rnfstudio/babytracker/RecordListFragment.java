@@ -1,29 +1,23 @@
 package com.rnfstudio.babytracker;
 
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.ListFragment;
-import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
-import com.rnfstudio.babytracker.utility.DatePickerDialogFragment;
 import com.rnfstudio.babytracker.utility.MenuDialogFragment;
 import com.rnfstudio.babytracker.utility.TimeUtils;
-
-import java.util.Calendar;
 
 /**
  * Created by Roger on 2015/8/10.

@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:name="com.rnfstudio.babytracker.MainFragment">
-</fragment>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:splitMotionEvents="false"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:background="@android:color/holo_orange_light"
+        android:padding="@dimen/info_panel_padding"
+        android:id="@+id/baby_info">
+
+        <com.rnfstudio.babytracker.utility.RoundedImageView
+            android:layout_width="@dimen/baby_icon_size"
+            android:layout_height="@dimen/baby_icon_size"
+            android:id="@+id/imageView"
+            android:src="@drawable/baby"/>
+
+        <include layout="@layout/info_panel" />
+
+        </LinearLayout>
+
+    <com.rnfstudio.babytracker.utility.SlidingTabLayout
+        android:id="@+id/sliding_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/baby_info"
+        android:layout_alignParentStart="true" />
+
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/sliding_tabs" />
+
+</RelativeLayout>

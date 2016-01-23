@@ -1,8 +1,7 @@
 package com.rnfstudio.babytracker;
 
-import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,9 +10,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
@@ -142,7 +143,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                     newFragment.setArguments(args);
 
                     newFragment.setTargetFragment(mFragment, MainFragment.REQUEST_CODE_SET_AMOUNT);
-                    newFragment.show(((Activity) mContext).getFragmentManager(), MilkPickerDialogFragment.TAG);
+                    newFragment.show(((FragmentActivity) mContext).getSupportFragmentManager(), MilkPickerDialogFragment.TAG);
 
                     break;
                 }
@@ -165,6 +166,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 Calendar end = (Calendar) start.clone();
                 end.add(Calendar.SECOND, 1);
                 asyncWriteDB(context, id, start, end, EventContract.EventEntry.EMPTY_AMOUNT);
+                Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
                 break;
 
             case MENU_ITEM_SETTINGS:
@@ -231,6 +233,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         stopTimer(id);
         asyncWriteDB(mContext, id, start, end, amount);
         showCounter(id, false);
+
+        Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
 
         if (DEBUG) Log.v(TAG, "stopTime: " + TimeUtils.flattenEventTime(end));
         if (DEBUG) Log.v(TAG, "amount: " + amount);

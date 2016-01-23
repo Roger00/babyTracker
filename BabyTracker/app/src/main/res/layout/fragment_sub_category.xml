@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_above="@+id/include"-->
+        <!--android:layout_alignParentEnd="true"-->
+        <!--android:layout_below="@+id/linearLayout4">-->
+
+        <com.rnfstudio.babytracker.utility.CircleView
+            android:id="@+id/circle"
+            android:layout_width="@dimen/circle_view_total_size"
+            android:layout_height="@dimen/circle_view_total_size"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/circleTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <include layout="@layout/main_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/include" />
+
+</LinearLayout>
