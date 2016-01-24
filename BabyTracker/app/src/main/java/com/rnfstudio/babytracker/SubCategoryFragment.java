@@ -1,6 +1,5 @@
 package com.rnfstudio.babytracker;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -12,11 +11,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
+import com.rnfstudio.babytracker.utility.CircleView;
+import com.rnfstudio.babytracker.utility.CircleWidget;
 import com.rnfstudio.babytracker.utility.MenuDialogFragment;
+
+import java.util.ArrayList;
 
 /**
  * Created by Roger on 2016/1/22.
@@ -26,50 +29,13 @@ public class SubCategoryFragment extends ListFragment
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
-    private class CircleAdapter extends CursorAdapter {
-        private LayoutInflater mInflater; // Stores the layout inflater
-
-        public CircleAdapter(Context context) {
-            super(context, null, 0);
-
-            // Stores inflater for use later
-            mInflater = LayoutInflater.from(context);
-        }
-
-        /**
-         * Find layout and controls, the returned view will be passed to bindView()
-         */
-        @Override
-        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
-            // Inflates the list item layout.
-            final View itemLayout =
-                    mInflater.inflate(R.layout.record_list_item, viewGroup, false);
-            return itemLayout;
-        }
-
-        /**
-         * Set data to controls
-         */
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-//            TextView typeText = (TextView) view.findViewById(R.id.type);
-//            TextView durationText = (TextView) view.findViewById(R.id.duration);
-//            TextView startTimeText = (TextView) view.findViewById(R.id.startTime);
-//
-//            final Event event = Event.createFromCursor(cursor);
-//            typeText.setText(event.getDisplayType(getActivity()));
-//            startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd HH:mm"));
-//            durationText.setText(event.getDisplayDuration(getActivity()));
-
-        }
-    }
 
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     private static final String TAG = "[SubCategoryFragment]";
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     public static final int REQUEST_CODE_EDIT = 0;
     public static final int REQUEST_CODE_MENU = 1;
@@ -91,7 +57,7 @@ public class SubCategoryFragment extends ListFragment
     // FIELDS
     // ------------------------------------------------------------------------
     private RecordAdapter mRecordAdapter;
-    private CircleAdapter mCircleAdapter;
+    private CircleWidget mCircleWidget;
 
     private int mMainType = EventContract.EventEntry.NO_TYPE;
 
@@ -112,9 +78,6 @@ public class SubCategoryFragment extends ListFragment
 
         // create an adapter for ListView
         mRecordAdapter = new RecordAdapter(getActivity(), this);
-
-        // create an additional adapter for CircleView: CircleAdapter
-        mCircleAdapter = new CircleAdapter(getActivity());
     }
 
     /**
@@ -145,6 +108,10 @@ public class SubCategoryFragment extends ListFragment
                 break;
         }
 
+        mCircleWidget = new CircleWidget(getActivity());
+        mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
+        mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
+
         return rootView;
     }
 
@@ -154,7 +121,6 @@ public class SubCategoryFragment extends ListFragment
 
         // set adapter for CircleView
         setListAdapter(mRecordAdapter);
-//        setListAdapter(mCircleAdapter);
 
         // initialize cursor loader
         getLoaderManager().initLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
@@ -163,7 +129,7 @@ public class SubCategoryFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id + ", mainType:" + getMainType());
+        if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id + ", mainType:" + getMainType());
 
         if (id == RecordLoader.LOADER_ID_DEFAULT) {
             return new RecordLoader(getActivity(), RecordLoader.QUERY_TYPE_ALL, getMainType());
@@ -178,25 +144,25 @@ public class SubCategoryFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        if (DEBUG) Log.v(TAG, "[onLoadFinished] called, id:" + loader.getId() + ", mainType:" + getMainType());
+        if (DEBUG) Log.v(TAG, "[onLoadFinished] called, id:" + loader.getId() + ", mainType:" + getMainType());
 
         if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
             mRecordAdapter.swapCursor(data);
 
         } else if (loader.getId() == RecordLoader.LOADER_ID_CIRCLE) {
-            mCircleAdapter.swapCursor(data);
+            mCircleWidget.setEvents(data);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-//        if (DEBUG) Log.v(TAG, "[onLoaderReset] called, id:" + loader.getId() + ", mainType:" + getMainType());
+        if (DEBUG) Log.v(TAG, "[onLoaderReset] called, id:" + loader.getId() + ", mainType:" + getMainType());
 
         if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
             mRecordAdapter.swapCursor(null);
 
         } else if (loader.getId() == RecordLoader.LOADER_ID_CIRCLE) {
-            mCircleAdapter.swapCursor(null);
+            mCircleWidget.setEvents(new ArrayList<Event>());
         }
     }
 
@@ -210,6 +176,7 @@ public class SubCategoryFragment extends ListFragment
             if (data != null && data.getIntExtra(KEY_RESULT_CODE, RESULT_CODE_CANCEL) == RESULT_CODE_CONFIRM) {
                 Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
                 getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+                getLoaderManager().restartLoader(RecordLoader.LOADER_ID_CIRCLE, null, this);
             }
         } else if (requestCode == REQUEST_CODE_MENU) {
             Bundle bundle = data.getExtras();
@@ -222,6 +189,7 @@ public class SubCategoryFragment extends ListFragment
                 case 1:
                     Log.v(TAG, "[onActivityResult] restart loader for deletion");
                     getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+                    getLoaderManager().restartLoader(RecordLoader.LOADER_ID_CIRCLE, null, this);
                     break;
                 default:
                     break;

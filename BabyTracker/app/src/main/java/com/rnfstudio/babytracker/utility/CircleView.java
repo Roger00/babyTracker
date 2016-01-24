@@ -141,6 +141,7 @@ public class CircleView extends View {
                 float dataAngle = (angle - START_ANGLE_POINT + 360) % 360;
                 float distance = DirectionUtils.getDistance(x, y, centerX, centerY);
                 boolean touched = distance >= innerRadius && distance <= outerRadius;
+                boolean isCancel = false;
 
                 if (action == MotionEvent.ACTION_UP ||
                         action == MotionEvent.ACTION_CANCEL) {
@@ -152,24 +153,24 @@ public class CircleView extends View {
                     }
                     setCircleTouchState(false);
 
+                    isCancel = true;
+
                 } else if (action == MotionEvent.ACTION_DOWN ||
                         action == MotionEvent.ACTION_MOVE) {
 
                     // update touch state
                     setCircleTouchState(touched);
+
+                    isCancel = false;
                 }
 
-                if (touched) {
-                    int dataIndex = searchDataIndex(dataAngle);
+                int dataIndex = (touched && !isCancel) ? searchDataIndex(dataAngle) : INDEX_NO_FOUND;
 
-                    // highlight selected data
-                    setHighlightedData(dataIndex);
+                // highlight selected data
+                setHighlightedData(dataIndex);
 
-                    // notify listeners the highlighted data
-                    for (OnCircleTouchListener listener : mListeners) {
-                        listener.onCircleTouch(dataIndex);
-                    }
-                }
+                // notify listeners the highlighted data
+                notifyListeners();
 
                 return true;
             }
@@ -177,12 +178,12 @@ public class CircleView extends View {
 
         // default data
         mDataPairs = new ArrayList<>();
-        mDataPairs.add(new Pair<>(new Float(0), new Float(20)));
-        mDataPairs.add(new Pair<>(new Float(40), new Float(60)));
-        mDataPairs.add(new Pair<>(new Float(80), new Float(100)));
-        mDataPairs.add(new Pair<>(new Float(180), new Float(190)));
-        mDataPairs.add(new Pair<>(new Float(240), new Float(270)));
-        mDataPairs.add(new Pair<>(new Float(299), new Float(350)));
+        mDataPairs.add(new Pair<>((float) 0, (float) 20));
+        mDataPairs.add(new Pair<>((float) 40, (float) 60));
+        mDataPairs.add(new Pair<>((float) 80, (float) 100));
+        mDataPairs.add(new Pair<>((float) 180, (float) 190));
+        mDataPairs.add(new Pair<>((float) 240, (float) 270));
+        mDataPairs.add(new Pair<>((float) 299, (float) 350));
 
         // animation
         mAnimation = new CircleAngleAnimation(this, 360);
@@ -262,6 +263,12 @@ public class CircleView extends View {
     public void removeListener(OnCircleTouchListener listener) {
         if (mListeners.contains(listener)) {
             mListeners.remove(listener);
+        }
+    }
+
+    private void notifyListeners() {
+        for (OnCircleTouchListener listener : mListeners) {
+            listener.onCircleTouch(mHighlightIndex);
         }
     }
 

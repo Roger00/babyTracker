@@ -1,6 +1,9 @@
 package com.rnfstudio.babytracker.utility;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.CalendarContract;
+import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 
@@ -21,6 +24,7 @@ public class CircleWidget implements CircleView.OnCircleTouchListener {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
+    private static final String TAG = "[CircleWidget]";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -64,6 +68,23 @@ public class CircleWidget implements CircleView.OnCircleTouchListener {
         if (infoPanel != null) {
             mInfoPanel = infoPanel;
         }
+    }
+
+    public void setEvents(Cursor cursor) {
+        if (cursor == null) {
+            Log.w(TAG, "fail to query events for circle view");
+            return;
+        }
+
+        List<Event> events = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            events.add(Event.createFromCursor(cursor));
+        }
+
+        // reset cursor to head, this is necessary for we to read from cursor again
+        cursor.moveToPosition(-1);
+
+        setEvents(events);
     }
 
     public void setEvents(List<Event> events) {
@@ -134,8 +155,9 @@ public class CircleWidget implements CircleView.OnCircleTouchListener {
         if (cEvents > 0) {
             // sum of today's events
             String durationStr = Event.getDisplayDuration(mContext, mTotalDuration);
-            return TimeUtils.isNowAM() ? mContext.getString(R.string.circle_info_default_am, durationStr) :
-                    mContext.getString(R.string.circle_info_default_pm, durationStr);
+            return TimeUtils.isNowAM() ?
+                    mContext.getString(R.string.circle_info_default_am, cEvents, durationStr) :
+                    mContext.getString(R.string.circle_info_default_pm, cEvents, durationStr);
         } else {
             // add new records to start
             return mContext.getString(R.string.circle_info_default_add_data_hint);

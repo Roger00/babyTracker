@@ -3,9 +3,11 @@ package com.rnfstudio.babytracker;
 import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventDB;
+import com.rnfstudio.babytracker.utility.CircleWidget;
 
 /**
  * A special loader which loads from db instead from ContentProvider
@@ -72,7 +74,18 @@ public class RecordLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public Cursor loadInBackground() {
         EventDB db = MainApplication.getEventDatabase(mContext);
-        mCursor = db.queryAllEvents(mMainType);
+
+        if (mQueryType == QUERY_TYPE_ALL) {
+            mCursor = db.queryAllEvents(mMainType);
+
+        } else if (mQueryType == QUERY_TYPE_CIRCLE) {
+            mCursor = db.queryEventsForMainTypeAndPeriod(mMainType,
+                    CircleWidget.getQueryAheadTIme(),
+                    CircleWidget.getQueryEndTime(),
+                    CircleWidget.getQueryStartTime(),
+                    CircleWidget.getQueryEndTime());
+        }
+
         return mCursor;
     }
 
