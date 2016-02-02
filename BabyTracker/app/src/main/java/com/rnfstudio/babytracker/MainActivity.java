@@ -12,15 +12,17 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Window;
 
+import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.utility.SlidingTabLayout;
 
 /**
  * Modified from example:
  * http://developer.android.com/intl/zh-tw/training/implementing-navigation/lateral.html
  */
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements OnEventChangedListener {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -34,17 +36,27 @@ public class MainActivity extends FragmentActivity {
                 R.drawable.star_pressed_resized
         };
 
+        private SparseArray<Fragment> mFragmentMap = new SparseArray<>();
+
         public SubCategoryPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
         @Override
         public Fragment getItem(int i) {
-            Fragment fragment = i == TAB_ID_MAIN ? new MainFragment() : new SubCategoryFragment();
+            Log.d(TAG, "[getItem] called, index: " + i);
 
-            Bundle args = new Bundle();
-            args.putInt(SubCategoryFragment.ARG_TAB_ID, i);
-            fragment.setArguments(args);
+            // lazy load fragments
+            Fragment fragment = mFragmentMap.get(i);
+            if (fragment == null) {
+                Log.d(TAG, "[getItem] create new fragment instance");
+                fragment = i == TAB_ID_MAIN ? new MainFragment() : new SubCategoryFragment();
+                mFragmentMap.put(i, fragment);
+
+                Bundle args = new Bundle();
+                args.putInt(SubCategoryFragment.ARG_TAB_ID, i);
+                fragment.setArguments(args);
+            }
 
             return fragment;
         }
@@ -66,6 +78,124 @@ public class MainActivity extends FragmentActivity {
 
         public void setContext(Context context) {
             mContext = context;
+        }
+    }
+
+    public static class SubCategoryPageChangeListener implements ViewPager.OnPageChangeListener {
+        public static final int DIRTY_FLAG_SLEEP = 1;
+        public static final int DIRTY_FLAG_MEAL = 1 << 1;
+        public static final int DIRTY_FLAG_DIAPER = 1 << 2;
+
+        private static int sDirtyFlags = 0;
+
+        private SubCategoryPagerAdapter mPagerAdapter;
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+        @Override
+        public void onPageSelected(int position) {
+            Log.v(TAG, "[onPageSelected] position: " + position);
+
+            // MainActivity works as a Mediator
+            // notify the affected fragment
+            int mainType;
+            switch (position) {
+                case TAB_ID_SLEEP:
+                    mainType = EventContract.EventEntry.EVENT_TYPE_SLEEP;
+                    break;
+                case TAB_ID_MEAL:
+                    mainType = EventContract.EventEntry.EVENT_TYPE_MEAL;
+                    break;
+                case TAB_ID_DIAPER:
+                    mainType = EventContract.EventEntry.EVENT_TYPE_DIAPER;
+                    break;
+                default:
+                    return;
+            }
+
+            if (checkDirtyFlag(mainType)) {
+                SubCategoryFragment frag = (SubCategoryFragment)
+                        mPagerAdapter.getItem(position);
+
+                if (frag != null) {
+                    frag.onEventChanged(mainType);
+                    clearDirtyFlag(mainType);
+                } else {
+                    Log.d(TAG, "[onPageSelected] fail to find fragment for mainType: " + mainType);
+                }
+            } else {
+                Log.d(TAG, "[onPageSelected] Not dirty fragment, mainType: " + mainType);
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {}
+
+        public void setAdapter(SubCategoryPagerAdapter adapter) {
+            mPagerAdapter = adapter;
+        }
+
+        /**
+         * For bit operations, refer to:
+         * http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
+         * @param mainType
+         */
+        public void setDirtyFlag(int mainType) {
+            Log.v(TAG, "[setDirtyFlag] receive event change for mainType: " + mainType);
+
+            Log.d(TAG, "[setDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
+            switch (mainType) {
+                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
+                    sDirtyFlags |= DIRTY_FLAG_SLEEP;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_MEAL:
+                    sDirtyFlags |= DIRTY_FLAG_MEAL;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
+                    sDirtyFlags |= DIRTY_FLAG_DIAPER;
+                    break;
+            }
+            Log.d(TAG, "[setDirtyFlag] sDirtyFlags(after): " + sDirtyFlags);
+        }
+
+        public boolean checkDirtyFlag(int mainType) {
+            Log.v(TAG, "[checkDirtyFlag] receive event change for mainType: " + mainType);
+
+            Log.d(TAG, "[checkDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
+
+            boolean checked = false;
+            switch (mainType) {
+                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
+                    checked = (sDirtyFlags & DIRTY_FLAG_SLEEP) != 0;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_MEAL:
+                    checked = (sDirtyFlags & DIRTY_FLAG_MEAL) != 0;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
+                    checked = (sDirtyFlags & DIRTY_FLAG_DIAPER) != 0;
+                    break;
+            }
+            Log.d(TAG, "[checkDirtyFlag] checked " + checked);
+            return checked;
+        }
+
+        public void clearDirtyFlag(int mainType) {
+            Log.v(TAG, "[clearDirtyFlag] receive event change for mainType: " + mainType);
+
+            Log.d(TAG, "[clearDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
+            switch (mainType) {
+                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
+                    sDirtyFlags &= ~DIRTY_FLAG_SLEEP;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_MEAL:
+                    sDirtyFlags &= ~DIRTY_FLAG_MEAL;
+                    break;
+                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
+                    sDirtyFlags &= ~DIRTY_FLAG_DIAPER;
+                    break;
+            }
+            Log.d(TAG, "[clearDirtyFlag] sDirtyFlags(after): " + sDirtyFlags);
         }
     }
 
@@ -93,6 +223,7 @@ public class MainActivity extends FragmentActivity {
     ViewPager mViewPager;
     SubCategoryPagerAdapter mSubCategoryPagerAdapter;
     SlidingTabLayout mSlidingTabLayout;
+    SubCategoryPageChangeListener mSubCategoryPageChangeListener;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -122,13 +253,25 @@ public class MainActivity extends FragmentActivity {
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSubCategoryPagerAdapter);
 
+        // create listener for page change events
+        mSubCategoryPageChangeListener = new SubCategoryPageChangeListener();
+        mSubCategoryPageChangeListener.setAdapter(mSubCategoryPagerAdapter);
+
         // Initialize the SlidingTabLayout. Note that the order is important.
         // First init ViewPager and Adapter and only then init SlidingTabLayout
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setCustomTabView(R.layout.custom_tab, 0);
         mSlidingTabLayout.setViewPager(mViewPager);
+
+        // re-direct page change events to our listener
+        mSlidingTabLayout.setOnPageChangeListener(mSubCategoryPageChangeListener);
+    }
+
+    @Override
+    public void onEventChanged(int mainType) {
+        Log.v(TAG, "[onEventChanged] receive event change for mainType: " + mainType);
+
+        // cache dirty flags
+        mSubCategoryPageChangeListener.setDirtyFlag(mainType);
     }
 }
-
-
-

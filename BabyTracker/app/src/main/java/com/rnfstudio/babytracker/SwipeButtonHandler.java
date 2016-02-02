@@ -167,6 +167,10 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 end.add(Calendar.SECOND, 1);
                 asyncWriteDB(context, id, start, end, EventContract.EventEntry.EMPTY_AMOUNT);
                 Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
+
+                // notify event change for containing fragment
+                ((MainFragment)mFragment).notifyEventChanged(EventContract.EventEntry.getMainType(id));
+
                 break;
 
             case MENU_ITEM_SETTINGS:
@@ -235,6 +239,9 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         showCounter(id, false);
 
         Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
+
+        // notify event change for containing fragment
+        ((MainFragment)mFragment).notifyEventChanged(EventContract.EventEntry.getMainType(id));
 
         if (DEBUG) Log.v(TAG, "stopTime: " + TimeUtils.flattenEventTime(end));
         if (DEBUG) Log.v(TAG, "amount: " + amount);
@@ -394,8 +401,10 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     private void refreshBirthDays() {
-        TextView daysFromBirth = (TextView) mInfoPanel.findViewById(R.id.daysFromBirth);
-        if (daysFromBirth != null) daysFromBirth.setText(getDaysFromBirthString());
+        if (mInfoPanel != null) {
+            TextView daysFromBirth = (TextView) mInfoPanel.findViewById(R.id.daysFromBirth);
+            if (daysFromBirth != null) daysFromBirth.setText(getDaysFromBirthString());
+        }
     }
 
     private void refreshCounters() {

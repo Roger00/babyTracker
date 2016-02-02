@@ -1,5 +1,6 @@
 package com.rnfstudio.babytracker;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -25,7 +26,9 @@ import java.util.ArrayList;
  * Created by Roger on 2016/1/22.
  */
 public class SubCategoryFragment extends ListFragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, RecordAdapter.RecordItemCallbacks {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+            RecordAdapter.RecordItemCallbacks,
+            OnEventChangedListener {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -197,6 +200,12 @@ public class SubCategoryFragment extends ListFragment
         }
     }
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.v(TAG, "[onAttach] called, type: " + getMainType());
+    }
+
     protected void startRecordEditor(Event event) {
         Log.v(TAG, "startRecordEditor");
 
@@ -224,5 +233,17 @@ public class SubCategoryFragment extends ListFragment
         newFragment.setArguments(e.toBundle());
         newFragment.setTargetFragment(SubCategoryFragment.this, REQUEST_CODE_MENU);
         newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
+    }
+
+    @Override
+    public void onEventChanged(int mainType) {
+        Log.v(TAG, "[onEventChanged] restart loaders for event change, mainType: " + mainType);
+
+        if (isAdded()) {
+            getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+            getLoaderManager().restartLoader(RecordLoader.LOADER_ID_CIRCLE, null, this);
+        } else {
+            Log.v(TAG, "[onEventChanged] fragment not attached to activity, skip update");
+        }
     }
 }

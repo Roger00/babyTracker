@@ -6,26 +6,6 @@
     android:splitMotionEvents="false"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:background="@android:color/holo_orange_light"
-        android:padding="@dimen/info_panel_padding"
-        android:visibility="gone"
-        android:id="@+id/baby_info">
-
-        <com.rnfstudio.babytracker.utility.RoundedImageView
-            android:layout_width="@dimen/baby_icon_size"
-            android:layout_height="@dimen/baby_icon_size"
-            android:id="@+id/imageView"
-            android:src="@drawable/baby"/>
-
-        <include layout="@layout/info_panel" />
-    </LinearLayout>
-
     <include layout="@layout/menu_panel"
         android:id="@+id/include" />
 
@@ -33,29 +13,84 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false" />
+        android:layout_alignParentStart="false"
+        android:id="@+id/include2" />
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical" android:layout_width="match_parent"
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
         android:layout_above="@+id/include"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone"
-        android:layout_below="@+id/baby_info">
+        android:layout_centerHorizontal="true"
+        android:stretchColumns="0,1,2"
+        android:layout_below="@+id/include2">
 
-        <com.rnfstudio.babytracker.utility.CircleView
-            android:id="@+id/circle"
-            android:layout_width="@dimen/circle_view_total_size"
-            android:layout_height="@dimen/circle_view_total_size"
-            android:layout_gravity="center" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/circleTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_gravity="center" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/sleep" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/meal" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/diaper" />
+        </TableRow>
 
-    </FrameLayout>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/all_info" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/settings" />
+        </TableRow>
+
+    </TableLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/include"
+        android:layout_centerHorizontal="true"
+        android:stretchColumns="0,1,2"
+        android:visibility="invisible"
+        android:layout_below="@+id/include2">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/meal_left" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/meal_default" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Button"
+                android:id="@+id/meal_right" />
+        </TableRow>
+
+    </TableLayout>
 </RelativeLayout>

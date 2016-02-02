@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_vertical"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="0,1,2"
+    android:layout_gravity="center_vertical"
     android:id="@+id/lastInfoPanel">
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
+    <TableRow>
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/last_info_sleep_title" />
+            android:text="@string/last_info_sleep_title"
+            android:layout_weight="1"
+            android:gravity="right" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -22,19 +20,16 @@
             android:layout_marginStart="@dimen/last_info_title_detail_space"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Large Text"
-            android:id="@+id/last_sleep_detail" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
+            android:id="@+id/last_sleep_detail"
+            android:gravity="left|fill" />
+    </TableRow>
+    <TableRow>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/last_info_meal_title" />
+            android:text="@string/last_info_meal_title"
+            android:gravity="right" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -42,20 +37,16 @@
             android:layout_marginStart="@dimen/last_info_title_detail_space"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Large Text"
-            android:id="@+id/last_meal_detail" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center">
-
+            android:id="@+id/last_meal_detail"
+            android:gravity="left" />
+    </TableRow>
+    <TableRow>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/last_info_diaper_title" />
+            android:text="@string/last_info_diaper_title"
+            android:gravity="right" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -63,6 +54,8 @@
             android:layout_marginStart="@dimen/last_info_title_detail_space"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Large Text"
-            android:id="@+id/last_diaper_detail" />
-    </LinearLayout>
-</LinearLayout>
+            android:id="@+id/last_diaper_detail"
+            android:gravity="left" />
+    </TableRow>
+
+</TableLayout>

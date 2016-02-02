@@ -1,21 +1,13 @@
 package com.rnfstudio.babytracker;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.rnfstudio.babytracker.db.Event;
-import com.rnfstudio.babytracker.db.EventContract;
-import com.rnfstudio.babytracker.db.EventDB;
-import com.rnfstudio.babytracker.utility.CircleView;
-import com.rnfstudio.babytracker.utility.CircleWidget;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 
@@ -25,10 +17,11 @@ import java.util.List;
 /**
  * Created by Roger on 2015/11/30.
  */
-public class MainFragment extends Fragment {
+public class MainFragment extends Fragment implements OnEventChangedListener {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
+
 
     // ------------------------------------------------------------------------
     // STATIC FIELDS
@@ -49,7 +42,6 @@ public class MainFragment extends Fragment {
     // FIELDS
     // ------------------------------------------------------------------------
     private SwipeButtonHandler mManager;
-    private CircleWidget mCircleWidget;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -81,10 +73,6 @@ public class MainFragment extends Fragment {
         ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
         mManager.setInfoPanel(infoPanel);
 
-        mCircleWidget = new CircleWidget(getActivity());
-        mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
-        mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
-
         return rootView;
     }
 
@@ -107,40 +95,6 @@ public class MainFragment extends Fragment {
         super.onResume();
         mManager.startTimeTicker();
         mManager.refreshAll();
-
-        new AsyncTask<Void, Void, List<Event>>() {
-
-            @Override
-            protected List<Event> doInBackground(Void... params) {
-                EventDB db = MainApplication.getEventDatabase(getActivity());
-
-                List<Event> events = new ArrayList<>();
-                try (
-                    Cursor cursor = db.queryEventsForMainTypeAndPeriod(EventContract.EventEntry.EVENT_TYPE_SLEEP,
-                            CircleWidget.getQueryAheadTIme(),
-                            CircleWidget.getQueryEndTime(),
-                            CircleWidget.getQueryStartTime(),
-                            CircleWidget.getQueryEndTime())) {
-
-                    if (cursor == null) {
-                        Log.w(TAG, "fail to query events for circle view");
-                        return null;
-                    }
-
-                    while (cursor.moveToNext()) {
-                        events.add(Event.createFromCursor(cursor));
-                    }
-                }
-
-                return events;
-            }
-
-            @Override
-            protected void onPostExecute(List<Event> events) {
-                mCircleWidget.setEvents(events);
-            }
-
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -165,15 +119,28 @@ public class MainFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
+        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode
+                + "data: " + data);
 
         String functionId = data.getStringExtra(MilkPickerDialogFragment.EXTRA_FUNCTION_ID);
         int amountInML = data.getIntExtra(MilkPickerDialogFragment.EXTRA_MILLI_LITER, 0);
 
-        Log.v(TAG, String.format("[onActivityResult] Receive function: %s, amount: %d", functionId, amountInML));
+        Log.v(TAG, String.format("[onActivityResult] Receive function: %s, amount: %d",
+                functionId, amountInML));
 
         if (requestCode == REQUEST_CODE_SET_AMOUNT) {
             mManager.onMilkPickerResult(functionId, amountInML);
         }
+    }
+
+    @Override
+    public void onEventChanged(int mainType) {
+        Log.v(TAG, "[onEventChanged] refresh all for event change, mainType: " + mainType);
+        mManager.refreshAll();
+    }
+
+    public void notifyEventChanged(int mainType) {
+        Log.v(TAG, "[notifyEventChanged] notify event change, mainType: " + mainType);
+        ((MainActivity)getActivity()).onEventChanged(mainType);
     }
 }
