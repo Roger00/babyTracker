@@ -114,18 +114,15 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
                     return;
             }
 
-            if (checkDirtyFlag(mainType)) {
-                SubCategoryFragment frag = (SubCategoryFragment)
-                        mPagerAdapter.getItem(position);
+            SubCategoryFragment frag = (SubCategoryFragment)
+                    mPagerAdapter.getItem(position);
 
-                if (frag != null) {
-                    frag.onEventChanged(mainType);
-                    clearDirtyFlag(mainType);
-                } else {
-                    Log.d(TAG, "[onPageSelected] fail to find fragment for mainType: " + mainType);
-                }
+            // let's always notify event change when page changed
+            // TODO: use ContentProvider instead
+            if (frag != null) {
+                frag.onEventChanged(mainType);
             } else {
-                Log.d(TAG, "[onPageSelected] Not dirty fragment, mainType: " + mainType);
+                Log.d(TAG, "[onPageSelected] fail to find fragment for mainType: " + mainType);
             }
         }
 
