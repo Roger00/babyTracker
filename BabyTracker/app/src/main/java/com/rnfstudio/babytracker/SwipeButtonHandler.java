@@ -64,6 +64,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     public static final String MENU_ITEM_ALARM = "ALARM";
     public static final String MENU_ITEM_STATS = "STATS";
     public static final String MENU_ITEM_SETTINGS = "SETTINGS";
+    public static final String MENU_ITEM_ALL_RECORDS = "ALL_RECORDS";
 
     // asynchronous worker thread and handler
     private static final String sWorkerDisplayName = "SwipeButtonHandler worker";
@@ -174,13 +175,11 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 break;
 
             case MENU_ITEM_SETTINGS:
-                copyDB2SDcard();
-//                asyncClearDB(context);
+                mContext.startActivity(new Intent(mContext, SettingsActivity.class));
                 break;
 
-            case MENU_ITEM_STATS:
-                Intent viewRecords = new Intent(mContext, RecordListActivity.class);
-                mContext.startActivity(viewRecords);
+            case MENU_ITEM_ALL_RECORDS:
+                mContext.startActivity(new Intent(mContext, RecordListActivity.class));
                 break;
 
             default:
@@ -188,36 +187,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
     }
 
-    /**
-     * See <a href="http://stackoverflow.com/questions/9997976/android-pulling-sqlite-database-android-device">Pull database</>
-     */
-    private void copyDB2SDcard() {
-        try {
-            Log.d(TAG, "[copyDB2SDcard] called");
-            File sd = mContext.getExternalFilesDir(null);
 
-            if (sd.canWrite()) {
-                String currentDBPath = mContext.getDatabasePath(EventDBHelper.DATABASE_NAME).getPath();
-                String backupDBPath = "backupname.db";
-
-                Log.d(TAG, "[copyDB2SDcard] current path: " + currentDBPath);
-                Log.d(TAG, "[copyDB2SDcard] backupDBPath: " + backupDBPath);
-
-                File currentDB = new File(currentDBPath);
-                File backupDB = new File(sd, backupDBPath);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                }
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "[copyDB2SDcard] Exception: " + e.toString());
-        }
-    }
 
     private void startTimerForFuncId(String id) {
         Calendar startTime = Calendar.getInstance();

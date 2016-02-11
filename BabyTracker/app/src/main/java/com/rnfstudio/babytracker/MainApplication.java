@@ -16,6 +16,7 @@ public class MainApplication extends Application {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
+    public static final String PACKAGE_NAME = "com.rnfstudio.babytracker";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS

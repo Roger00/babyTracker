@@ -13,6 +13,7 @@
     <string name="ALARM">Alarm</string>
     <string name="STATS">Statistics</string>
     <string name="SETTINGS">Settings</string>
+    <string name="ALL_RECORDS">@string/record_list_title</string>
 
     <string name="MEAL_TYPE_BREAST_BOTH">Breast (BOTH SIDES)</string>
     <string name="MEAL_TYPE_BREAST_LEFT">Breast (LEFT)</string>
@@ -107,4 +108,19 @@
     <string name="circle_info_default_add_data_hint">No data yet. How about adding a new one?</string>
 
     <string name="add_successful">Record added.</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_general">General</string>
+    <string name="settings_profile">Setup profile</string>
+    <string name="settings_enable_sound_effect">Enable sound effects</string>
+    <string name="settings_backup">Backup</string>
+    <string name="settings_backup_to_sd">Backup database to SDCard</string>
+    <string name="settings_backup_restore_from_sd">Restore database from SDCard</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_check_updates">Check for updates</string>
+    <string name="settings_about_version">Version</string>
+
+    <string name="backup_fail_not_allowed">Write fail, not allowed to write SDCard</string>
+    <string name="backup_successful">Backup successful</string>
+    <string name="restore_successful">Restore successful</string>
 </resources>

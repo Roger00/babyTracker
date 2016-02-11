@@ -107,4 +107,19 @@
     <string name="circle_info_default_add_data_hint">尚無資料，新增一筆記錄吧！</string>
 
     <string name="add_successful">紀錄成功</string>
+
+    <string name="settings_title">偏好設定</string>
+    <string name="settings_general">一般</string>
+    <string name="settings_profile">設定大頭照</string>
+    <string name="settings_enable_sound_effect">允許音效</string>
+    <string name="settings_backup">備份資料庫</string>
+    <string name="settings_backup_to_sd">備份至 SDCard</string>
+    <string name="settings_backup_restore_from_sd">從 SDCard 還原</string>
+    <string name="settings_about">關於</string>
+    <string name="settings_about_check_updates">檢查版本更新</string>
+    <string name="settings_about_version">版本資訊</string>
+
+    <string name="backup_fail_not_allowed">備份失敗，不允許寫入 SDCard</string>
+    <string name="backup_successful">備份成功</string>
+    <string name="restore_successful">還原成功</string>
 </resources>

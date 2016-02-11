@@ -4,6 +4,8 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 
 import com.rnfstudio.babytracker.R;
 import com.rnfstudio.babytracker.RecordEditFragment;
+import com.rnfstudio.babytracker.SettingsActivity;
 
 /**
  * Created by Roger on 2015/8/6.
@@ -43,6 +46,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
     private static final int MAX_AUDIO_STREAMS = 10;
     private static final int ID_SOUND_EFFECT_INCREASE = 0;
     private static final int ID_SOUND_EFFECT_DECREASE = 1;
+    private static boolean sSoundEnabled = true;
 
     public static final String EXTRA_FUNCTION_ID = "function id";
     public static final String EXTRA_DEFAULT_AMOUNT = "default amount";
@@ -75,8 +79,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    public MilkPickerDialogFragment() {
-    }
+    public MilkPickerDialogFragment() {}
 
     // ------------------------------------------------------------------------
     // METHODS
@@ -86,9 +89,16 @@ public class MilkPickerDialogFragment extends DialogFragment {
         final String functionId = args.getString(EXTRA_FUNCTION_ID);
         int defaultAmount = args.getInt(EXTRA_DEFAULT_AMOUNT, DEFAULT_AMOUNT);
 
+        // check if sound enabled
+        sSoundEnabled = SettingsActivity.isSoundEffectEnabled(getActivity());
+
         // load sound effects
-        sSoundIds[ID_SOUND_EFFECT_INCREASE] = sSoundPool.load(getActivity(), R.raw.sound_effect_inc, 1);
-        sSoundIds[ID_SOUND_EFFECT_DECREASE] = sSoundPool.load(getActivity(), R.raw.sound_effect_dec, 1);
+        if (sSoundEnabled) {
+            sSoundIds[ID_SOUND_EFFECT_INCREASE] =
+                    sSoundPool.load(getActivity(), R.raw.sound_effect_inc, 1);
+            sSoundIds[ID_SOUND_EFFECT_DECREASE] =
+                    sSoundPool.load(getActivity(), R.raw.sound_effect_dec, 1);
+        }
 
         // inflate layout
         Context context = getActivity();
@@ -157,8 +167,10 @@ public class MilkPickerDialogFragment extends DialogFragment {
         as.setDuration(700);
         as.start();
 
-        int soundId = increment > 0 ? ID_SOUND_EFFECT_INCREASE : ID_SOUND_EFFECT_DECREASE;
-        sSoundPool.play(sSoundIds[soundId], 1, 1, 1, 0, (float)2.0);
+        if (sSoundEnabled) {
+            int soundId = increment > 0 ? ID_SOUND_EFFECT_INCREASE : ID_SOUND_EFFECT_DECREASE;
+            sSoundPool.play(sSoundIds[soundId], 1, 1, 1, 0, (float)2.0);
+        }
     }
 
     private int getAmountFromEdit(EditText edit) {
@@ -166,7 +178,8 @@ public class MilkPickerDialogFragment extends DialogFragment {
         int ret = DEFAULT_AMOUNT;
         try {
             ret = Integer.parseInt(amountStr);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException nfe) {
+            Log.w(TAG, "[getAmountFromEdit] exception: " + nfe.toString());
         }
         return ret;
     }

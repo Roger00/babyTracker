@@ -55,43 +55,13 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:layout_marginRight="@dimen/menu_item_space"
-            custom:main="@string/ID_STATS" />
+            custom:main="@string/ID_ALL_RECORDS" />
         <com.rnfstudio.babytracker.utility.SwipeButton
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:layout_marginRight="@dimen/menu_item_space"
             custom:main="@string/ID_MEDICATION" />
-        <com.rnfstudio.babytracker.utility.SwipeButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            custom:main="@string/ID_GROW" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:paddingBottom="@dimen/menu_item_space"
-        android:gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:splitMotionEvents="false"
-        android:id="@+id/linearLayout2">
-        <com.rnfstudio.babytracker.utility.SwipeButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:layout_marginRight="@dimen/menu_item_space"
-            custom:main="@string/ID_ALARM" />
-        <com.rnfstudio.babytracker.utility.SwipeButton
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:layout_marginRight="@dimen/menu_item_space"
-            custom:main="@string/ID_MILESTONES" />
         <com.rnfstudio.babytracker.utility.SwipeButton
             android:layout_width="0dp"
             android:layout_weight="1"

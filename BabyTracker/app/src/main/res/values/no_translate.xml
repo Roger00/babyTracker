@@ -17,4 +17,5 @@
     <string name="ID_DIAPER_PEEPEE">DIAPER_PEEPEE</string>
     <string name="ID_DIAPER_POOPOO">DIAPER_POOPOO</string>
     <string name="ID_DIAPER_BOTH">DIAPER_BOTH</string>
+    <string name="ID_ALL_RECORDS">ALL_RECORDS</string>
 </resources>
