@@ -166,8 +166,6 @@ public class RecordListFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id + ", mainType:" + getMainType());
-
         if (id == LOADER_ID_DEFAULT) {
             String selection = getMainType() == EventContract.EventEntry.NO_TYPE ?
                     null : EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
@@ -197,8 +195,10 @@ public class RecordListFragment extends ListFragment
                             EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ? AND " +
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " BETWEEN ? AND ?",
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME +
+                            " BETWEEN ? AND ? AND " +
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME +
+                            " BETWEEN ? AND ?",
                     new String[] {Integer.toString(getMainType()),
                             Long.toString(CircleWidget.getQueryAheadTIme()),
                             Long.toString(CircleWidget.getQueryEndTime()),
@@ -213,8 +213,6 @@ public class RecordListFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (DEBUG) Log.v(TAG, "[onLoadFinished] called, id:" + loader.getId() + ", mainType:" + getMainType());
-
         if (loader.getId() == LOADER_ID_DEFAULT) {
             mRecordAdapter.swapCursor(data);
 
@@ -225,8 +223,6 @@ public class RecordListFragment extends ListFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        if (DEBUG) Log.v(TAG, "[onLoaderReset] called, id:" + loader.getId() + ", mainType:" + getMainType());
-
         if (loader.getId() == LOADER_ID_DEFAULT) {
             mRecordAdapter.swapCursor(null);
 
@@ -238,8 +234,6 @@ public class RecordListFragment extends ListFragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
 
         if (requestCode == REQUEST_CODE_MENU) {
             Bundle bundle = data.getExtras();
@@ -256,8 +250,6 @@ public class RecordListFragment extends ListFragment
     }
 
     protected void startRecordEditor(Event event) {
-        Log.v(TAG, "startRecordEditor");
-
         Intent edit = new Intent(getActivity(), RecordEditActivity.class);
         edit.putExtras(event.toBundle());
         startActivityForResult(edit, REQUEST_CODE_EDIT);
@@ -272,8 +264,8 @@ public class RecordListFragment extends ListFragment
     }
 
     @Override
-    public void onRecordClick(Event e) {
-        startRecordEditor(e);
+    public void onRecordClick(Event event) {
+        startRecordEditor(event);
     }
 
     @Override

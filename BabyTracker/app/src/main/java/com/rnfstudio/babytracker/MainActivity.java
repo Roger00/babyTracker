@@ -48,12 +48,10 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public Fragment getItem(int i) {
-            Log.d(TAG, "[getItem] called, index: " + i);
-
             // lazy load fragments
             Fragment fragment = mFragmentMap.get(i);
+
             if (fragment == null) {
-                Log.d(TAG, "[getItem] create new fragment instance");
                 fragment = i == TAB_ID_MAIN ? new MainFragment() : new RecordListFragment();
                 mFragmentMap.put(i, fragment);
 
@@ -67,7 +65,7 @@ public class MainActivity extends FragmentActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return TABS_COUNT;
         }
 
         @Override
@@ -92,9 +90,7 @@ public class MainActivity extends FragmentActivity {
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
 
         @Override
-        public void onPageSelected(int position) {
-            Log.v(TAG, "[onPageSelected] position: " + position);
-        }
+        public void onPageSelected(int position) {}
 
         @Override
         public void onPageScrollStateChanged(int state) {}
@@ -109,6 +105,7 @@ public class MainActivity extends FragmentActivity {
     // ------------------------------------------------------------------------
     private static final String TAG = "[MainActivity]";
 
+    public static final int TABS_COUNT = 4;
     public static final int TAB_ID_MAIN = 0;
     public static final int TAB_ID_SLEEP = 1;
     public static final int TAB_ID_MEAL = 2;
@@ -142,8 +139,6 @@ public class MainActivity extends FragmentActivity {
     // METHODS
     // ------------------------------------------------------------------------
     public void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "onCreate called");
-
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);

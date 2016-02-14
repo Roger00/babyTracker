@@ -1,17 +1,17 @@
 package com.rnfstudio.babytracker;
 
 import android.app.AlertDialog;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Event;
@@ -21,6 +21,8 @@ import com.rnfstudio.babytracker.utility.TimePickerDialogFragment;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Roger on 2015/8/11.
@@ -45,6 +47,10 @@ public class RecordEditFragment extends Fragment {
     public static final int REQUEST_CODE_SET_AMOUNT = 5;
 
     public static final int RESULT_CODE_SUCCESS = 1;
+
+    private static Map<String, Integer> sCmdIdMap = null;
+    private static Map<Integer, String> sRevCmdIdMap = null;
+
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
@@ -67,8 +73,6 @@ public class RecordEditFragment extends Fragment {
     private TextView durationEdit;
     private TextView amountLabel;
     private TextView amountEdit;
-    private Button buttonCancel;
-    private Button buttonOkay;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -101,6 +105,18 @@ public class RecordEditFragment extends Fragment {
         initViews(rootView);
         refreshViews();
 
+        // initialize command id mapping
+        if (sCmdIdMap == null) {
+            sCmdIdMap = new HashMap<>();
+            sRevCmdIdMap = new HashMap<>();
+
+            String[] cmdIds = getResources().getStringArray(R.array.record_edit_activity_type_cmdId);
+            for (int i = 0; i < cmdIds.length; i++) {
+                sCmdIdMap.put(cmdIds[i], i);
+                sRevCmdIdMap.put(i, cmdIds[i]);
+            }
+        }
+
         return rootView;
     }
 
@@ -118,8 +134,9 @@ public class RecordEditFragment extends Fragment {
         typeEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int selected = sCmdIdMap.get(mEvent.getTypeStr());
                 new AlertDialog.Builder(getActivity())
-                        .setSingleChoiceItems(R.array.record_edit_activity_type, 0, null)
+                        .setSingleChoiceItems(R.array.record_edit_activity_type, selected, null)
                         .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -130,11 +147,7 @@ public class RecordEditFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();
                                 int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                                String typeStr = getResources().getStringArray(R.array.record_edit_activity_type_cmdId)[selectedPosition];
-
-                                Log.v(TAG, "[onClickTypeEdit] typeStr: " + typeStr + ", pos: " + selectedPosition);
-                                mEvent.setEventType(typeStr);
-
+                                mEvent.setEventType(sRevCmdIdMap.get(selectedPosition));
                                 refreshViews();
                             }
                         })
@@ -217,8 +230,8 @@ public class RecordEditFragment extends Fragment {
         });
 
         // ok/cancel buttons
-        buttonCancel = (Button) root.findViewById(R.id.button_cancel);
-        buttonOkay = (Button) root.findViewById(R.id.button_ok);
+        Button buttonCancel = (Button) root.findViewById(R.id.button_cancel);
+        Button buttonOkay = (Button) root.findViewById(R.id.button_ok);
         buttonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -256,8 +269,6 @@ public class RecordEditFragment extends Fragment {
     }
 
     private void refreshViews() {
-        Log.v(TAG, "[refreshViews] called, event: " + mEvent);
-
         typeEdit.setText(mEvent.getDisplayType(getActivity()));
         startDateEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getStartTimeCopy(), "yyyy-MM-dd"));
         startTimeEdit.setText(TimeUtils.flattenCalendarTimeSafely(mEvent.getStartTimeCopy(), "HH:mm:SS"));
@@ -283,18 +294,12 @@ public class RecordEditFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
-
         int year = data.getIntExtra(DatePickerDialogFragment.KEY_YEAR, 0);
         int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, 0);
         int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY, 0);
         int hourOfDay = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR_OF_DAY, 0);
         int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, 0);
         int amountInML = data.getIntExtra(MilkPickerDialogFragment.EXTRA_MILLI_LITER, 0);
-
-        Log.v(TAG, String.format("[onActivityResult] Receive date: %04d/%02d/%02d", year, month, day));
-        Log.v(TAG, String.format("[onActivityResult] Receive time: %02d/%02d", hourOfDay, minute));
-        Log.v(TAG, String.format("[onActivityResult] Receive amount: %d", amountInML));
 
         if (requestCode == REQUEST_CODE_SET_START_DATE) {
             mEvent.setStartDate(year, month, day);
