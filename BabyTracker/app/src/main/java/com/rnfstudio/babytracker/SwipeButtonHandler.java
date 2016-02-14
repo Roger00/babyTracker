@@ -109,6 +109,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     private SwipeButton mDiaperButton;
 
     private LastInfo mLastInfo;
+    private boolean mLastInfoDirty = false;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -164,10 +165,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 end.add(Calendar.SECOND, 1);
                 asyncWriteDB(context, id, start, end, EventContract.EventEntry.EMPTY_AMOUNT);
                 Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
-
-                // notify event change for containing fragment
-                ((MainFragment)mFragment).notifyEventChanged(EventContract.EventEntry.getMainType(id));
-
                 break;
 
             case MENU_ITEM_SETTINGS:
@@ -203,10 +200,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         showCounter(id, false);
 
         Toast.makeText(mContext, R.string.add_successful, Toast.LENGTH_SHORT).show();
-
-        // notify event change for containing fragment
-        ((MainFragment)mFragment).notifyEventChanged(EventContract.EventEntry.getMainType(id));
-
         if (DEBUG) Log.v(TAG, "stopTime: " + TimeUtils.flattenEventTime(end));
         if (DEBUG) Log.v(TAG, "amount: " + amount);
     }
@@ -226,8 +219,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                 b.putInt(Event.EXTRA_EVENT_AMOUNT, amount);
 
                 Event.createFromBundle(b).writeDB(context, false);
-
-                asyncRefreshLastInfo(context);
             }
         });
     }
@@ -292,19 +283,19 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         mLastInfoPanel = panel;
     }
 
-    public void asyncRefreshLastInfo(final Context context) {
+    public void asyncUpdateLastInfo() {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
                 mLastInfo =
-                        new LastInfo(queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_SLEEP),
-                        queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_MEAL),
-                        queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_DIAPER));
+                        new LastInfo(queryLatestTimeForMainType(mContext, EventContract.EventEntry.EVENT_TYPE_SLEEP),
+                        queryLatestTimeForMainType(mContext, EventContract.EventEntry.EVENT_TYPE_MEAL),
+                        queryLatestTimeForMainType(mContext, EventContract.EventEntry.EVENT_TYPE_DIAPER));
 
                 mMainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        refreshLastInfo();
+                        refreshAll();
                     }
                 });
             }
@@ -318,24 +309,26 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
      * @return: the occurence time in milli-second since epoch
      */
     private long queryLatestTimeForMainType(Context context, int mainType) {
-        Cursor c = null;
+        Cursor cursor = null;
         try {
-            c = context.getContentResolver().query(EventProvider.sMainUri,
+            cursor = context.getContentResolver().query(EventProvider.sMainUri,
                     new String[]{EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?",
                     new String[]{Integer.toString(mainType)},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC");
 
-            if (c != null && c.moveToNext()) return c.getLong(0);
+            if (cursor != null && cursor.moveToNext()) return cursor.getLong(0);
 
         } finally {
-            if (c != null) c.close();
+            if (cursor != null) cursor.close();
         }
 
         return 0;
     }
 
     public void refreshLastInfo() {
+        if (mLastInfo == null) return;
+
         if (mSleepButton != null) {
             mSleepButton.setDetail(mLastInfo.getLastSleepMessage(mContext));
         }
@@ -376,8 +369,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
                     // trigger next time tick in main thread
                     sTimerHandler.postDelayed(this, 1000);
 
-                    asyncRefreshLastInfo(mContext);
-                    refreshCounters();
+                    refreshAll();
                 }
             };
         }
@@ -407,7 +399,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
 
     public void refreshAll() {
         refreshCounters();
-        asyncRefreshLastInfo(mContext);
+        refreshLastInfo();
     }
 
     public void saveStates() {

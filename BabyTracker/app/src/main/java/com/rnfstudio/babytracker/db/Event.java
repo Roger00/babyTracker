@@ -191,9 +191,6 @@ public class Event {
     public boolean writeDB(Context context, boolean createEndTime) {
         if (createEndTime) mEndTime = Calendar.getInstance().getTimeInMillis();
 
-        Log.v(TAG, "[writeDB] startTime: " + mStartTime);
-        Log.v(TAG, "[writeDB] endTime: " + mEndTime);
-
         ContentValues values = new ContentValues();
         values.put(EventContract.EventEntry.COLUMN_ID, mId);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, mType);
@@ -206,7 +203,6 @@ public class Event {
         if (mId == -1) {
             values.remove(EventContract.EventEntry.COLUMN_ID);
             Uri insertUri = context.getContentResolver().insert(EventProvider.sMainUri, values);
-            if (DEBUG) Log.v(TAG, "[writeDB] insertUri: " + insertUri);
             return insertUri != null;
 
         } else {
@@ -215,8 +211,6 @@ public class Event {
                     values,
                     EventContract.EventEntry.COLUMN_ID + "=?",
                     new String[] {String.valueOf(mId)});
-
-            if (DEBUG) Log.v(TAG, "[writeDB] insertUri: " + rowsAffected);
 
             return rowsAffected == 1;
         }

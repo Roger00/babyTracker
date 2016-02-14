@@ -1,10 +1,10 @@
 package com.rnfstudio.babytracker;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -30,8 +30,7 @@ import java.util.ArrayList;
  */
 public class RecordListFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
-            RecordAdapter.RecordItemCallbacks,
-            OnEventChangedListener {
+            RecordAdapter.RecordItemCallbacks {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -68,6 +67,7 @@ public class RecordListFragment extends ListFragment
     // ------------------------------------------------------------------------
     private RecordAdapter mRecordAdapter;
     private CircleWidget mCircleWidget;
+    private ContentObserver mContentObserver;
 
     private int mMainType = EventContract.EventEntry.NO_TYPE;
 
@@ -82,12 +82,28 @@ public class RecordListFragment extends ListFragment
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // create an adapter for ListView
         mRecordAdapter = new RecordAdapter(getActivity(), this);
+
+        // create content observer for event changes
+        mContentObserver = new ContentObserver(new Handler(getActivity().getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                restartLoaders();
+            }
+        };
+
+        // register observer
+        getActivity().getContentResolver().registerContentObserver(
+                EventProvider.sMainUri,
+                true,
+                mContentObserver);
     }
 
     /**
@@ -138,6 +154,14 @@ public class RecordListFragment extends ListFragment
         // initialize cursor loader
         getLoaderManager().initLoader(LOADER_ID_DEFAULT, null, this);
         getLoaderManager().initLoader(LOADER_ID_CIRCLE, null, this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // unregister observer
+        getActivity().getContentResolver().unregisterContentObserver(mContentObserver);
     }
 
     @Override
@@ -217,13 +241,7 @@ public class RecordListFragment extends ListFragment
 
         Log.v(TAG, "[onActivityResult] requestCode: " + requestCode + ", resultCode: " + resultCode + "data: " + data);
 
-        if (requestCode == REQUEST_CODE_EDIT) {
-            if (data != null && data.getIntExtra(KEY_RESULT_CODE, RESULT_CODE_CANCEL) == RESULT_CODE_CONFIRM) {
-                Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
-                getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
-                getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
-            }
-        } else if (requestCode == REQUEST_CODE_MENU) {
+        if (requestCode == REQUEST_CODE_MENU) {
             Bundle bundle = data.getExtras();
             Event event = Event.createFromBundle(bundle);
             int moreAction = bundle.getInt(MenuDialogFragment.EXTRA_MORE_ACTION, -1);
@@ -231,21 +249,10 @@ public class RecordListFragment extends ListFragment
                 case 0:
                     startRecordEditor(event);
                     break;
-                case 1:
-                    Log.v(TAG, "[onActivityResult] restart loader for deletion");
-                    getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
-                    getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
-                    break;
                 default:
                     break;
             }
         }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Log.v(TAG, "[onAttach] called, type: " + getMainType());
     }
 
     protected void startRecordEditor(Event event) {
@@ -277,15 +284,8 @@ public class RecordListFragment extends ListFragment
         newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
     }
 
-    @Override
-    public void onEventChanged(int mainType) {
-        Log.v(TAG, "[onEventChanged] restart loaders for event change, mainType: " + mainType);
-
-        if (isAdded()) {
-            getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
-            getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
-        } else {
-            Log.v(TAG, "[onEventChanged] fragment not attached to activity, skip update");
-        }
+    private void restartLoaders() {
+        getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
+        getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
     }
 }

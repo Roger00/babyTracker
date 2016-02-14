@@ -26,7 +26,7 @@ import java.util.Calendar;
  * Modified from example:
  * http://developer.android.com/intl/zh-tw/training/implementing-navigation/lateral.html
  */
-public class MainActivity extends FragmentActivity implements OnEventChangedListener {
+public class MainActivity extends FragmentActivity {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -86,12 +86,6 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
     }
 
     public static class SubCategoryPageChangeListener implements ViewPager.OnPageChangeListener {
-        public static final int DIRTY_FLAG_SLEEP = 1;
-        public static final int DIRTY_FLAG_MEAL = 1 << 1;
-        public static final int DIRTY_FLAG_DIAPER = 1 << 2;
-
-        private static int sDirtyFlags = 0;
-
         private SubCategoryPagerAdapter mPagerAdapter;
 
         @Override
@@ -100,34 +94,6 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
         @Override
         public void onPageSelected(int position) {
             Log.v(TAG, "[onPageSelected] position: " + position);
-
-            // MainActivity works as a Mediator
-            // notify the affected fragment
-            int mainType;
-            switch (position) {
-                case TAB_ID_SLEEP:
-                    mainType = EventContract.EventEntry.EVENT_TYPE_SLEEP;
-                    break;
-                case TAB_ID_MEAL:
-                    mainType = EventContract.EventEntry.EVENT_TYPE_MEAL;
-                    break;
-                case TAB_ID_DIAPER:
-                    mainType = EventContract.EventEntry.EVENT_TYPE_DIAPER;
-                    break;
-                default:
-                    return;
-            }
-
-            RecordListFragment frag = (RecordListFragment)
-                    mPagerAdapter.getItem(position);
-
-            // let's always notify event change when page changed
-            // TODO: use ContentProvider instead
-            if (frag != null) {
-                frag.onEventChanged(mainType);
-            } else {
-                Log.d(TAG, "[onPageSelected] fail to find fragment for mainType: " + mainType);
-            }
         }
 
         @Override
@@ -135,68 +101,6 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
 
         public void setAdapter(SubCategoryPagerAdapter adapter) {
             mPagerAdapter = adapter;
-        }
-
-        /**
-         * For bit operations, refer to:
-         * http://stackoverflow.com/questions/47981/how-do-you-set-clear-and-toggle-a-single-bit-in-c-c
-         * @param mainType
-         */
-        public void setDirtyFlag(int mainType) {
-            Log.v(TAG, "[setDirtyFlag] receive event change for mainType: " + mainType);
-
-            Log.d(TAG, "[setDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
-            switch (mainType) {
-                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
-                    sDirtyFlags |= DIRTY_FLAG_SLEEP;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_MEAL:
-                    sDirtyFlags |= DIRTY_FLAG_MEAL;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
-                    sDirtyFlags |= DIRTY_FLAG_DIAPER;
-                    break;
-            }
-            Log.d(TAG, "[setDirtyFlag] sDirtyFlags(after): " + sDirtyFlags);
-        }
-
-        public boolean checkDirtyFlag(int mainType) {
-            Log.v(TAG, "[checkDirtyFlag] receive event change for mainType: " + mainType);
-
-            Log.d(TAG, "[checkDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
-
-            boolean checked = false;
-            switch (mainType) {
-                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
-                    checked = (sDirtyFlags & DIRTY_FLAG_SLEEP) != 0;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_MEAL:
-                    checked = (sDirtyFlags & DIRTY_FLAG_MEAL) != 0;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
-                    checked = (sDirtyFlags & DIRTY_FLAG_DIAPER) != 0;
-                    break;
-            }
-            Log.d(TAG, "[checkDirtyFlag] checked " + checked);
-            return checked;
-        }
-
-        public void clearDirtyFlag(int mainType) {
-            Log.v(TAG, "[clearDirtyFlag] receive event change for mainType: " + mainType);
-
-            Log.d(TAG, "[clearDirtyFlag] sDirtyFlags(before): " + sDirtyFlags);
-            switch (mainType) {
-                case EventContract.EventEntry.EVENT_TYPE_SLEEP:
-                    sDirtyFlags &= ~DIRTY_FLAG_SLEEP;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_MEAL:
-                    sDirtyFlags &= ~DIRTY_FLAG_MEAL;
-                    break;
-                case EventContract.EventEntry.EVENT_TYPE_DIAPER:
-                    sDirtyFlags &= ~DIRTY_FLAG_DIAPER;
-                    break;
-            }
-            Log.d(TAG, "[clearDirtyFlag] sDirtyFlags(after): " + sDirtyFlags);
         }
     }
 
@@ -270,14 +174,6 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
         // initialize days from birth string
         TextView daysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
         daysFromBirth.setText(getDaysFromBirthString());
-    }
-
-    @Override
-    public void onEventChanged(int mainType) {
-        Log.v(TAG, "[onEventChanged] receive event change for mainType: " + mainType);
-
-        // cache dirty flags
-        mSubCategoryPageChangeListener.setDirtyFlag(mainType);
     }
 
     private String getDaysFromBirthString() {

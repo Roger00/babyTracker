@@ -124,6 +124,11 @@ public class EventProvider extends ContentProvider {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         String table = EventContract.EventEntry.TABLE_NAME;
         long rowId = db.insert(table, null, values);
+
+        if (rowId != -1) {
+            getContext().getContentResolver().notifyChange(sMainUri, null);
+        }
+
         return rowId == -1 ? null : Uri.withAppendedPath(sMainUri, String.valueOf(rowId));
     }
 
@@ -135,13 +140,25 @@ public class EventProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         String table = EventContract.EventEntry.TABLE_NAME;
-        return db.delete(table, selection, selectionArgs);
+        int cRowsAffected = db.delete(table, selection, selectionArgs);
+
+        if (cRowsAffected > 0) {
+            getContext().getContentResolver().notifyChange(sMainUri, null);
+        }
+
+        return cRowsAffected;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         String table = EventContract.EventEntry.TABLE_NAME;
-        return db.update(table, values, selection, selectionArgs);
+        int cRowsAffected = db.update(table, values, selection, selectionArgs);
+
+        if (cRowsAffected > 0) {
+            getContext().getContentResolver().notifyChange(sMainUri, null);
+        }
+
+        return cRowsAffected;
     }
 }
