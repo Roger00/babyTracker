@@ -70,9 +70,6 @@ public class MainFragment extends Fragment implements OnEventChangedListener {
         ViewGroup lastInfoPanel = (ViewGroup) rootView.findViewById(R.id.lastInfoPanel);
         mManager.setLastInfoPanel(lastInfoPanel);
 
-        ViewGroup infoPanel = (ViewGroup) rootView.findViewById(R.id.infoPanel);
-        mManager.setInfoPanel(infoPanel);
-
         return rootView;
     }
 

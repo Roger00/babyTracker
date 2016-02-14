@@ -144,30 +144,4 @@ public class EventProvider extends ContentProvider {
         String table = EventContract.EventEntry.TABLE_NAME;
         return db.update(table, values, selection, selectionArgs);
     }
-
-    /**
-     * Query the latest occurrence time for events
-     *
-     * @param mainType: the query type for events
-     * @return: the occurence time in milli-second since epoch
-     */
-    public long queryLatestTimeForMainType(int mainType) {
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        try (
-                Cursor cursor = db.query(true,
-                        EventContract.EventEntry.TABLE_NAME,
-                        new String[] {EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
-                        EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?", new String[] {Integer.toString(mainType)},
-                        null, null, EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC", null)) {
-
-            if (cursor != null && cursor.moveToNext()) {
-                return cursor.getLong(0);
-            }
-
-        } catch (SQLiteException e) {
-            Log.w(TAG, "[queryLatestEvent] exception during db query");
-        }
-
-        return 0;
-    }
 }

@@ -3,6 +3,7 @@ package com.rnfstudio.babytracker;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
+import com.rnfstudio.babytracker.db.EventProvider;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
@@ -102,7 +104,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     private Map<String, Calendar> mTimerMap = new HashMap<>();
     private Handler mMainHandler;
     private ViewGroup mLastInfoPanel;
-    private ViewGroup mInfoPanel;
     private SwipeButton mSleepButton;
     private SwipeButton mMealButton;
     private SwipeButton mDiaperButton;
@@ -210,17 +211,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         if (DEBUG) Log.v(TAG, "amount: " + amount);
     }
 
-//    private void asyncClearDB(final Context context) {
-//        final EventDB db = MainApplication.getEventDatabase(context);
-//        sWorker.post(new Runnable() {
-//            @Override
-//            public void run() {
-////                db.clearAllEvents();
-//                asyncRefreshLastInfo(context);
-//            }
-//        });
-//    }
-
     private void asyncWriteDB(final Context context, final String eventType, final Calendar startTime, final Calendar endTime, final int amount) {
         sWorker.post(new Runnable() {
             @Override
@@ -306,24 +296,56 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-//                EventDB db = MainApplication.getEventDatabase(context);
-//
-//                long lastSleep = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
-//                long lastMeal = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_MEAL);
-//                long lastDiaper = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
-//                mLastInfo = new LastInfo(lastSleep, lastMeal, lastDiaper);
-//
-//                mMainHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        refreshLastInfo();
-//                    }
-//                });
+                mLastInfo =
+                        new LastInfo(queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_SLEEP),
+                        queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_MEAL),
+                        queryLatestTimeForMainType(context, EventContract.EventEntry.EVENT_TYPE_DIAPER));
+
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshLastInfo();
+                    }
+                });
             }
         });
     }
 
+    /**
+     * Query the latest occurrence time for events
+     *
+     * @param mainType: the query type for events
+     * @return: the occurence time in milli-second since epoch
+     */
+    private long queryLatestTimeForMainType(Context context, int mainType) {
+        Cursor c = null;
+        try {
+            c = context.getContentResolver().query(EventProvider.sMainUri,
+                    new String[]{EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?",
+                    new String[]{Integer.toString(mainType)},
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC");
+
+            if (c != null && c.moveToNext()) return c.getLong(0);
+
+        } finally {
+            if (c != null) c.close();
+        }
+
+        return 0;
+    }
+
     public void refreshLastInfo() {
+        if (mSleepButton != null) {
+            mSleepButton.setDetail(mLastInfo.getLastSleepMessage(mContext));
+        }
+        if (mMealButton != null) {
+            mMealButton.setDetail(mLastInfo.getLastMealMessage(mContext));
+        }
+        if (mDiaperButton != null) {
+            mDiaperButton.setDetail(mLastInfo.getLastDiaperMessage(mContext));
+        }
+
         if (mLastInfoPanel == null) return;
 
         TextView lastSleepDetail = (TextView) mLastInfoPanel.findViewById(R.id.last_sleep_detail);
@@ -338,16 +360,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
         if (lastDiaperDetail != null) {
             lastDiaperDetail.setText(mLastInfo.getLastDiaperMessage(mContext));
-        }
-
-        if (mSleepButton != null) {
-            mSleepButton.setDetail(mLastInfo.getLastSleepMessage(mContext));
-        }
-        if (mMealButton != null) {
-            mMealButton.setDetail(mLastInfo.getLastMealMessage(mContext));
-        }
-        if (mDiaperButton != null) {
-            mDiaperButton.setDetail(mLastInfo.getLastDiaperMessage(mContext));
         }
     }
 
@@ -391,10 +403,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         // reset runnable
         // this MUST be done to unbind old handler and views
         sTimerRunnable = null;
-    }
-
-    public void setInfoPanel(ViewGroup panel) {
-        mInfoPanel = panel;
     }
 
     public void refreshAll() {

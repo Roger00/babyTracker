@@ -6,14 +6,12 @@
     android:splitMotionEvents="false"
     tools:context=".MainActivity">
 
-    <include layout="@layout/menu_panel"
-        android:id="@+id/include" />
+    <include layout="@layout/menu_panel"/>
 
     <include layout="@layout/last_info_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:id="@+id/include2" />
+        android:layout_alignParentStart="false"/>
 
 </RelativeLayout>
