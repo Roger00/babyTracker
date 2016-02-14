@@ -10,6 +10,10 @@
             android:title="@string/settings_enable_sound_effect"
             android:key ="key_enable_sound_effect"
             android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:title="@string/settings_enable_vibrate"
+            android:key ="key_enable_vibrate"
+            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_backup">

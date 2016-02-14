@@ -1,8 +1,10 @@
 package com.rnfstudio.babytracker.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -27,6 +29,7 @@ public class Event {
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     public static final String TAG = "[Event]";
+    private static final boolean DEBUG = true;
 
     public static final String EXTRA_EVENT_ID = "event.id";
     public static final String EXTRA_EVENT_TYPE = "event.type";
@@ -47,7 +50,7 @@ public class Event {
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
-    private int mId;
+    private long mId;
     private int mType;
     private int mSubType;
     private long mStartTime;
@@ -59,7 +62,7 @@ public class Event {
     // INITIALIZERS
     // ------------------------------------------------------------------------
     public static Event createFromCursor(Cursor c) {
-        int id = c.getInt(EventContract.EventQuery.EVENT_ID);
+        long id = c.getLong(EventContract.EventQuery.EVENT_ID);
         int type = c.getInt(EventContract.EventQuery.EVENT_TYPE);
         int subType = c.getInt(EventContract.EventQuery.EVENT_SUBTYPE);
         long startTime = c.getLong(EventContract.EventQuery.EVENT_START_TIME);
@@ -71,7 +74,7 @@ public class Event {
     }
 
     public static Event createFromBundle(Bundle extras) {
-        int id = extras.getInt(EXTRA_EVENT_ID, 0);
+        long id = extras.getLong(EXTRA_EVENT_ID, 0);
         int type = extras.getInt(EXTRA_EVENT_TYPE, 0);
         int subType = extras.getInt(EXTRA_EVENT_SUBTYPE, 0);
         long startTime = extras.getLong(EXTRA_EVENT_START_TIME);
@@ -81,10 +84,12 @@ public class Event {
 
         return new Event(id, type, subType, startTime, endTime, duration, amount);
     }
+
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    private Event(int id, int type, int subType, long startTime, long endTime, long durationInMilliSec, int amountInMilliLiter) {
+    private Event(Long id, int type, int subType, long startTime, long endTime,
+                  long durationInMilliSec, int amountInMilliLiter) {
         mId = id;
         mType = type;
         mSubType = subType;
@@ -99,7 +104,7 @@ public class Event {
     // ------------------------------------------------------------------------
     public Bundle toBundle() {
         Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_EVENT_ID, mId);
+        bundle.putLong(EXTRA_EVENT_ID, mId);
         bundle.putInt(EXTRA_EVENT_TYPE, mType);
         bundle.putInt(EXTRA_EVENT_SUBTYPE, mSubType);
         bundle.putLong(EXTRA_EVENT_START_TIME, mStartTime);
@@ -142,7 +147,7 @@ public class Event {
         return duration;
     }
 
-    public int getId() {
+    public long getId() {
         return mId;
     }
 
@@ -183,23 +188,45 @@ public class Event {
         }
     }
 
-    public boolean writeDB(Context context) {
-        return writeDB(context, true);
-    }
-
     public boolean writeDB(Context context, boolean createEndTime) {
-        EventDB db = MainApplication.getEventDatabase(context);
         if (createEndTime) mEndTime = Calendar.getInstance().getTimeInMillis();
 
         Log.v(TAG, "[writeDB] startTime: " + mStartTime);
         Log.v(TAG, "[writeDB] endTime: " + mEndTime);
 
-        return db.updateEvent(mId, mType, mSubType, mStartTime, mEndTime, mAmount);
+        ContentValues values = new ContentValues();
+        values.put(EventContract.EventEntry.COLUMN_ID, mId);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, mType);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, mSubType);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, mStartTime);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME, mEndTime);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION, mEndTime - mStartTime);
+        values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT, mAmount);
+
+        if (mId == -1) {
+            values.remove(EventContract.EventEntry.COLUMN_ID);
+            Uri insertUri = context.getContentResolver().insert(EventProvider.sMainUri, values);
+            if (DEBUG) Log.v(TAG, "[writeDB] insertUri: " + insertUri);
+            return insertUri != null;
+
+        } else {
+            int rowsAffected = context.getContentResolver().update(
+                    EventProvider.sMainUri,
+                    values,
+                    EventContract.EventEntry.COLUMN_ID + "=?",
+                    new String[] {String.valueOf(mId)});
+
+            if (DEBUG) Log.v(TAG, "[writeDB] insertUri: " + rowsAffected);
+
+            return rowsAffected == 1;
+        }
     }
 
     public boolean removeFromDB(Context context) {
-        EventDB db = MainApplication.getEventDatabase(context);
-        return db.deleteEvent(mId);
+        return context.getContentResolver().delete(
+                EventProvider.sMainUri,
+                EventContract.EventEntry.COLUMN_ID + "=?",
+                new String[]{String.valueOf(mId)}) == 1;
     }
 
     public void setEventType(String typeStr) {

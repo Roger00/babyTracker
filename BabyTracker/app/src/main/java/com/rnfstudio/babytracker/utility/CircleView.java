@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 import com.rnfstudio.babytracker.R;
+import com.rnfstudio.babytracker.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -278,8 +279,10 @@ public class CircleView extends View {
     }
 
     private void sendHapticFeedback() {
-        Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(20);
+        if (SettingsActivity.isVibrateEnabled(getContext())) {
+            Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(20);
+        }
     }
 
     public void setCircleTouchState(boolean touched) {

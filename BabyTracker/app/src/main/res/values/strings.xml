@@ -113,6 +113,7 @@
     <string name="settings_general">General</string>
     <string name="settings_profile">Setup profile</string>
     <string name="settings_enable_sound_effect">Enable sound effects</string>
+    <string name="settings_enable_vibrate">Enable vibration</string>
     <string name="settings_backup">Backup</string>
     <string name="settings_backup_to_sd">Backup database to SDCard</string>
     <string name="settings_backup_restore_from_sd">Restore database from SDCard</string>

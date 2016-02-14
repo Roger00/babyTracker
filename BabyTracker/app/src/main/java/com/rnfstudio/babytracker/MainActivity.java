@@ -14,9 +14,13 @@ import android.text.style.ImageSpan;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Window;
+import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.utility.SlidingTabLayout;
+import com.rnfstudio.babytracker.utility.TimeUtils;
+
+import java.util.Calendar;
 
 /**
  * Modified from example:
@@ -50,11 +54,11 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
             Fragment fragment = mFragmentMap.get(i);
             if (fragment == null) {
                 Log.d(TAG, "[getItem] create new fragment instance");
-                fragment = i == TAB_ID_MAIN ? new MainFragment() : new SubCategoryFragment();
+                fragment = i == TAB_ID_MAIN ? new MainFragment() : new RecordListFragment();
                 mFragmentMap.put(i, fragment);
 
                 Bundle args = new Bundle();
-                args.putInt(SubCategoryFragment.ARG_TAB_ID, i);
+                args.putInt(RecordListFragment.ARG_TAB_ID, i);
                 fragment.setArguments(args);
             }
 
@@ -114,7 +118,7 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
                     return;
             }
 
-            SubCategoryFragment frag = (SubCategoryFragment)
+            RecordListFragment frag = (RecordListFragment)
                     mPagerAdapter.getItem(position);
 
             // let's always notify event change when page changed
@@ -262,6 +266,10 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
 
         // re-direct page change events to our listener
         mSlidingTabLayout.setOnPageChangeListener(mSubCategoryPageChangeListener);
+
+        // initialize days from birth string
+        TextView daysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
+        daysFromBirth.setText(getDaysFromBirthString());
     }
 
     @Override
@@ -270,5 +278,29 @@ public class MainActivity extends FragmentActivity implements OnEventChangedList
 
         // cache dirty flags
         mSubCategoryPageChangeListener.setDirtyFlag(mainType);
+    }
+
+    private String getDaysFromBirthString() {
+        Calendar birth = Calendar.getInstance();
+        birth.set(Calendar.YEAR, 2015);
+        birth.set(Calendar.MONTH, Calendar.MARCH );
+        birth.set(Calendar.DAY_OF_MONTH, 18);
+
+        int daysBetween = TimeUtils.daysBetween(birth, Calendar.getInstance());
+        int days = TimeUtils.getRemainDaysInMonth(daysBetween);
+        int months = TimeUtils.getRemainMonthsInYear(daysBetween);
+        int years = TimeUtils.getRemainYears(daysBetween);
+
+        if (years > 0) {
+            return getResources().getQuantityString(R.plurals.info_years_since_birth,
+                    years, years, months, days);
+        } else if (months > 0) {
+            return getResources().getQuantityString(R.plurals.info_months_since_birth,
+                    months, months, days);
+        } else if (days > 0) {
+            return getResources().getQuantityString(R.plurals.info_days_since_birth, days, days);
+        } else {
+            return getResources().getString(R.string.last_info_default_message);
+        }
     }
 }

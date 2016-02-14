@@ -1,7 +1,5 @@
 package com.rnfstudio.babytracker;
 
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,23 +8,20 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
-import com.rnfstudio.babytracker.db.EventDB;
-import com.rnfstudio.babytracker.db.EventDBHelper;
 import com.rnfstudio.babytracker.utility.MilkPickerDialogFragment;
 import com.rnfstudio.babytracker.utility.SwipeButton;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -187,8 +182,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         }
     }
 
-
-
     private void startTimerForFuncId(String id) {
         Calendar startTime = Calendar.getInstance();
         startTimer(startTime, id);
@@ -217,23 +210,33 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         if (DEBUG) Log.v(TAG, "amount: " + amount);
     }
 
-    private void asyncClearDB(final Context context) {
-        final EventDB db = MainApplication.getEventDatabase(context);
-        sWorker.post(new Runnable() {
-            @Override
-            public void run() {
-                db.clearAllEvents();
-                asyncRefreshLastInfo(context);
-            }
-        });
-    }
+//    private void asyncClearDB(final Context context) {
+//        final EventDB db = MainApplication.getEventDatabase(context);
+//        sWorker.post(new Runnable() {
+//            @Override
+//            public void run() {
+////                db.clearAllEvents();
+//                asyncRefreshLastInfo(context);
+//            }
+//        });
+//    }
 
     private void asyncWriteDB(final Context context, final String eventType, final Calendar startTime, final Calendar endTime, final int amount) {
-        final EventDB db = MainApplication.getEventDatabase(context);
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-                db.insertEvent(eventType, startTime, endTime, amount);
+                Bundle b = new Bundle();
+                b.putLong(Event.EXTRA_EVENT_ID, -1);
+                b.putInt(Event.EXTRA_EVENT_TYPE, EventContract.EventEntry.getMainType(eventType));
+                b.putInt(Event.EXTRA_EVENT_SUBTYPE, EventContract.EventEntry.getSubType(eventType));
+                b.putLong(Event.EXTRA_EVENT_START_TIME, startTime.getTimeInMillis());
+                b.putLong(Event.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis());
+                b.putLong(Event.EXTRA_EVENT_DURATION,
+                        endTime.getTimeInMillis() - startTime.getTimeInMillis());
+                b.putInt(Event.EXTRA_EVENT_AMOUNT, amount);
+
+                Event.createFromBundle(b).writeDB(context, false);
+
                 asyncRefreshLastInfo(context);
             }
         });
@@ -303,19 +306,19 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         sWorker.post(new Runnable() {
             @Override
             public void run() {
-                EventDB db = MainApplication.getEventDatabase(context);
-
-                long lastSleep = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
-                long lastMeal = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_MEAL);
-                long lastDiaper = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
-                mLastInfo = new LastInfo(lastSleep, lastMeal, lastDiaper);
-
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshLastInfo();
-                    }
-                });
+//                EventDB db = MainApplication.getEventDatabase(context);
+//
+//                long lastSleep = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
+//                long lastMeal = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_MEAL);
+//                long lastDiaper = db.queryLatestTimeForMainType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
+//                mLastInfo = new LastInfo(lastSleep, lastMeal, lastDiaper);
+//
+//                mMainHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        refreshLastInfo();
+//                    }
+//                });
             }
         });
     }
@@ -370,13 +373,6 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         sTimerHandler.postDelayed(sTimerRunnable, 0);
     }
 
-    private void refreshBirthDays() {
-        if (mInfoPanel != null) {
-            TextView daysFromBirth = (TextView) mInfoPanel.findViewById(R.id.daysFromBirth);
-            if (daysFromBirth != null) daysFromBirth.setText(getDaysFromBirthString());
-        }
-    }
-
     private void refreshCounters() {
         for (String id : getTimerIds()) {
             long diffInSecs = TimeUtils.secondsUntilNow(getStartTime(id).getTimeInMillis());
@@ -402,31 +398,8 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     }
 
     public void refreshAll() {
-        refreshBirthDays();
         refreshCounters();
         asyncRefreshLastInfo(mContext);
-    }
-
-    private String getDaysFromBirthString() {
-        Calendar birth = Calendar.getInstance();
-        birth.set(Calendar.YEAR, 2015);
-        birth.set(Calendar.MONTH, Calendar.MARCH );
-        birth.set(Calendar.DAY_OF_MONTH, 18);
-
-        int daysBetween = TimeUtils.daysBetween(birth, Calendar.getInstance());
-        int days = TimeUtils.getRemainDaysInMonth(daysBetween);
-        int months = TimeUtils.getRemainMonthsInYear(daysBetween);
-        int years = TimeUtils.getRemainYears(daysBetween);
-
-        if (years > 0) {
-            return mContext.getResources().getQuantityString(R.plurals.info_years_since_birth, years, years, months, days);
-        } else if (months > 0) {
-            return mContext.getResources().getQuantityString(R.plurals.info_months_since_birth, months, months, days);
-        } else if (days > 0) {
-            return mContext.getResources().getQuantityString(R.plurals.info_days_since_birth, days, days);
-        } else {
-            return mContext.getResources().getString(R.string.last_info_default_message);
-        }
     }
 
     public void saveStates() {

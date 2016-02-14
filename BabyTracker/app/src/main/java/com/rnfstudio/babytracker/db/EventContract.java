@@ -157,6 +157,7 @@ public class EventContract {
                     EventEntry.COLUMN_NAME_EVENT_AMOUNT + INT_TYPE + COMMA_SEP +
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + ")" + " )";
+
     public static final String SQL_DROP_TABLE = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;
 
     // ------------------------------------------------------------------------

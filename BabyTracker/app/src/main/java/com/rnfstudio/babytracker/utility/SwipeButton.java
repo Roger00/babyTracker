@@ -18,6 +18,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.R;
+import com.rnfstudio.babytracker.SettingsActivity;
 
 /**
  * Created by Roger on 2015/7/14.
@@ -171,8 +172,10 @@ public class SwipeButton extends LinearLayout {
                     showTooltip(context, v, displayCmd);
 
                     // send haptic feedback
-                    Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-                    vibrator.vibrate(20);
+                    if (SettingsActivity.isVibrateEnabled(getContext())) {
+                        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                        vibrator.vibrate(20);
+                    }
 
                     return true;
 

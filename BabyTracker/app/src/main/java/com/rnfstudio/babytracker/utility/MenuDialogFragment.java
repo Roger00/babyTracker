@@ -8,15 +8,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.rnfstudio.babytracker.R;
-import com.rnfstudio.babytracker.RecordEditActivity;
 import com.rnfstudio.babytracker.RecordEditFragment;
-import com.rnfstudio.babytracker.RecordListFragment;
 import com.rnfstudio.babytracker.db.Event;
 
 /**

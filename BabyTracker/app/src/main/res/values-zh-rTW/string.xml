@@ -112,6 +112,7 @@
     <string name="settings_general">一般</string>
     <string name="settings_profile">設定大頭照</string>
     <string name="settings_enable_sound_effect">允許音效</string>
+    <string name="settings_enable_vibrate">允許震動</string>
     <string name="settings_backup">備份資料庫</string>
     <string name="settings_backup_to_sd">備份至 SDCard</string>
     <string name="settings_backup_restore_from_sd">從 SDCard 還原</string>

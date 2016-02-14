@@ -1,23 +1,37 @@
 package com.rnfstudio.babytracker;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
 import com.rnfstudio.babytracker.db.EventContract;
+import com.rnfstudio.babytracker.db.EventProvider;
+import com.rnfstudio.babytracker.utility.CircleView;
+import com.rnfstudio.babytracker.utility.CircleWidget;
 import com.rnfstudio.babytracker.utility.MenuDialogFragment;
 
+import java.util.ArrayList;
+
 /**
- * Created by Roger on 2015/8/10.
+ * Created by Roger on 2016/1/22.
  */
 public class RecordListFragment extends ListFragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, RecordAdapter.RecordItemCallbacks {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+            RecordAdapter.RecordItemCallbacks,
+            OnEventChangedListener {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -26,13 +40,20 @@ public class RecordListFragment extends ListFragment
     // STATIC FIELDS
     // ------------------------------------------------------------------------
     private static final String TAG = "[RecordListFragment]";
-    private static final boolean DEBUG = true;
+
+    private static final boolean DEBUG = false;
 
     public static final int REQUEST_CODE_EDIT = 0;
     public static final int REQUEST_CODE_MENU = 1;
+
     public static final String KEY_RESULT_CODE = "result";
     public static final int RESULT_CODE_CONFIRM = 0;
     public static final int RESULT_CODE_CANCEL = 1;
+
+    public static final String ARG_TAB_ID = "tab_id";
+
+    public static final int LOADER_ID_DEFAULT = 0;
+    public static final int LOADER_ID_CIRCLE = 1;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -45,7 +66,9 @@ public class RecordListFragment extends ListFragment
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
-    private RecordAdapter mAdapter;
+    private RecordAdapter mRecordAdapter;
+    private CircleWidget mCircleWidget;
+
     private int mMainType = EventContract.EventEntry.NO_TYPE;
 
     // ------------------------------------------------------------------------
@@ -63,27 +86,101 @@ public class RecordListFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // create RecordAdapter
-        mAdapter = new RecordAdapter(getActivity(), this);
+        // create an adapter for ListView
+        mRecordAdapter = new RecordAdapter(getActivity(), this);
+    }
+
+    /**
+     * Override onCreateView Use customized layout
+     *
+     * Refer to:
+     * http://developer.android.com/intl/zh-tw/reference/android/app/ListFragment.html
+     */
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        // The last two arguments ensure LayoutParams are inflated
+        // properly.
+        View rootView = inflater.inflate(R.layout.fragment_sub_category, container, false);
+
+        Bundle args = getArguments() == null ? new Bundle() : getArguments();
+
+        switch (args.getInt(ARG_TAB_ID)) {
+            case MainActivity.TAB_ID_MEAL:
+                setMainType(EventContract.EventEntry.EVENT_TYPE_MEAL);
+                break;
+            case MainActivity.TAB_ID_DIAPER:
+                setMainType(EventContract.EventEntry.EVENT_TYPE_DIAPER);
+                break;
+            case MainActivity.TAB_ID_SLEEP:
+                setMainType(EventContract.EventEntry.EVENT_TYPE_SLEEP);
+                break;
+            default:
+                setMainType(EventContract.EventEntry.NO_TYPE);
+                break;
+        }
+
+        mCircleWidget = new CircleWidget(getActivity());
+        mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
+        mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
+
+        return rootView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // set adapter for ListView
-        setListAdapter(mAdapter);
+        // set adapter for CircleView
+        setListAdapter(mRecordAdapter);
 
         // initialize cursor loader
-        getLoaderManager().initLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+        getLoaderManager().initLoader(LOADER_ID_DEFAULT, null, this);
+        getLoaderManager().initLoader(LOADER_ID_CIRCLE, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id);
+        if (DEBUG) Log.v(TAG, "[onCreateLoader] called, id:" + id + ", mainType:" + getMainType());
 
-        if (id == RecordLoader.LOADER_ID_DEFAULT) {
-            return new RecordLoader(getActivity(), RecordLoader.QUERY_TYPE_ALL, getMainType());
+        if (id == LOADER_ID_DEFAULT) {
+            String selection = getMainType() == EventContract.EventEntry.NO_TYPE ?
+                    null : EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
+            String[] selectionArgs = getMainType() == EventContract.EventEntry.NO_TYPE ?
+                    null : new String[] {Integer.toString(getMainType())};
+
+            return new CursorLoader(getActivity(),
+                    EventProvider.sMainUri,
+                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
+                    selection, selectionArgs,
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC");
+
+        } else if (id == LOADER_ID_CIRCLE) {
+            return new CursorLoader(getActivity(),
+                    EventProvider.sMainUri,
+                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " BETWEEN ? AND ? AND " +
+                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " BETWEEN ? AND ?",
+                    new String[] {Integer.toString(getMainType()),
+                            Long.toString(CircleWidget.getQueryAheadTIme()),
+                            Long.toString(CircleWidget.getQueryEndTime()),
+                            Long.toString(CircleWidget.getQueryStartTime()),
+                            Long.toString(CircleWidget.getQueryEndTime())},
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " ASC");
         }
 
         if (DEBUG) Log.w(TAG, "[onCreateLoader] incorrect ID");
@@ -92,8 +189,25 @@ public class RecordListFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
-            mAdapter.swapCursor(data);
+        if (DEBUG) Log.v(TAG, "[onLoadFinished] called, id:" + loader.getId() + ", mainType:" + getMainType());
+
+        if (loader.getId() == LOADER_ID_DEFAULT) {
+            mRecordAdapter.swapCursor(data);
+
+        } else if (loader.getId() == LOADER_ID_CIRCLE) {
+            mCircleWidget.setEvents(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (DEBUG) Log.v(TAG, "[onLoaderReset] called, id:" + loader.getId() + ", mainType:" + getMainType());
+
+        if (loader.getId() == LOADER_ID_DEFAULT) {
+            mRecordAdapter.swapCursor(null);
+
+        } else if (loader.getId() == LOADER_ID_CIRCLE) {
+            mCircleWidget.setEvents(new ArrayList<Event>());
         }
     }
 
@@ -106,7 +220,8 @@ public class RecordListFragment extends ListFragment
         if (requestCode == REQUEST_CODE_EDIT) {
             if (data != null && data.getIntExtra(KEY_RESULT_CODE, RESULT_CODE_CANCEL) == RESULT_CODE_CONFIRM) {
                 Log.v(TAG, "[onActivityResult] restart loader for edit confirm");
-                getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+                getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
+                getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
             }
         } else if (requestCode == REQUEST_CODE_MENU) {
             Bundle bundle = data.getExtras();
@@ -118,7 +233,8 @@ public class RecordListFragment extends ListFragment
                     break;
                 case 1:
                     Log.v(TAG, "[onActivityResult] restart loader for deletion");
-                    getLoaderManager().restartLoader(RecordLoader.LOADER_ID_DEFAULT, null, this);
+                    getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
+                    getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
                     break;
                 default:
                     break;
@@ -127,10 +243,9 @@ public class RecordListFragment extends ListFragment
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        if (loader.getId() == RecordLoader.LOADER_ID_DEFAULT) {
-            mAdapter.swapCursor(null);
-        }
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.v(TAG, "[onAttach] called, type: " + getMainType());
     }
 
     protected void startRecordEditor(Event event) {
@@ -160,5 +275,17 @@ public class RecordListFragment extends ListFragment
         newFragment.setArguments(e.toBundle());
         newFragment.setTargetFragment(RecordListFragment.this, REQUEST_CODE_MENU);
         newFragment.show(getFragmentManager(), MenuDialogFragment.TAG);
+    }
+
+    @Override
+    public void onEventChanged(int mainType) {
+        Log.v(TAG, "[onEventChanged] restart loaders for event change, mainType: " + mainType);
+
+        if (isAdded()) {
+            getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
+            getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
+        } else {
+            Log.v(TAG, "[onEventChanged] fragment not attached to activity, skip update");
+        }
     }
 }

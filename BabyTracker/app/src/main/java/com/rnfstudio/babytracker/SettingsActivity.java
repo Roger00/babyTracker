@@ -74,12 +74,14 @@ public class SettingsActivity extends Activity {
 
     public static final String KEY_PROFILE = "key_profile";
     public static final String KEY_ENABLE_SOUND_EFFECT = "key_enable_sound_effect";
+    public static final String KEY_ENABLE_VIBRATE = "key_enable_vibrate";
     public static final String KEY_BACKUP_TO_SDCARD = "key_backup_to_sdcard";
     public static final String KEY_RESTORE_FROM_SDCARD = "key_restore_from_sdcard";
     public static final String KEY_CHECK_UPDATES = "key_check_for_updates";
     public static final String KEY_VERSION = "key_version";
 
     public static final boolean DEFAULT_VALUE_ENABLE_SOUND_EFFECT = false;
+    public static final boolean DEFAULT_VALUE_ENABLE_VIBRATE = false;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -118,6 +120,14 @@ public class SettingsActivity extends Activity {
     public static boolean isSoundEffectEnabled(Context context) {
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         return sp.getBoolean(KEY_ENABLE_SOUND_EFFECT, DEFAULT_VALUE_ENABLE_SOUND_EFFECT);
+    }
+
+    /**
+     * Check if enable vibration
+     */
+    public static boolean isVibrateEnabled(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        return sp.getBoolean(KEY_ENABLE_VIBRATE, DEFAULT_VALUE_ENABLE_VIBRATE);
     }
 
     /**
