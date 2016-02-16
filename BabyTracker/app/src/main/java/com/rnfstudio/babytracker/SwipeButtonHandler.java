@@ -312,10 +312,10 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
         Cursor cursor = null;
         try {
             cursor = context.getContentResolver().query(EventProvider.sMainUri,
-                    new String[]{EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME},
+                    new String[]{EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?",
                     new String[]{Integer.toString(mainType)},
-                    EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " DESC");
+                    EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC");
 
             if (cursor != null && cursor.moveToNext()) return cursor.getLong(0);
 

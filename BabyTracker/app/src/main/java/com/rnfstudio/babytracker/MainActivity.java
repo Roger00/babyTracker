@@ -34,10 +34,10 @@ public class MainActivity extends FragmentActivity {
         private Context mContext;
 
         private int[] imageResId = {
-                R.drawable.star_pressed_resized,
-                R.drawable.star_pressed_resized,
-                R.drawable.star_pressed_resized,
-                R.drawable.star_pressed_resized
+                R.drawable.ic_home_black_24dp,
+                R.drawable.ic_sleep,
+                R.drawable.ic_local_dining_black_24dp,
+                R.drawable.ic_diaper
         };
 
         private SparseArray<Fragment> mFragmentMap = new SparseArray<>();
@@ -160,8 +160,11 @@ public class MainActivity extends FragmentActivity {
         // Initialize the SlidingTabLayout. Note that the order is important.
         // First init ViewPager and Adapter and only then init SlidingTabLayout
         mSlidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-        mSlidingTabLayout.setCustomTabView(R.layout.custom_tab, 0);
+        mSlidingTabLayout.setCustomTabView(R.layout.custom_tab, R.id.customText);
         mSlidingTabLayout.setViewPager(mViewPager);
+        mSlidingTabLayout.setDistributeEvenly(true);
+        mSlidingTabLayout.setSelectedIndicatorColors(getResources()
+                .getColor(android.R.color.holo_orange_dark));
 
         // re-direct page change events to our listener
         mSlidingTabLayout.setOnPageChangeListener(mSubCategoryPageChangeListener);

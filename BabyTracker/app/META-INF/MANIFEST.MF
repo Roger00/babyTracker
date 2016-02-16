@@ -1,0 +1,148 @@
+Manifest-Version: 1.0
+Built-By: 1.2.3
+Created-By: Android Gradle 1.2.3
+
+Name: res/drawable/baby.jpg
+SHA1-Digest: xumLAlduWRHaIVZNj4uUXEPBPzg=
+
+Name: res/drawable/swipe_button_bg_pressed.xml
+SHA1-Digest: Lgu2T6ivtHx9vLOKImPRDEmSLhA=
+
+Name: AndroidManifest.xml
+SHA1-Digest: S8/ZbfKxR3lz2y711a8K5TtjKGs=
+
+Name: res/drawable/milk_body.xml
+SHA1-Digest: R7qHMZbY+zP8wOQFv4dENwA+/LU=
+
+Name: res/drawable/icon_background.xml
+SHA1-Digest: rOXOZ/mWzrn0cdQUpaHzJHx2M5Q=
+
+Name: res/drawable/star_pressed_resized.png
+SHA1-Digest: rhVdWqIcbTcpQZS881WFSrZWHvM=
+
+Name: res/raw/sound_effect_inc.aac
+SHA1-Digest: 5ZkubtC8iq9HfA96z8veoeGkg3k=
+
+Name: res/layout/swipe_button.xml
+SHA1-Digest: LWc9IvivUab0st51jdB4hCPbSbM=
+
+Name: res/layout/activity_record_list.xml
+SHA1-Digest: kwmPZCm7/0wAkpolBwttFc8kq2w=
+
+Name: res/mipmap-xhdpi-v4/ic_launcher.png
+SHA1-Digest: A92PbPheHa+C5hP2bAXLmZFjEYY=
+
+Name: res/drawable/round_button_background.xml
+SHA1-Digest: ZENVVyvlZHnk8Cdw2tgOe2toCzw=
+
+Name: res/layout/menu_panel.xml
+SHA1-Digest: qM8FoyxHGJt5zhyxnwlchcUgNJQ=
+
+Name: res/drawable/bottle.png
+SHA1-Digest: 3l+mbGSQ+ClELlpqRraAJSxZKpw=
+
+Name: res/drawable/popup_tooltip_background.xml
+SHA1-Digest: ArFuEcHgQkRiv+vS4NAwDMgzmuU=
+
+Name: res/layout/popup_tooltip.xml
+SHA1-Digest: Ivd9RQoQheojZRstRQGMtitbHKE=
+
+Name: res/layout/main_menu.xml
+SHA1-Digest: +qta6xQaRIMs979CazRrB2I/Ycg=
+
+Name: res/layout/menu_buttons.xml
+SHA1-Digest: 7a6rU7rWBhGILTH81BkRDRH5kOU=
+
+Name: res/xml/preferences.xml
+SHA1-Digest: /7YkZz4Wum30KvnF3iUFV0EYFdo=
+
+Name: res/layout/record_editor.xml
+SHA1-Digest: gvLEoUSnGMNc4JbuEPJerCYlohE=
+
+Name: res/layout/record_list_item.xml
+SHA1-Digest: vkxs45a3qeixbw9NdB1MbJPtXDA=
+
+Name: res/drawable/swipe_button_background.xml
+SHA1-Digest: xJ4jDRQFfoj4aHT1bQzc9lnSc10=
+
+Name: res/drawable/round_ripple_background.xml
+SHA1-Digest: F3Pp+at4K2D1HKrgaeMEpwUc4xU=
+
+Name: res/layout/custom_tab.xml
+SHA1-Digest: Opesm1KOtLEU8Jq5dl6cH2JRR5U=
+
+Name: res/layout/info_panel.xml
+SHA1-Digest: jJdw5LLuaw0SHra/whl+EOLppug=
+
+Name: res/menu/menu_main.xml
+SHA1-Digest: dWi8XO8U/LVqJ+nmbaLn2z0pDOc=
+
+Name: res/layout/activity_milk_picker.xml
+SHA1-Digest: 1qSjJbjVmh4rv7xU2A0U+tt1SdQ=
+
+Name: res/drawable/swipe_button_bg_normal.xml
+SHA1-Digest: WNLr0PGfOaSenowfv7kbOeocejA=
+
+Name: res/layout/fragment_main.xml
+SHA1-Digest: G+eASgusvyVlHN7DLzee+sYjqAc=
+
+Name: res/layout/last_info_panel.xml
+SHA1-Digest: 06O1nJ9WywbZbc122bvFWElkP7E=
+
+Name: res/layout/activity_settings.xml
+SHA1-Digest: Pgu7FBCRCnAsrvORRcVXITm3vSc=
+
+Name: res/drawable/milk_picker_add_button_bg.xml
+SHA1-Digest: 4kMwTNU1qJ9KFweWHcBok9lwcIg=
+
+Name: res/drawable/tabwidget_btn_bg.xml
+SHA1-Digest: 1W/R9IY3REazRxCCNGpzqmEJPqE=
+
+Name: res/raw/sound_effect_dec.aac
+SHA1-Digest: LXMhi9SiryHmfDIhwM2P4DT/ENY=
+
+Name: res/drawable/star_pressed.png
+SHA1-Digest: Kwu+VW5HsZcMJS4FXa05ScOIFs4=
+
+Name: res/mipmap-mdpi-v4/ic_launcher.png
+SHA1-Digest: KhYs3OgngrsQpHbyXG/jm5H+8wU=
+
+Name: res/layout/activity_main.xml
+SHA1-Digest: 421VARNMpIxwXBB++GpyEHlJxQc=
+
+Name: res/layout/tabwidget.xml
+SHA1-Digest: gGLj1RZ//BmeEG2CJ5H5Ngob6TE=
+
+Name: res/mipmap-hdpi-v4/ic_launcher.png
+SHA1-Digest: dgOODFlTpfHDDTUL6xuLQSdAG7w=
+
+Name: res/layout/fragment_sub_category.xml
+SHA1-Digest: EEwrll3O1qV30FyJx0DZA6DWgBY=
+
+Name: res/raw/add_milk.aac
+SHA1-Digest: PNzW/CTAcoXj3lJLfO+5y78mWfo=
+
+Name: res/drawable/star_normal_resized.png
+SHA1-Digest: 5FcF0VQ6TJlA0G8YtODud1fnNC0=
+
+Name: res/layout/activity_record_editor.xml
+SHA1-Digest: 6md2BH7PWRCDWi62XXpxXqnsPgk=
+
+Name: resources.arsc
+SHA1-Digest: UXetXRd1RtVd3Wf7+054IBaESAE=
+
+Name: res/drawable/counter_button_background.xml
+SHA1-Digest: fpVmZZ/T+jxRRv6ixLKXp2At5V0=
+
+Name: res/drawable/sub_category_action_button_bg.xml
+SHA1-Digest: udhB3g46fosSd78CblOT0l7mV24=
+
+Name: classes.dex
+SHA1-Digest: vMBl0Ns5IliOoLVFCi8iO0twRaI=
+
+Name: res/drawable/star_normal.png
+SHA1-Digest: QQ7VdEjslpLS0SZWnEnv/+C32aQ=
+
+Name: res/mipmap-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: TtBU8d63+I+lSLj+Tm5DZvZ5i2c=
+

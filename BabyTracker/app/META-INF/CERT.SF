@@ -1,0 +1,148 @@
+Signature-Version: 1.0
+SHA1-Digest-Manifest: 60qeiLRdwwFKv4KG5M+BiMGEVKE=
+Created-By: 1.0 (Android)
+
+Name: res/drawable/baby.jpg
+SHA1-Digest: rmx1dvIxrkdIhIG58hk85XLuvU4=
+
+Name: res/drawable/swipe_button_bg_pressed.xml
+SHA1-Digest: L0ukxUsZa3p4RNSlGeWKU8YV5gg=
+
+Name: AndroidManifest.xml
+SHA1-Digest: MUnsVf55uBb1YZPuqThmOLPwZug=
+
+Name: res/drawable/milk_body.xml
+SHA1-Digest: XwvbyNr7wA5WAKfmtrCD8Hr/JeU=
+
+Name: res/drawable/icon_background.xml
+SHA1-Digest: IAKT/CpfO3iI5X82Z9ZewkyEmJQ=
+
+Name: res/drawable/star_pressed_resized.png
+SHA1-Digest: 4Th7u8ifm0zLPNZoG/B3IxmzP5s=
+
+Name: res/raw/sound_effect_inc.aac
+SHA1-Digest: dXxYfLvvdIT0AFYka+ptJoirMlg=
+
+Name: res/layout/swipe_button.xml
+SHA1-Digest: JaWXuibNCu/+Zsd/OZzCPMiDjfQ=
+
+Name: res/layout/activity_record_list.xml
+SHA1-Digest: YFcHPcJLYE4CbcaTW40Ip/dRW2s=
+
+Name: res/mipmap-xhdpi-v4/ic_launcher.png
+SHA1-Digest: he0u+MMYOPtjL0qaRCkw275Ntw0=
+
+Name: res/drawable/round_button_background.xml
+SHA1-Digest: 2VfwbcquKabdWYmBVvBDHjQRV2o=
+
+Name: res/layout/menu_panel.xml
+SHA1-Digest: 3qx57ux0UGZhbzcnVmm1jfAzPYA=
+
+Name: res/drawable/bottle.png
+SHA1-Digest: ixXxNr1F8tA3nS0XHxq8ti6en3I=
+
+Name: res/drawable/popup_tooltip_background.xml
+SHA1-Digest: fuc53J6eoJmY1p5uqLQhnPiqH3E=
+
+Name: res/layout/popup_tooltip.xml
+SHA1-Digest: oe95gVYkjbRxBFU5Oh+5l9cNz/0=
+
+Name: res/layout/main_menu.xml
+SHA1-Digest: vg4YLen5UB8zjjgLIt7epImMqb4=
+
+Name: res/layout/menu_buttons.xml
+SHA1-Digest: LMPsUPlCA16RmV7IzAgTag3fydI=
+
+Name: res/xml/preferences.xml
+SHA1-Digest: 2yRZbWuVlGzVsKdI9VMHRxCu4QE=
+
+Name: res/layout/record_editor.xml
+SHA1-Digest: Z1GIpjMcjxrj8ldjKOas5esgFkE=
+
+Name: res/layout/record_list_item.xml
+SHA1-Digest: NPt86ScIi5NByZng/8syl3QUZQY=
+
+Name: res/drawable/swipe_button_background.xml
+SHA1-Digest: BP/eac1xLTPm8gr90vQdKAs01Q0=
+
+Name: res/drawable/round_ripple_background.xml
+SHA1-Digest: xGzapEbpZOyuLbN2hOH0M0irQsU=
+
+Name: res/layout/custom_tab.xml
+SHA1-Digest: LfpzBLV1zFaeYJTFLn5Rn13zL4U=
+
+Name: res/layout/info_panel.xml
+SHA1-Digest: 9MuDoC5RryKhHWtW2WPUr3zzbd8=
+
+Name: res/menu/menu_main.xml
+SHA1-Digest: Ant22ejkVTxUVNYj3982ra9JR7s=
+
+Name: res/layout/activity_milk_picker.xml
+SHA1-Digest: 6UDFi0TPYFMxMBX42hmie4ovu2U=
+
+Name: res/drawable/swipe_button_bg_normal.xml
+SHA1-Digest: SpMcyghsuKLuM2VyCCdPKJbuWxc=
+
+Name: res/layout/fragment_main.xml
+SHA1-Digest: IEM5v+zN6U+iBzmL7nxGnDCPMYA=
+
+Name: res/layout/last_info_panel.xml
+SHA1-Digest: Bw1IS1+pZMa0QsfcOjwh+5Bt9dk=
+
+Name: res/layout/activity_settings.xml
+SHA1-Digest: DSlNYHNgRy6kFTffGD1X7u95O/Y=
+
+Name: res/drawable/milk_picker_add_button_bg.xml
+SHA1-Digest: ePLSgcsB6/4Wg0iPN3kLVe8ults=
+
+Name: res/drawable/tabwidget_btn_bg.xml
+SHA1-Digest: x5LJqM1JGG7xKaWNXcXx4jdIPUE=
+
+Name: res/raw/sound_effect_dec.aac
+SHA1-Digest: J3pbfqIbQIrFLXKk/w9V6K1QzJM=
+
+Name: res/drawable/star_pressed.png
+SHA1-Digest: BAUhXD0ND7Q6PNwPlr1+ix0NiF0=
+
+Name: res/mipmap-mdpi-v4/ic_launcher.png
+SHA1-Digest: eAe4aQ3DNPRP6pSEW0HgZPPU5nE=
+
+Name: res/layout/activity_main.xml
+SHA1-Digest: oMzE1vAGpcJl3or+fkl4LfGdO08=
+
+Name: res/layout/tabwidget.xml
+SHA1-Digest: SYsFkaGzce82MiReNjZ5U9M8k20=
+
+Name: res/mipmap-hdpi-v4/ic_launcher.png
+SHA1-Digest: 7rQl6EYeTTp31EHiQqxTWNvHumI=
+
+Name: res/layout/fragment_sub_category.xml
+SHA1-Digest: YqJqvmgcAAnEs0k4uQIHsuwDBa4=
+
+Name: res/raw/add_milk.aac
+SHA1-Digest: 8TxtwVyGsvzM6ReEaHOtKDAYaKo=
+
+Name: res/drawable/star_normal_resized.png
+SHA1-Digest: QcFhbbZxtzdsrWnGPXWSCWjysVU=
+
+Name: res/layout/activity_record_editor.xml
+SHA1-Digest: GhaarIllUDr9zTaCDtqbz+tlnvI=
+
+Name: resources.arsc
+SHA1-Digest: P644gmESKvBCiyNyVKz+OytHfTI=
+
+Name: res/drawable/counter_button_background.xml
+SHA1-Digest: xPgpyAfiRlY0uZozqfE3cwdhQlU=
+
+Name: res/drawable/sub_category_action_button_bg.xml
+SHA1-Digest: 7fy8djQBhuS3sh67t62Z/Vfikz4=
+
+Name: classes.dex
+SHA1-Digest: 7wWRgwQK7O7xwBcggqBiQkQI1a0=
+
+Name: res/drawable/star_normal.png
+SHA1-Digest: nd42SWqTTgcvYUXGG//xd/89Z1I=
+
+Name: res/mipmap-xxhdpi-v4/ic_launcher.png
+SHA1-Digest: w8zlhwlle2aoufXsl5l6tyaB0OQ=
+

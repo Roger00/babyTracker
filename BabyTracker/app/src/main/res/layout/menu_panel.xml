@@ -4,36 +4,75 @@
     android:layout_height="@dimen/menu_panel_height"
     android:layout_alignParentBottom="true" >
 
-    <include layout="@layout/menu_buttons" />
-    <LinearLayout
-        android:visibility="gone"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:id="@+id/counterPanel">
+        android:orientation="vertical" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:paddingBottom="@dimen/menu_item_space"
+            android:id="@+id/linearLayout"
+            android:layout_above="@+id/linearLayout3"
+            android:splitMotionEvents="false"
+            android:layout_alignParentStart="true">
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                custom:main="@string/ID_SLEEP"
+                android:id="@+id/view" />
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                custom:main="@string/ID_MEAL_TYPE_BREAST_BOTH"
+                custom:left="@string/ID_MEAL_TYPE_BREAST_LEFT"
+                custom:up="@string/ID_MEAL_TYPE_BOTTLED"
+                custom:down="@string/ID_MEAL_TYPE_MILK"
+                custom:right="@string/ID_MEAL_TYPE_BREAST_RIGHT" />
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                custom:main="@string/ID_DIAPER_BOTH"
+                custom:up="@string/ID_DIAPER_PEEPEE"
+                custom:down="@string/ID_DIAPER_POOPOO" />
+        </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Small Text"
-            android:id="@+id/counterFunc" />
-
-        <Button
-            android:layout_width="@dimen/stop_button_size"
-            android:layout_height="@dimen/stop_button_size"
-            android:text="@string/stop"
-            android:textAppearance="@android:style/TextAppearance.Large"
-            android:id="@+id/stopButton"
-            android:textColor="@android:color/white"
-            android:background="@drawable/counter_button_background"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Medium Text"
-            android:id="@+id/counterTime" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:paddingBottom="@dimen/menu_item_space"
+            android:id="@+id/linearLayout3"
+            android:layout_above="@+id/linearLayout2"
+            android:splitMotionEvents="false"
+            android:layout_alignParentStart="true">
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/menu_item_space"
+                custom:main="@string/ID_ALL_RECORDS" />
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/menu_item_space"
+                custom:main="@string/ID_MEDICATION" />
+            <com.rnfstudio.babytracker.utility.SwipeButton
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                custom:main="@string/ID_SETTINGS" />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

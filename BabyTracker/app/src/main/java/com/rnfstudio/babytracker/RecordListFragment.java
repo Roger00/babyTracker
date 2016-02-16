@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.Event;
@@ -24,6 +25,8 @@ import com.rnfstudio.babytracker.utility.CircleWidget;
 import com.rnfstudio.babytracker.utility.MenuDialogFragment;
 
 import java.util.ArrayList;
+
+import static android.view.View.GONE;
 
 /**
  * Created by Roger on 2016/1/22.
@@ -137,9 +140,15 @@ public class RecordListFragment extends ListFragment
                 break;
         }
 
-        mCircleWidget = new CircleWidget(getActivity());
-        mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
-        mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
+        if (isEnableCircleWidget()) {
+            mCircleWidget = new CircleWidget(getActivity());
+            mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
+            mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
+
+        } else {
+            final FrameLayout circleWidget = (FrameLayout) rootView.findViewById(R.id.circleWidget);
+            circleWidget.setVisibility(GONE);
+        }
 
         return rootView;
     }
@@ -153,7 +162,7 @@ public class RecordListFragment extends ListFragment
 
         // initialize cursor loader
         getLoaderManager().initLoader(LOADER_ID_DEFAULT, null, this);
-        getLoaderManager().initLoader(LOADER_ID_CIRCLE, null, this);
+        if (isEnableCircleWidget()) getLoaderManager().initLoader(LOADER_ID_CIRCLE, null, this);
     }
 
     @Override
@@ -278,6 +287,10 @@ public class RecordListFragment extends ListFragment
 
     private void restartLoaders() {
         getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
-        getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
+        if (isEnableCircleWidget()) getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
+    }
+
+    private boolean isEnableCircleWidget() {
+        return getMainType() != EventContract.EventEntry.NO_TYPE;
     }
 }

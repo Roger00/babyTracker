@@ -13,7 +13,7 @@
     <string name="ALARM">Alarm</string>
     <string name="STATS">Statistics</string>
     <string name="SETTINGS">Settings</string>
-    <string name="ALL_RECORDS">@string/record_list_title</string>
+    <string name="ALL_RECORDS" translatable="false">@string/record_list_title</string>
 
     <string name="MEAL_TYPE_BREAST_BOTH">Breast (BOTH SIDES)</string>
     <string name="MEAL_TYPE_BREAST_LEFT">Breast (LEFT)</string>

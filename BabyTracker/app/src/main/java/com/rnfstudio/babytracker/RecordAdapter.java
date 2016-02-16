@@ -106,6 +106,6 @@ public class RecordAdapter extends CursorAdapter{
         boolean showDuration = !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
                 !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_PEEPEE) &&
                 !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_POOPOO);
-        durationText.setVisibility(showDuration ? View.VISIBLE : View.INVISIBLE);
+        durationText.setVisibility(showDuration ? View.VISIBLE : View.GONE);
     }
 }

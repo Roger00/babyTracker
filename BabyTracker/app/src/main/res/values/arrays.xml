@@ -12,7 +12,7 @@
         <item>@string/DIAPER_BOTH</item>
     </string-array>
 
-    <string-array name="record_edit_activity_type_cmdId">
+    <string-array name="record_edit_activity_type_cmdId" translatable="false">
         <item>"SLEEP"</item>
         <item>"MEAL_TYPE_BREAST_BOTH"</item>
         <item>"MEAL_TYPE_BREAST_LEFT"</item>
