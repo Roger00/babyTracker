@@ -20,7 +20,7 @@
         <com.rnfstudio.babytracker.utility.RoundedImageView
             android:layout_width="@dimen/baby_icon_size"
             android:layout_height="@dimen/baby_icon_size"
-            android:id="@+id/imageView"
+            android:id="@+id/profileImage"
             android:src="@drawable/baby"/>
 
         <include layout="@layout/info_panel" />

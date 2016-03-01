@@ -1,8 +1,16 @@
 package com.rnfstudio.babytracker;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.MediaStore;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -13,13 +21,22 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.EventContract;
+import com.rnfstudio.babytracker.utility.MenuDialogFragment;
+import com.rnfstudio.babytracker.utility.ProfilePictureDialogFragment;
+import com.rnfstudio.babytracker.utility.RoundedImageView;
 import com.rnfstudio.babytracker.utility.SlidingTabLayout;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 
 /**
@@ -111,6 +128,8 @@ public class MainActivity extends FragmentActivity {
     public static final int TAB_ID_MEAL = 2;
     public static final int TAB_ID_DIAPER = 3;
 
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
+    public static final int REQUEST_IMAGE_SELECT = 2;
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
@@ -126,6 +145,8 @@ public class MainActivity extends FragmentActivity {
     SubCategoryPagerAdapter mSubCategoryPagerAdapter;
     SlidingTabLayout mSlidingTabLayout;
     SubCategoryPageChangeListener mSubCategoryPageChangeListener;
+
+    RoundedImageView mProfileImage;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -172,6 +193,16 @@ public class MainActivity extends FragmentActivity {
         // initialize days from birth string
         TextView daysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
         daysFromBirth.setText(getDaysFromBirthString());
+
+        mProfileImage = (RoundedImageView) findViewById(R.id.profileImage);
+        mProfileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment newFragment = new ProfilePictureDialogFragment();
+                newFragment.show(MainActivity.this.getSupportFragmentManager(),
+                        ProfilePictureDialogFragment.TAG);
+            }
+        });
     }
 
     private String getDaysFromBirthString() {
@@ -196,5 +227,61 @@ public class MainActivity extends FragmentActivity {
         } else {
             return getResources().getString(R.string.last_info_default_message);
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
+            Log.d(TAG, "data: " + imageFilePath);
+
+            Bitmap image = BitmapFactory.decodeFile(imageFilePath);
+            if (image != null) {
+                mProfileImage.setImageBitmap(getCenterBitmap(image));
+            } else {
+                Log.w(TAG, "[onActivityResult] decode fail");
+                Toast.makeText(this, R.string.error_unknown, Toast.LENGTH_SHORT).show();
+            }
+
+        } else if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
+            Log.d(TAG, "data: " + data.toUri(0));
+
+            try (InputStream is = getContentResolver().openInputStream(data.getData())){
+                mProfileImage.setImageBitmap(getCenterBitmap(BitmapFactory.decodeStream(is)));
+            } catch (IOException ioe) {
+                Log.w(TAG, "[onActivityResult] exception: " + ioe.toString());
+                Toast.makeText(this, R.string.error_unknown, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * See <a href="http://stackoverflow.com/questions/6908604/android-crop-center-of-bitmap">
+     *     Android Crop Center of Bitmap</a>
+     */
+    private Bitmap getCenterBitmap(Bitmap srcBitmap) {
+        Bitmap dstBitmap;
+
+        if (srcBitmap.getWidth() >= srcBitmap.getHeight()){
+            dstBitmap = Bitmap.createBitmap(
+                    srcBitmap,
+                    srcBitmap.getWidth()/2 - srcBitmap.getHeight()/2,
+                    0,
+                    srcBitmap.getHeight(),
+                    srcBitmap.getHeight()
+            );
+
+        } else {
+            dstBitmap = Bitmap.createBitmap(
+                    srcBitmap,
+                    0,
+                    srcBitmap.getHeight()/2 - srcBitmap.getWidth()/2,
+                    srcBitmap.getWidth(),
+                    srcBitmap.getWidth()
+            );
+        }
+
+        return dstBitmap;
     }
 }

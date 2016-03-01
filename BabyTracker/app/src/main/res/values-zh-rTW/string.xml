@@ -101,6 +101,8 @@
 
     <string name="delete_successful">刪除成功</string>
     <string name="error_unknown">發生未知的錯誤</string>
+    <string name="error_create_file">建立檔案失敗</string>
+    <string name="error_start_camera">無法啟動相機</string>
 
     <string name="circle_info_default_am">今日上午:\n%1$d 次，%2$s</string>
     <string name="circle_info_default_pm">今日下午:\n%1$d 次，%2$s</string>
@@ -123,4 +125,7 @@
     <string name="backup_fail_not_allowed">備份失敗，不允許寫入 SDCard</string>
     <string name="backup_successful">備份成功</string>
     <string name="restore_successful">還原成功</string>
+
+    <string name="menu_item_take_pic">拍攝照片</string>
+    <string name="menu_item_select_pic">從相簿選擇</string>
 </resources>
