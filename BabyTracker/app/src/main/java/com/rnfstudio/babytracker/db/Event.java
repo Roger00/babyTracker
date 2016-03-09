@@ -6,9 +6,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.rnfstudio.babytracker.MainApplication;
 import com.rnfstudio.babytracker.R;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 import com.rnfstudio.babytracker.utility.Utilities;
@@ -192,7 +190,7 @@ public class Event {
         if (createEndTime) mEndTime = Calendar.getInstance().getTimeInMillis();
 
         ContentValues values = new ContentValues();
-        values.put(EventContract.EventEntry.COLUMN_ID, mId);
+        values.put(EventContract.EventEntry._ID, mId);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, mType);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, mSubType);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, mStartTime);
@@ -201,15 +199,15 @@ public class Event {
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT, mAmount);
 
         if (mId == -1) {
-            values.remove(EventContract.EventEntry.COLUMN_ID);
-            Uri insertUri = context.getContentResolver().insert(EventProvider.sMainUri, values);
+            values.remove(EventContract.EventEntry._ID);
+            Uri insertUri = context.getContentResolver().insert(EventProvider.sNotifyUriForEvent, values);
             return insertUri != null;
 
         } else {
             int rowsAffected = context.getContentResolver().update(
-                    EventProvider.sMainUri,
+                    EventProvider.sNotifyUriForEvent,
                     values,
-                    EventContract.EventEntry.COLUMN_ID + "=?",
+                    EventContract.EventEntry._ID + "=?",
                     new String[] {String.valueOf(mId)});
 
             return rowsAffected == 1;
@@ -218,8 +216,8 @@ public class Event {
 
     public boolean removeFromDB(Context context) {
         return context.getContentResolver().delete(
-                EventProvider.sMainUri,
-                EventContract.EventEntry.COLUMN_ID + "=?",
+                EventProvider.sNotifyUriForEvent,
+                EventContract.EventEntry._ID + "=?",
                 new String[]{String.valueOf(mId)}) == 1;
     }
 

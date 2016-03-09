@@ -58,9 +58,12 @@ public class BackupUtilities {
     public static void copyDB2SDcard(Context context) {
         try {
             Log.d(TAG, "[copyDB2SDcard] called");
-            File sd = context.getExternalFilesDir(null);
+            File backupDir = new File(context.getExternalFilesDir(null), "BBTracker");
 
-            if (sd.canWrite()) {
+            backupDir.
+            if (backupDir.canWrite()) {
+                
+
                 String currentDBPath = context
                         .getDatabasePath(EventDBHelper.DATABASE_NAME).getPath();
                 String backupDBPath = "backupname.db";
@@ -69,7 +72,7 @@ public class BackupUtilities {
                 Log.d(TAG, "[copyDB2SDcard] backupDBPath: " + backupDBPath);
 
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(sd, backupDBPath);
+                File backupDB = new File(backupDir, backupDBPath);
 
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();

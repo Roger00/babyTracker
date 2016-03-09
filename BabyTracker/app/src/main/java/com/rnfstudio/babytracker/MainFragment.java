@@ -74,7 +74,7 @@ public class MainFragment extends Fragment {
 
         // register observer
         getActivity().getContentResolver().registerContentObserver(
-                EventProvider.sMainUri,
+                EventProvider.sNotifyUriForEvent,
                 true,
                 mContentObserver);
     }

@@ -104,7 +104,7 @@ public class RecordListFragment extends ListFragment
 
         // register observer
         getActivity().getContentResolver().registerContentObserver(
-                EventProvider.sMainUri,
+                EventProvider.sNotifyUriForEvent,
                 true,
                 mContentObserver);
     }
@@ -140,11 +140,11 @@ public class RecordListFragment extends ListFragment
                 break;
         }
 
+
         if (isEnableCircleWidget()) {
             mCircleWidget = new CircleWidget(getActivity());
             mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
             mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
-
         } else {
             final FrameLayout circleWidget = (FrameLayout) rootView.findViewById(R.id.circleWidget);
             circleWidget.setVisibility(GONE);
@@ -182,8 +182,8 @@ public class RecordListFragment extends ListFragment
                     null : new String[] {Integer.toString(getMainType())};
 
             return new CursorLoader(getActivity(),
-                    EventProvider.sMainUri,
-                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                    EventProvider.sNotifyUriForEvent,
+                    new String[] {EventContract.EventEntry._ID,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
@@ -195,8 +195,8 @@ public class RecordListFragment extends ListFragment
 
         } else if (id == LOADER_ID_CIRCLE) {
             return new CursorLoader(getActivity(),
-                    EventProvider.sMainUri,
-                    new String[] {EventContract.EventEntry.COLUMN_ID,
+                    EventProvider.sNotifyUriForEvent,
+                    new String[] {EventContract.EventEntry._ID,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
                             EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,

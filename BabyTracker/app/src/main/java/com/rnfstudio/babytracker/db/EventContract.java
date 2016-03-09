@@ -11,10 +11,21 @@ public class EventContract {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
+    /* Inner class that defines the user profile */
+    public static abstract class UserEntry implements BaseColumns {
+        public static final String TABLE_NAME = "userProfile";
+        public static final String COLUMN_NAME_DISPLAY_NAME = "displayName";
+        public static final String COLUMN_NAME_GENDER = "gender";
+        public static final String COLUMN_NAME_BIRTH_YEAR = "birthYear";
+        public static final String COLUMN_NAME_BIRTH_MONTH = "birthMoth";
+        public static final String COLUMN_NAME_BIRTH_DAY = "birthDay";
+        public static final String COLUMN_NAME_PROFILE_PICTURE = "profilePicture";
+    }
+
     /* Inner class that defines the table contents */
     public static abstract class EventEntry implements BaseColumns {
         public static final String TABLE_NAME = "eventLogs";
-        public static final String COLUMN_ID = "_id";
+        public static final String COLUMN_NAME_USER_ID = "userId";
         public static final String COLUMN_NAME_EVENT_TYPE = "type";
         public static final String COLUMN_NAME_EVENT_SUBTYPE = "subtype";
         public static final String COLUMN_NAME_EVENT_START_TIME = "startTime";
@@ -22,7 +33,6 @@ public class EventContract {
         public static final String COLUMN_NAME_EVENT_DURATION = "duration";
         public static final String COLUMN_NAME_EVENT_AMOUNT = "amount";
         public static final String SIMPLE_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
-//        public static final String SIMPLE_DATE_TIME_FORMAT = "yyyy-MM-dd HH:MM:SS.SSS";
 
         public static final int NO_TYPE = -1;
         public static final String NO_TYPE_STRING = "no_type";
@@ -145,10 +155,13 @@ public class EventContract {
     // ------------------------------------------------------------------------
     // SQL statements
     private static final String INT_TYPE = " INTEGER";
+    private static final String TEXT_TYPE = " TEXT";
+    private static final String BLOB_TYPE = " BLOB";
     private static final String COMMA_SEP = ",";
-    public static final String SQL_CREATE_ENTRIES =
+    public static final String SQL_CREATE_EVENT_TABLE =
             "CREATE TABLE " + EventEntry.TABLE_NAME + " (" +
                     EventEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
+                    EventEntry.COLUMN_NAME_USER_ID + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_TYPE + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_SUBTYPE + INT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + INT_TYPE + COMMA_SEP +
@@ -158,7 +171,15 @@ public class EventContract {
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + ")" + " )";
 
-    public static final String SQL_DROP_TABLE = "DROP TABLE IF EXISTS " + EventEntry.TABLE_NAME;
+    public static final String SQL_CREATE_USER_TABLE =
+            "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
+                    UserEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_DISPLAY_NAME + TEXT_TYPE + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_GENDER + INT_TYPE + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_BIRTH_YEAR + INT_TYPE + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_BIRTH_MONTH + INT_TYPE + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_BIRTH_DAY + INT_TYPE + COMMA_SEP +
+                    UserEntry.COLUMN_NAME_PROFILE_PICTURE + BLOB_TYPE + ")";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS

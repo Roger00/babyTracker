@@ -25,23 +25,36 @@ public class EventProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher;
 
     private static final String TAG = "[EventProvider]";
-    public static final String AUTHORITY = "com.rnfstudio.babytracker.provider";
 
-    public static final Uri sMainUri;
+    private static final String AUTHORITY = "com.rnfstudio.babytracker.provider";
+    private static final String PATH_EVENT = "event";
+    private static final String PATH_EVENT_ID = "event/#";
+    private static final String PATH_USER = "user";
+    private static final String PATH_USER_ID = "user/#";
+
+    public static final Uri sBaseUri;
+    public static final Uri sNotifyUriForEvent;
+    public static final Uri sNotifyUriForUser;
 
     private static final int ROOT = -1;
     private static final int EVENT = 0;
     private static final int EVENT_ID = 1;
+    private static final int USER = 2;
+    private static final int USER_ID = 3;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
     static {
         sUriMatcher = new UriMatcher(ROOT);
-        sUriMatcher.addURI(AUTHORITY, "event", EVENT);
-        sUriMatcher.addURI(AUTHORITY, "event/#", EVENT_ID);
+        sUriMatcher.addURI(AUTHORITY, PATH_EVENT, EVENT);
+        sUriMatcher.addURI(AUTHORITY, PATH_EVENT_ID, EVENT_ID);
+        sUriMatcher.addURI(AUTHORITY, PATH_USER, USER);
+        sUriMatcher.addURI(AUTHORITY, PATH_USER_ID, USER_ID);
 
-        sMainUri = Uri.parse("content://com.rnfstudio.babytracker.provider/event");
+        sBaseUri = Uri.parse("content://" + AUTHORITY);
+        sNotifyUriForEvent = Uri.withAppendedPath(sBaseUri, PATH_EVENT);
+        sNotifyUriForUser = Uri.withAppendedPath(sBaseUri, PATH_USER);
     }
 
     // ------------------------------------------------------------------------
@@ -82,12 +95,27 @@ public class EventProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
 
+        String table;
+
+        switch(sUriMatcher.match(uri)) {
+            case EVENT:
+            case EVENT_ID:
+                table = EventContract.EventEntry.TABLE_NAME;
+                break;
+            case USER:
+            case USER_ID:
+                table = EventContract.UserEntry.TABLE_NAME;
+                break;
+            default:
+                return null;
+        }
+
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
 
         Cursor cursor;
         try {
             cursor = db.query(true,
-                    EventContract.EventEntry.TABLE_NAME,
+                    table,
                     projection,
                     selection,
                     selectionArgs,
@@ -113,6 +141,10 @@ public class EventProvider extends ContentProvider {
                 return "vnd.android.cursor.dir/event";
             case EVENT_ID:
                 return "vnd.android.cursor.item/event";
+            case USER:
+                return "vnd.android.cursor.dir/user";
+            case USER_ID:
+                return "vnd.android.cursor.item/user";
             default:
                 return null;
         }
@@ -121,15 +153,32 @@ public class EventProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
+        String table;
+        Uri notifyUri;
+
+        switch(sUriMatcher.match(uri)) {
+            case EVENT:
+            case EVENT_ID:
+                table = EventContract.EventEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForEvent;
+                break;
+            case USER:
+            case USER_ID:
+                table = EventContract.UserEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForUser;
+                break;
+            default:
+                return null;
+        }
+
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        String table = EventContract.EventEntry.TABLE_NAME;
         long rowId = db.insert(table, null, values);
 
         if (rowId != -1) {
-            getContext().getContentResolver().notifyChange(sMainUri, null);
+            getContext().getContentResolver().notifyChange(notifyUri, null);
         }
 
-        return rowId == -1 ? null : Uri.withAppendedPath(sMainUri, String.valueOf(rowId));
+        return rowId == -1 ? null : Uri.withAppendedPath(notifyUri, String.valueOf(rowId));
     }
 
     /**
@@ -138,12 +187,29 @@ public class EventProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
+        String table;
+        Uri notifyUri;
+
+        switch(sUriMatcher.match(uri)) {
+            case EVENT:
+            case EVENT_ID:
+                table = EventContract.EventEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForEvent;
+                break;
+            case USER:
+            case USER_ID:
+                table = EventContract.UserEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForUser;
+                break;
+            default:
+                return 0;
+        }
+
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        String table = EventContract.EventEntry.TABLE_NAME;
         int cRowsAffected = db.delete(table, selection, selectionArgs);
 
         if (cRowsAffected > 0) {
-            getContext().getContentResolver().notifyChange(sMainUri, null);
+            getContext().getContentResolver().notifyChange(notifyUri, null);
         }
 
         return cRowsAffected;
@@ -151,14 +217,39 @@ public class EventProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        String table = EventContract.EventEntry.TABLE_NAME;
-        int cRowsAffected = db.update(table, values, selection, selectionArgs);
+        String table;
+        Uri notifyUri;
 
-        if (cRowsAffected > 0) {
-            getContext().getContentResolver().notifyChange(sMainUri, null);
+        switch(sUriMatcher.match(uri)) {
+            case EVENT:
+            case EVENT_ID:
+                table = EventContract.EventEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForEvent;
+                break;
+            case USER:
+            case USER_ID:
+                table = EventContract.UserEntry.TABLE_NAME;
+                notifyUri = sNotifyUriForUser;
+                break;
+            default:
+                return 0;
         }
 
-        return cRowsAffected;
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        long rowId = db.replace(table, null, values);
+
+        if (rowId != -1) {
+            getContext().getContentResolver().notifyChange(notifyUri, null);
+        }
+
+        return rowId == -1 ? 0 : 1;
+//        int cRowsAffected = db.update(table, values, selection, selectionArgs);
+//
+//        if (cRowsAffected > 0) {
+//            getContext().getContentResolver().notifyChange(notifyUri, null);
+//        }
+//
+//        return cRowsAffected;
     }
 }

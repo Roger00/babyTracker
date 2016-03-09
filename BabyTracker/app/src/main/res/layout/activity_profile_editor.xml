@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            android:id="@+id/button_cancel"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok"
+            android:id="@+id/button_ok"
+            android:layout_alignBottom="@+id/button"
+            android:layout_alignParentEnd="true"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:dividerPadding="18dp"
+        android:stretchColumns="*">
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/record_edit_type"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/typeEdit" />
+        </TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/record_edit_start"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/startDateEdit" />
+        </TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/startTimeEdit" />
+        </TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/record_edit_end"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/endDateEdit" />
+        </TableRow>
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/endTimeEdit" />
+        </TableRow>
+
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/record_edit_duration"
+                android:id="@+id/durationLabel"
+                android:layout_gravity="end"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/durationEdit" />
+        </TableRow>
+
+        <TableRow
+            android:layout_marginBottom="@dimen/record_edit_row_margin">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="@string/record_edit_amount"
+                android:layout_gravity="end"
+                android:id="@+id/amountLabel"
+                android:paddingRight="@dimen/record_edit_field_name_padding" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/amountEdit" />
+        </TableRow>
+    </TableLayout>
+</RelativeLayout>

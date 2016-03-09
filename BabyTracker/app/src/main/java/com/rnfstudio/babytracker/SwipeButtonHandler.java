@@ -311,7 +311,7 @@ public class SwipeButtonHandler implements SwipeButton.Handler {
     private long queryLatestTimeForMainType(Context context, int mainType) {
         Cursor cursor = null;
         try {
-            cursor = context.getContentResolver().query(EventProvider.sMainUri,
+            cursor = context.getContentResolver().query(EventProvider.sNotifyUriForEvent,
                     new String[]{EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME},
                     EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?",
                     new String[]{Integer.toString(mainType)},
