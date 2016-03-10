@@ -93,11 +93,15 @@
 
     <string name="record_list_title">All Records</string>
     <string name="record_editor_title">Edit Record</string>
+    <string name="profile_editor_title">Edit Profile</string>
 
     <string name="menu_item_edit">Edit Record</string>
     <string name="menu_item_delete">Delete Record</string>
 
-    <string name="edit_successful">Record edited.</string>
+    <string name="edit_successful">Edit successful.</string>
+    <string name="edit_canceled">Edit canceled.</string>
+    <string name="edit_canceled_no_change">Edit canceled. No change.</string>
+    <string name="error_invalid_date">Invalid date. Edit canceled.</string>
     <string name="error_negative_duration">Write fail. Do not accept negative duration</string>
 
     <string name="delete_successful">Record deleted.</string>
@@ -129,4 +133,11 @@
 
     <string name="menu_item_take_pic">Take picture</string>
     <string name="menu_item_select_pic">Select from album</string>
+
+    <string name="hint_enter_name">"Enter baby's name"</string>
+    <string name="hint_enter_birth">"Enter baby's birthday"</string>
+    <string name="gender_boy">Boy</string>
+    <string name="gender_girl">Girl</string>
+
+    <string name="default_user_name" translatable="false">黃暐植</string>
 </resources>

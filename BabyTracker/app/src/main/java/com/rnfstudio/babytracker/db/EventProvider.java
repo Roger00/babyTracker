@@ -244,12 +244,5 @@ public class EventProvider extends ContentProvider {
         }
 
         return rowId == -1 ? 0 : 1;
-//        int cRowsAffected = db.update(table, values, selection, selectionArgs);
-//
-//        if (cRowsAffected > 0) {
-//            getContext().getContentResolver().notifyChange(notifyUri, null);
-//        }
-//
-//        return cRowsAffected;
     }
 }

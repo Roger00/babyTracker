@@ -92,7 +92,7 @@ public class TimeUtils {
     }
 
     public static int getRemainMonthsInYear(int days) {
-        return ((days / 30) % 60);
+        return ((days / 30) % 12);
     }
 
     public static int getRemainYears(int days) {

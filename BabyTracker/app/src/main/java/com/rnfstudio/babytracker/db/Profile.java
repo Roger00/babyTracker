@@ -7,6 +7,7 @@ import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.rnfstudio.babytracker.utility.Utilities;
@@ -52,7 +53,7 @@ public class Profile {
     // ------------------------------------------------------------------------
     // CONSTRUCTORS
     // ------------------------------------------------------------------------
-    private Profile(Long id, String name, int gender, int year, int month, int day, Bitmap pic) {
+    public Profile(Long id, String name, int gender, int year, int month, int day, Bitmap pic) {
         mId = id;
         mName = name;
         mGender = gender;
@@ -87,6 +88,52 @@ public class Profile {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
+    public void setName(String name) {
+        mName = name;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public int getBirthYear() {
+        return mBirthYear;
+    }
+
+    public int getBirthMonth() {
+        return mBirthMonth;
+    }
+
+    public int getBirthDay() {
+        return mBirthDay;
+    }
+
+    public String getBirthStr() {
+        return String.format("%d/%d/%d", mBirthYear, mBirthMonth, mBirthDay);
+    }
+
+    public void setBirthYear(int year) {
+        mBirthYear = year;
+    }
+
+    public void setBirthMonth(int month) {
+        mBirthMonth = month;
+    }
+
+    public void setBirthDay(int day) {
+        mBirthDay = day;
+    }
+
+    public void setBirth(int year, int month, int day) {
+        setBirthYear(year);
+        setBirthMonth(month);
+        setBirthDay(day);
+    }
+
+    public int getGender() { return mGender; }
+
+    public void setGender(int gender) { mGender = gender; }
+
     public Bitmap getProfilePicture() {
         return mProfilePic;
     }
@@ -123,4 +170,14 @@ public class Profile {
         }
     }
 
+    public void asyncWriteDB(final Context context) {
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                writeDB(context);
+                return null;
+            }
+        }.execute();
+    }
 }

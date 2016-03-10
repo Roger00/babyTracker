@@ -92,11 +92,15 @@
 
     <string name="record_list_title">所有紀錄</string>
     <string name="record_editor_title">編輯記錄</string>
+    <string name="profile_editor_title">編輯使用者</string>
 
     <string name="menu_item_edit">編輯紀錄</string>
     <string name="menu_item_delete">刪除紀錄</string>
 
     <string name="edit_successful">編輯成功</string>
+    <string name="edit_canceled">編輯取消</string>
+    <string name="edit_canceled_no_change">編輯取消：無資料修改</string>
+    <string name="error_invalid_date">編輯取消：輸入的日期無效</string>
     <string name="error_negative_duration">修改失敗，持續時間為負值</string>
 
     <string name="delete_successful">刪除成功</string>
@@ -128,4 +132,9 @@
 
     <string name="menu_item_take_pic">拍攝照片</string>
     <string name="menu_item_select_pic">從相簿選擇</string>
+
+    <string name="hint_enter_name">請輸入寶寶暱稱</string>
+    <string name="hint_enter_birth">請輸入出生年月日</string>
+    <string name="gender_boy">男生</string>
+    <string name="gender_girl">女生</string>
 </resources>

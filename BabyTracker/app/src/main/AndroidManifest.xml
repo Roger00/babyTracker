@@ -47,9 +47,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ProfileEditActivity"
+            android:label="@string/profile_editor_title" >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 
-    <uses-permission android:name="android.permission.VIBRATE"></uses-permission>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.camera"

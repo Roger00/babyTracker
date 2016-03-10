@@ -49,6 +49,9 @@ public class ProfileContract {
                     UserEntry.COLUMN_NAME_BIRTH_DAY + INT_TYPE + COMMA_SEP +
                     UserEntry.COLUMN_NAME_PROFILE_PICTURE + BLOB_TYPE + ")";
 
+    public static final int GENDER_BOY = 0;
+    public static final int GENDER_GIRL = 1;
+
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------

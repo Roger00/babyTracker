@@ -18,14 +18,14 @@
         android:id="@+id/baby_info">
 
         <com.rnfstudio.babytracker.utility.RoundedImageView
-            android:layout_width="@dimen/baby_icon_size"
-            android:layout_height="@dimen/baby_icon_size"
+            android:layout_width="@dimen/baby_icon_size_small"
+            android:layout_height="@dimen/baby_icon_size_small"
             android:id="@+id/profileImage"
             android:src="@drawable/baby"/>
 
         <include layout="@layout/info_panel" />
 
-        </LinearLayout>
+    </LinearLayout>
 
     <com.rnfstudio.babytracker.utility.SlidingTabLayout
         android:id="@+id/sliding_tabs"

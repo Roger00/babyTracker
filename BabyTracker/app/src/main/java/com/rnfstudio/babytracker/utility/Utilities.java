@@ -15,6 +15,10 @@ import com.rnfstudio.babytracker.R;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Created by Roger on 2015/8/5.
@@ -107,7 +111,7 @@ public class Utilities {
     }
 
     public static Bitmap getResizedCenterBitmap(Context context, Bitmap src) {
-        int dstSize = context.getResources().getDimensionPixelSize(R.dimen.baby_icon_size);
+        int dstSize = context.getResources().getDimensionPixelSize(R.dimen.baby_icon_size_small);
         boolean isLandscape = src.getWidth() >= src.getHeight();
         float ratio = isLandscape ?
                 (float) src.getWidth()/src.getHeight() : (float) src.getHeight()/src.getWidth();
@@ -136,6 +140,23 @@ public class Utilities {
             }
         });
         v.startAnimation(anim_out);
+    }
+
+    /**
+     * Check validity of date string
+     *
+     * See <a href="http://stackoverflow.com/questions/4528047/checking-the-validity-of-a-date">
+     *     Checking the validaty of a date</a>
+     */
+    public static boolean isValidDateFormat(String date, String dateFormat) {
+        try {
+            DateFormat df = new SimpleDateFormat(dateFormat, Locale.getDefault());
+            df.parse(date);
+            return true;
+
+        } catch (ParseException pe) {
+            return false;
+        }
     }
 
     // ------------------------------------------------------------------------

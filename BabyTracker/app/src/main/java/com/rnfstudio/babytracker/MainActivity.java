@@ -131,6 +131,7 @@ public class MainActivity extends FragmentActivity
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int REQUEST_IMAGE_SELECT = 2;
+    public static final int REQUEST_PROFILE_EDIT = 3;
 
     public static final int LOADER_ID_PROFILE = 2;
     // ------------------------------------------------------------------------
@@ -149,6 +150,8 @@ public class MainActivity extends FragmentActivity
     SlidingTabLayout mSlidingTabLayout;
     SubCategoryPageChangeListener mSubCategoryPageChangeListener;
 
+    TextView mDisplayName;
+    TextView mDaysFromBirth;
     RoundedImageView mProfileImage;
     Profile mProfile;
 
@@ -195,8 +198,21 @@ public class MainActivity extends FragmentActivity
         mSlidingTabLayout.setOnPageChangeListener(mSubCategoryPageChangeListener);
 
         // initialize days from birth string
-        TextView daysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
-        daysFromBirth.setText(getDaysFromBirthString());
+        mDaysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
+//        mDaysFromBirth.setText(getDaysFromBirthString());
+
+        View.OnClickListener profileEditListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(MainActivity.this, ProfileEditActivity.class),
+                        REQUEST_PROFILE_EDIT);
+            }
+        };
+
+        // click on display name or days from birth text should trigger profile edit
+        mDisplayName = (TextView) findViewById(R.id.displayName);
+        mDisplayName.setOnClickListener(profileEditListener);
+        mDaysFromBirth.setOnClickListener(profileEditListener);
 
         mProfileImage = (RoundedImageView) findViewById(R.id.profileImage);
         mProfileImage.setOnClickListener(new View.OnClickListener() {
@@ -208,8 +224,9 @@ public class MainActivity extends FragmentActivity
             }
         });
 
-        // initialize cursor loader
-        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
+        setProfile(MainApplication.getUserProfile());
+//        // initialize cursor loader
+//        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
     }
 
     @Override
@@ -249,20 +266,26 @@ public class MainActivity extends FragmentActivity
         // update profile
         mProfile = p;
 
+        MainApplication.setUserProfile(p);
+
         // update views
+        mDisplayName.setText(mProfile.getName());
+        mDaysFromBirth.setText(getDaysFromBirthString());
         Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
     }
 
     private String getDaysFromBirthString() {
         Calendar birth = Calendar.getInstance();
-        birth.set(Calendar.YEAR, 2015);
-        birth.set(Calendar.MONTH, Calendar.MARCH );
-        birth.set(Calendar.DAY_OF_MONTH, 18);
+        birth.set(Calendar.YEAR, mProfile.getBirthYear());
+        birth.set(Calendar.MONTH, mProfile.getBirthMonth() - 1);
+        birth.set(Calendar.DAY_OF_MONTH, mProfile.getBirthDay());
 
         int daysBetween = TimeUtils.daysBetween(birth, Calendar.getInstance());
         int days = TimeUtils.getRemainDaysInMonth(daysBetween);
         int months = TimeUtils.getRemainMonthsInYear(daysBetween);
         int years = TimeUtils.getRemainYears(daysBetween);
+
+        Log.d(TAG, String.format("%d, %d, %d, %d", daysBetween, years, months, days));
 
         if (years > 0) {
             return getResources().getQuantityString(R.plurals.info_years_since_birth,
@@ -286,6 +309,9 @@ public class MainActivity extends FragmentActivity
 
         } else if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
             new ProfileImageTask(this, mProfile, null, data.getData(), this).execute();
+
+        } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
+            setProfile(MainApplication.getUserProfile());
         }
     }
 
