@@ -104,7 +104,7 @@ public class EventProvider extends ContentProvider {
                 break;
             case USER:
             case USER_ID:
-                table = EventContract.UserEntry.TABLE_NAME;
+                table = ProfileContract.UserEntry.TABLE_NAME;
                 break;
             default:
                 return null;
@@ -164,7 +164,7 @@ public class EventProvider extends ContentProvider {
                 break;
             case USER:
             case USER_ID:
-                table = EventContract.UserEntry.TABLE_NAME;
+                table = ProfileContract.UserEntry.TABLE_NAME;
                 notifyUri = sNotifyUriForUser;
                 break;
             default:
@@ -198,7 +198,7 @@ public class EventProvider extends ContentProvider {
                 break;
             case USER:
             case USER_ID:
-                table = EventContract.UserEntry.TABLE_NAME;
+                table = ProfileContract.UserEntry.TABLE_NAME;
                 notifyUri = sNotifyUriForUser;
                 break;
             default:
@@ -228,7 +228,7 @@ public class EventProvider extends ContentProvider {
                 break;
             case USER:
             case USER_ID:
-                table = EventContract.UserEntry.TABLE_NAME;
+                table = ProfileContract.UserEntry.TABLE_NAME;
                 notifyUri = sNotifyUriForUser;
                 break;
             default:

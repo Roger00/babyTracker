@@ -11,16 +11,7 @@ public class EventContract {
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
-    /* Inner class that defines the user profile */
-    public static abstract class UserEntry implements BaseColumns {
-        public static final String TABLE_NAME = "userProfile";
-        public static final String COLUMN_NAME_DISPLAY_NAME = "displayName";
-        public static final String COLUMN_NAME_GENDER = "gender";
-        public static final String COLUMN_NAME_BIRTH_YEAR = "birthYear";
-        public static final String COLUMN_NAME_BIRTH_MONTH = "birthMoth";
-        public static final String COLUMN_NAME_BIRTH_DAY = "birthDay";
-        public static final String COLUMN_NAME_PROFILE_PICTURE = "profilePicture";
-    }
+
 
     /* Inner class that defines the table contents */
     public static abstract class EventEntry implements BaseColumns {
@@ -155,9 +146,8 @@ public class EventContract {
     // ------------------------------------------------------------------------
     // SQL statements
     private static final String INT_TYPE = " INTEGER";
-    private static final String TEXT_TYPE = " TEXT";
-    private static final String BLOB_TYPE = " BLOB";
     private static final String COMMA_SEP = ",";
+
     public static final String SQL_CREATE_EVENT_TABLE =
             "CREATE TABLE " + EventEntry.TABLE_NAME + " (" +
                     EventEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
@@ -170,16 +160,6 @@ public class EventContract {
                     EventEntry.COLUMN_NAME_EVENT_AMOUNT + INT_TYPE + COMMA_SEP +
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + ")" + " )";
-
-    public static final String SQL_CREATE_USER_TABLE =
-            "CREATE TABLE " + UserEntry.TABLE_NAME + " (" +
-                    UserEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_DISPLAY_NAME + TEXT_TYPE + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_GENDER + INT_TYPE + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_BIRTH_YEAR + INT_TYPE + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_BIRTH_MONTH + INT_TYPE + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_BIRTH_DAY + INT_TYPE + COMMA_SEP +
-                    UserEntry.COLUMN_NAME_PROFILE_PICTURE + BLOB_TYPE + ")";
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS

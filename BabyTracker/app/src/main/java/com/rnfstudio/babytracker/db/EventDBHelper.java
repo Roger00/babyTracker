@@ -53,7 +53,7 @@ public class EventDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         if (DEBUG) Log.v(TAG, "[onCreate] called");
         db.execSQL(EventContract.SQL_CREATE_EVENT_TABLE);
-        db.execSQL(EventContract.SQL_CREATE_USER_TABLE);
+        db.execSQL(ProfileContract.SQL_CREATE_USER_TABLE);
     }
 
     @Override

@@ -1,25 +1,20 @@
 package com.rnfstudio.babytracker;
 
 import android.annotation.TargetApi;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -28,34 +23,31 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.rnfstudio.babytracker.db.EventContract;
 import com.rnfstudio.babytracker.db.EventProvider;
-import com.rnfstudio.babytracker.utility.MenuDialogFragment;
+import com.rnfstudio.babytracker.db.Profile;
+import com.rnfstudio.babytracker.db.ProfileContract;
+import com.rnfstudio.babytracker.utility.ProfileImageTask;
 import com.rnfstudio.babytracker.utility.ProfilePictureDialogFragment;
 import com.rnfstudio.babytracker.utility.RoundedImageView;
 import com.rnfstudio.babytracker.utility.SlidingTabLayout;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 import com.rnfstudio.babytracker.utility.Utilities;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 /**
  * Modified from example:
  * http://developer.android.com/intl/zh-tw/training/implementing-navigation/lateral.html
  */
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity
+        implements LoaderManager.LoaderCallbacks<Cursor>, ProfileImageTask.ProfileImageCallback {
+
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
+
     public static class SubCategoryPagerAdapter extends FragmentPagerAdapter {
         private Context mContext;
 
@@ -139,6 +131,8 @@ public class MainActivity extends FragmentActivity {
 
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int REQUEST_IMAGE_SELECT = 2;
+
+    public static final int LOADER_ID_PROFILE = 2;
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
@@ -156,6 +150,7 @@ public class MainActivity extends FragmentActivity {
     SubCategoryPageChangeListener mSubCategoryPageChangeListener;
 
     RoundedImageView mProfileImage;
+    Profile mProfile;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -213,43 +208,49 @@ public class MainActivity extends FragmentActivity {
             }
         });
 
-        new AsyncTask<Void, Void, Bitmap>() {
+        // initialize cursor loader
+        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
+    }
 
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            @Override
-            protected Bitmap doInBackground(Void... params) {
-                long userId = MainApplication.getUserId(getApplicationContext());
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == LOADER_ID_PROFILE) {
+            String selection = ProfileContract.UserEntry._ID + "=?";
+            String[] selectionArgs = new String[] {String.valueOf(MainApplication.getUserId(this))};
 
-                try(Cursor c = getContentResolver().query(EventProvider.sNotifyUriForUser,
-                        new String[]{EventContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
-                        EventContract.UserEntry._ID + "=?",
-                        new String[]{String.valueOf(userId)},
-                        null)) {
+            return new CursorLoader(this,
+                    EventProvider.sNotifyUriForUser,
+                    new String[] {ProfileContract.UserEntry._ID,
+                            ProfileContract.UserEntry.COLUMN_NAME_DISPLAY_NAME,
+                            ProfileContract.UserEntry.COLUMN_NAME_GENDER,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_YEAR,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_MONTH,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_DAY,
+                            ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
+                    selection, selectionArgs,
+                    ProfileContract.UserEntry._ID + " DESC");
+        }
 
-                    if (c != null && c.moveToNext()) {
-                        byte[] rawBitmap = c.getBlob(0);
+        Log.w(TAG, "[onCreateLoader] incorrect ID");
+        return null;
+    }
 
-                        if (rawBitmap != null) {
-                            return BitmapFactory.decodeByteArray(rawBitmap, 0, rawBitmap.length);
-                        }
-                    }
-                } catch (IllegalStateException ise) {
-                    Log.w(TAG, "Exception when load profile image: " + ise.toString());
-                }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        setProfile(Profile.createFromCursor(data));
+    }
 
-                return null;
-            }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // do nothing
+    }
 
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                if (bitmap == null) {
-                    Log.w(TAG, "fail to load or decode profile picture");
-                } else {
-                    animSwitchImageRes(getApplicationContext(), mProfileImage, bitmap);
-                }
-            }
+    public void setProfile(Profile p) {
+        // update profile
+        mProfile = p;
 
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        // update views
+        Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
     }
 
     private String getDaysFromBirthString() {
@@ -281,108 +282,15 @@ public class MainActivity extends FragmentActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
-            Log.d(TAG, "data: " + imageFilePath);
+            new ProfileImageTask(this, mProfile, imageFilePath, null, this).execute();
 
-            Bitmap image = BitmapFactory.decodeFile(imageFilePath);
-            if (image != null) {
-                mProfileImage.setImageBitmap(getCenterBitmap(image));
-            } else {
-                Log.w(TAG, "[onActivityResult] decode fail");
-                Toast.makeText(this, R.string.error_unknown, Toast.LENGTH_SHORT).show();
-            }
-
-        } else {
-            if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
-                Log.d(TAG, "data: " + data.toUri(0));
-
-                new AsyncTask<Uri, Void, Bitmap>() {
-
-                    @Override
-                    protected Bitmap doInBackground(Uri... params) {
-                        Bitmap bitmap = null;
-
-                        try (InputStream is = getContentResolver().openInputStream(params[0])) {
-                            bitmap = getCenterBitmap(BitmapFactory.decodeStream(is));
-
-                            ContentValues cvs = new ContentValues();
-                            long userId = MainApplication.getUserId(getApplicationContext());
-                            cvs.put(EventContract.UserEntry._ID, userId);
-                            cvs.put(EventContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE, Utilities.encodeBitmap(bitmap));
-                            getContentResolver().update(EventProvider.sNotifyUriForUser, cvs,
-                                    EventContract.UserEntry._ID + "=?",
-                                    new String[]{String.valueOf(userId)});
-
-                        } catch (IOException ioe) {
-                            Log.w(TAG, "[onActivityResult] exception: " + ioe.toString());
-                        }
-
-                        return bitmap;
-                    }
-
-                    @Override
-                    protected void onPostExecute(Bitmap bitmap) {
-                        if (bitmap == null) {
-                            Toast.makeText(getApplicationContext(), R.string.error_unknown, Toast.LENGTH_SHORT).show();
-                        } else {
-                            animSwitchImageRes(getApplicationContext(), mProfileImage, bitmap);
-                        }
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, data.getData());
-            }
+        } else if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
+            new ProfileImageTask(this, mProfile, null, data.getData(), this).execute();
         }
     }
 
-    /**
-     * See <a href="http://stackoverflow.com/questions/6908604/android-crop-center-of-bitmap">
-     *     Android Crop Center of Bitmap</a>
-     */
-    private Bitmap getCenterBitmap(Bitmap srcBitmap) {
-        Bitmap dstBitmap;
-
-        if (srcBitmap.getWidth() >= srcBitmap.getHeight()){
-            dstBitmap = Bitmap.createBitmap(
-                    srcBitmap,
-                    srcBitmap.getWidth()/2 - srcBitmap.getHeight()/2,
-                    0,
-                    srcBitmap.getHeight(),
-                    srcBitmap.getHeight()
-            );
-
-        } else {
-            dstBitmap = Bitmap.createBitmap(
-                    srcBitmap,
-                    0,
-                    srcBitmap.getHeight()/2 - srcBitmap.getWidth()/2,
-                    srcBitmap.getWidth(),
-                    srcBitmap.getWidth()
-            );
-        }
-
-        return dstBitmap;
-    }
-
-    /**
-     * See <a href="http://stackoverflow.com/questions/7161500/creating-animation-on-imageview-while-changing-image-resource">
-     *     Creating animation on ImageView while changing image resource</a>
-     */
-    public static void animSwitchImageRes(Context c, final ImageView v, final Bitmap new_image) {
-        final Animation anim_out = AnimationUtils.loadAnimation(c, android.R.anim.fade_out);
-        final Animation anim_in  = AnimationUtils.loadAnimation(c, android.R.anim.fade_in);
-        anim_out.setAnimationListener(new Animation.AnimationListener()
-        {
-            @Override public void onAnimationStart(Animation animation) {}
-            @Override public void onAnimationRepeat(Animation animation) {}
-            @Override public void onAnimationEnd(Animation animation)
-            {
-                v.setImageBitmap(new_image);
-                anim_in.setAnimationListener(new Animation.AnimationListener() {
-                    @Override public void onAnimationStart(Animation animation) {}
-                    @Override public void onAnimationRepeat(Animation animation) {}
-                    @Override public void onAnimationEnd(Animation animation) {}
-                });
-                v.startAnimation(anim_in);
-            }
-        });
-        v.startAnimation(anim_out);
+    @Override
+    public void OnProfileImageUpdated(Profile profile) {
+        setProfile(profile);
     }
 }

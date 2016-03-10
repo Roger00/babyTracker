@@ -7,6 +7,7 @@ import com.rnfstudio.babytracker.db.EventContract;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by Roger on 2015/7/22.
@@ -51,7 +52,7 @@ public class TimeUtils {
     // ------------------------------------------------------------------------
     public static Calendar unFlattenCalendarTimeSafely(String s, String pattern) {
         Calendar c = Calendar.getInstance();
-        SimpleDateFormat f = new SimpleDateFormat(pattern);
+        SimpleDateFormat f = new SimpleDateFormat(pattern, Locale.getDefault());
         try {
             c.setTime(f.parse(s));
         } catch (ParseException e) {
@@ -62,7 +63,7 @@ public class TimeUtils {
     }
 
     public static String flattenCalendarTimeSafely(Calendar c, String pattern) {
-        SimpleDateFormat f = new SimpleDateFormat(pattern);
+        SimpleDateFormat f = new SimpleDateFormat(pattern, Locale.getDefault());
         return f.format(c.getTime());
     }
 

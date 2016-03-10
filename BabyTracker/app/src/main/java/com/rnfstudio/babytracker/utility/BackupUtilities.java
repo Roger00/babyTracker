@@ -1,6 +1,7 @@
 package com.rnfstudio.babytracker.utility;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +13,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 /**
  * Created by Roger on 2016/2/12.
@@ -57,19 +61,21 @@ public class BackupUtilities {
      */
     public static void copyDB2SDcard(Context context) {
         try {
-            Log.d(TAG, "[copyDB2SDcard] called");
-            File backupDir = new File(context.getExternalFilesDir(null), "BBTracker");
+            File externalDir = Environment.getExternalStorageDirectory();
+            File backupDir = new File(externalDir, "BBTracker");
 
-            backupDir.
-            if (backupDir.canWrite()) {
-                
+            if (externalDir != null && externalDir.canWrite()) {
+
+                // create parent folder
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs();
+                }
 
                 String currentDBPath = context
                         .getDatabasePath(EventDBHelper.DATABASE_NAME).getPath();
-                String backupDBPath = "backupname.db";
-
-                Log.d(TAG, "[copyDB2SDcard] current path: " + currentDBPath);
-                Log.d(TAG, "[copyDB2SDcard] backupDBPath: " + backupDBPath);
+                String datetime = TimeUtils.flattenCalendarTimeSafely(Calendar.getInstance(),
+                        "yyyyMMddHHmmss");
+                String backupDBPath = "backup_" + datetime + ".db";
 
                 File currentDB = new File(currentDBPath);
                 File backupDB = new File(backupDir, backupDBPath);
@@ -81,7 +87,8 @@ public class BackupUtilities {
                     src.close();
                     dst.close();
 
-                    Toast.makeText(context, R.string.backup_successful, Toast.LENGTH_SHORT).show();
+                    String message = context.getString(R.string.backup_successful, backupDB);
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 
                 } else {
                     Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_SHORT).show();

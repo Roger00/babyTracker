@@ -124,7 +124,7 @@
     <string name="settings_about_version">Version</string>
 
     <string name="backup_fail_not_allowed">Write fail, not allowed to write SDCard</string>
-    <string name="backup_successful">Backup successful</string>
+    <string name="backup_successful">Backup successful, file path: %s</string>
     <string name="restore_successful">Restore successful</string>
 
     <string name="menu_item_take_pic">Take picture</string>
