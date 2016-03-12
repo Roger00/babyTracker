@@ -1,10 +1,16 @@
 package com.rnfstudio.babytracker;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +22,20 @@ import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Profile;
 import com.rnfstudio.babytracker.db.ProfileContract;
+import com.rnfstudio.babytracker.utility.ProfileImageTask;
+import com.rnfstudio.babytracker.utility.ProfilePictureDialogFragment;
 import com.rnfstudio.babytracker.utility.Utilities;
 
 /**
  * Created by Roger on 2016/3/6.
  */
-public class ProfileEditActivity extends FragmentActivity {
-    // ------------------------------------------------------------------------
-    // TYPES
-    // ------------------------------------------------------------------------
-    public static class ProfileEditFragment extends Fragment {
+public class ProfileEditActivity extends FragmentActivity
+         {
+
+    private static final String TAG = "[ProfileEditActivity]";
+
+    public static class ProfileEditFragment extends Fragment
+            implements ProfileImageTask.ProfileImageCallback {
 
         private EditText mNameEdit;
         private EditText mBirthEdit;
@@ -33,6 +43,7 @@ public class ProfileEditActivity extends FragmentActivity {
         private Button mButtonCancel;
         private Button mButtonOkay;
         private ImageView mProfileImage;
+        private boolean mProfileImageChanged;
 
         @Override
         public View onCreateView(LayoutInflater inflater,
@@ -56,6 +67,14 @@ public class ProfileEditActivity extends FragmentActivity {
 
             mProfileImage = (ImageView) root.findViewById(R.id.profileImage);
             mProfileImage.setImageBitmap(profile.getProfilePicture());
+            mProfileImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogFragment newFragment = new ProfilePictureDialogFragment();
+                    newFragment.show(getActivity().getSupportFragmentManager(),
+                            ProfilePictureDialogFragment.TAG);
+                }
+            });
 
             // ok/cancel buttons
             mButtonCancel = (Button) root.findViewById(R.id.button_cancel);
@@ -119,6 +138,12 @@ public class ProfileEditActivity extends FragmentActivity {
                 changed = true;
             }
 
+            if (mProfileImageChanged) {
+                Bitmap bitmap = ((BitmapDrawable) mProfileImage.getDrawable()).getBitmap();
+                profile.setProfilePicture(bitmap);
+                changed = true;
+            }
+
             // update database if necessary
             if (changed) profile.asyncWriteDB(getActivity());
 
@@ -139,11 +164,33 @@ public class ProfileEditActivity extends FragmentActivity {
                     1 <= month && month <= 12 &&
                     1 <= day && day <= 31;
         }
+
+        @Override
+        public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
+            mProfileImageChanged = true;
+            Utilities.animSwitchImageRes(getActivity(), mProfileImage, bitmap);
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_editor);
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Profile profile = MainApplication.getUserProfile();
+        ProfileEditFragment frag = (ProfileEditFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.record_edit_fragment);
+
+        if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
+            new ProfileImageTask(this, profile, imageFilePath, null, frag, false).execute();
+
+        } else if (requestCode == MainActivity.REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
+            new ProfileImageTask(this, profile, null, data.getData(), frag, false).execute();
+        }
     }
 }

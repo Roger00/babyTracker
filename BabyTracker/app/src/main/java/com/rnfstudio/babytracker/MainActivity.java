@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -263,6 +264,10 @@ public class MainActivity extends FragmentActivity
     }
 
     public void setProfile(Profile p) {
+        setProfile(p, true);
+    }
+
+    public void setProfile(Profile p, boolean animated) {
         // update profile
         mProfile = p;
 
@@ -271,7 +276,13 @@ public class MainActivity extends FragmentActivity
         // update views
         mDisplayName.setText(mProfile.getName());
         mDaysFromBirth.setText(getDaysFromBirthString());
-        Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
+
+        if (animated) {
+            Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
+        } else {
+            mProfileImage.setImageBitmap(mProfile.getProfilePicture());
+        }
+
     }
 
     private String getDaysFromBirthString() {
@@ -305,10 +316,10 @@ public class MainActivity extends FragmentActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
-            new ProfileImageTask(this, mProfile, imageFilePath, null, this).execute();
+            new ProfileImageTask(this, mProfile, imageFilePath, null, this, true).execute();
 
         } else if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
-            new ProfileImageTask(this, mProfile, null, data.getData(), this).execute();
+            new ProfileImageTask(this, mProfile, null, data.getData(), this, true).execute();
 
         } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
             setProfile(MainApplication.getUserProfile());
@@ -316,7 +327,8 @@ public class MainActivity extends FragmentActivity
     }
 
     @Override
-    public void OnProfileImageUpdated(Profile profile) {
+    public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
+        profile.setProfilePicture(bitmap);
         setProfile(profile);
     }
 }

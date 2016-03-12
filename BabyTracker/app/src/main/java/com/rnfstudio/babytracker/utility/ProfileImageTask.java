@@ -25,7 +25,7 @@ import java.io.InputStream;
 public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     public interface ProfileImageCallback {
-        void OnProfileImageUpdated(Profile profile);
+        void OnProfileImageUpdated(Profile profile, Bitmap bitmap);
     }
 
     private static final String TAG = "[ProfileImageTask]";
@@ -35,17 +35,19 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
     String mPathname;
     Uri mUri;
     ProfileImageCallback mCallback;
+    boolean mUpdateProfile;
 
     public ProfileImageTask(Context context,
                             Profile profile,
                             String pathname,
                             Uri uri,
-                            ProfileImageCallback callback) {
+                            ProfileImageCallback callback, boolean updateProfile) {
         mContext = context;
         mProfile = profile;
         mPathname = pathname;
         mUri = uri;
         mCallback = callback;
+        mUpdateProfile = updateProfile;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
         Bitmap resized = Utilities.getResizedCenterBitmap(mContext, src);
 
         // update profile image and write to database
-        if (resized != null) {
+        if (resized != null && mUpdateProfile) {
             mProfile.setProfilePicture(resized);
             mProfile.writeDB(mContext);
         }
@@ -85,7 +87,7 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
         if (bitmap == null) {
             Toast.makeText(mContext,R.string.error_unknown, Toast.LENGTH_SHORT).show();
         } else {
-            mCallback.OnProfileImageUpdated(mProfile);
+            mCallback.OnProfileImageUpdated(mProfile, bitmap);
         }
     }
 }
