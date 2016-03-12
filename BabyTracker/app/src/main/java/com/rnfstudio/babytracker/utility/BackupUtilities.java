@@ -1,6 +1,10 @@
 package com.rnfstudio.babytracker.utility;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -59,7 +63,7 @@ public class BackupUtilities {
      * See <a href="http://stackoverflow.com/questions/9997976/
      *     android-pulling-sqlite-database-android-device">Pull database in Android</a>
      */
-    public static void copyDB2SDcard(Context context) {
+    public static void copyDB2SDcard(final Context context) {
         try {
             File externalDir = Environment.getExternalStorageDirectory();
             File backupDir = new File(externalDir, "BBTracker");
@@ -78,7 +82,7 @@ public class BackupUtilities {
                 String backupDBPath = "backup_" + datetime + ".db";
 
                 File currentDB = new File(currentDBPath);
-                File backupDB = new File(backupDir, backupDBPath);
+                final File backupDB = new File(backupDir, backupDBPath);
 
                 if (currentDB.exists()) {
                     FileChannel src = new FileInputStream(currentDB).getChannel();
@@ -89,6 +93,25 @@ public class BackupUtilities {
 
                     String message = context.getString(R.string.backup_successful, backupDB);
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+
+                    new AlertDialog.Builder(context)
+                            .setMessage(R.string.backup_successful_share_message)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                                    sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(backupDB));
+                                    sendIntent.setType("application/octet-stream");
+                                    context.startActivity(Intent.createChooser(sendIntent,
+                                            context.getString(R.string.share_file_to)));
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
 
                 } else {
                     Toast.makeText(context, R.string.error_unknown, Toast.LENGTH_SHORT).show();

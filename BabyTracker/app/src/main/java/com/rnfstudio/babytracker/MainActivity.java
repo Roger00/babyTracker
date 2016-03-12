@@ -225,9 +225,14 @@ public class MainActivity extends FragmentActivity
             }
         });
 
-        setProfile(MainApplication.getUserProfile());
 //        // initialize cursor loader
 //        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setProfile(MainApplication.getUserProfile(), false);
     }
 
     @Override

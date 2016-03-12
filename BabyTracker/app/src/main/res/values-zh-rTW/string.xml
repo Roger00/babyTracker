@@ -116,7 +116,7 @@
 
     <string name="settings_title">偏好設定</string>
     <string name="settings_general">一般</string>
-    <string name="settings_profile">設定大頭照</string>
+    <string name="settings_profile">設定個人資訊</string>
     <string name="settings_enable_sound_effect">允許音效</string>
     <string name="settings_enable_vibrate">允許震動</string>
     <string name="settings_backup">備份與還原</string>
@@ -128,6 +128,8 @@
 
     <string name="backup_fail_not_allowed">備份失敗，不允許寫入 SDCard</string>
     <string name="backup_successful">備份成功，寫入至：%s</string>
+    <string name="backup_successful_share_message">備份成功！是否分享這個檔案？</string>
+    <string name="share_file_to">分享檔案到</string>
     <string name="restore_successful">還原成功</string>
 
     <string name="menu_item_take_pic">拍攝照片</string>

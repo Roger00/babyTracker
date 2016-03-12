@@ -52,18 +52,22 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... params) {
+        try {
+            // resize and center bitmap from source
+            Bitmap src = getBitmapFromSource();
+            Bitmap resized = Utilities.getResizedCenterBitmap(mContext, src);
 
-        // resize and center bitmap from source
-        Bitmap src = getBitmapFromSource();
-        Bitmap resized = Utilities.getResizedCenterBitmap(mContext, src);
+            // update profile image and write to database
+            if (resized != null && mUpdateProfile) {
+                mProfile.setProfilePicture(resized);
+                mProfile.writeDB(mContext);
+            }
+            return resized;
 
-        // update profile image and write to database
-        if (resized != null && mUpdateProfile) {
-            mProfile.setProfilePicture(resized);
-            mProfile.writeDB(mContext);
+        } catch (Exception e) {
+            Log.w(TAG, "Exception: " + e.toString());
+            return null;
         }
-
-        return resized;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)

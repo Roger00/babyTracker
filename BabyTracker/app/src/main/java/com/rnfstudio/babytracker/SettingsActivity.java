@@ -45,6 +45,9 @@ public class SettingsActivity extends Activity {
             String key = preference.getKey();
 
             if (KEY_PROFILE.equals(key)) {
+                Intent profileEdit = new Intent(getActivity(), ProfileEditActivity.class);
+                profileEdit.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(profileEdit);
                 return true;
 
             } else if (KEY_BACKUP_TO_SDCARD.equals(key)) {
