@@ -2,6 +2,7 @@ package com.rnfstudio.babytracker.utility;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -42,7 +43,8 @@ public class CircleView extends View {
         }
 
         @Override
-        protected void applyTransformation(float interpolatedTime, Transformation transformation) {
+        protected void applyTransformation(float interpolatedTime,
+                                           Transformation transformation) {
             float angle = oldAngle + ((newAngle - oldAngle) * interpolatedTime);
 
             circle.setAngle(angle);
@@ -61,8 +63,6 @@ public class CircleView extends View {
 
     // the angle the drawing starts
     private static final int START_ANGLE_POINT = 270;
-    private static float size = 0;
-    private static float strokeWidth = 0;
     private static float strokeWidthNormal = 0;
     private static float strokeWidthTouched = 0;
     private static float innerRadius = 0;
@@ -82,7 +82,8 @@ public class CircleView extends View {
     // FIELDS
     // ------------------------------------------------------------------------
     private final Context mContext;
-    private final Paint paint;
+    private final Paint paintCircle;
+    private final Paint paintText;
     private final RectF rect;
     private float angle;
     private Animation mAnimation;
@@ -107,20 +108,33 @@ public class CircleView extends View {
     public CircleView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
+        float size = context.getResources().getDimension(R.dimen.circle_view_inner_size);
+        float strokeWidth = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
+        float textSize = context.getResources().getDimension(R.dimen.circle_view_text_size);
+
         mContext = context;
-        size = context.getResources().getDimension(R.dimen.circle_view_inner_size);
-        strokeWidth = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
         strokeWidthNormal = context.getResources().getDimension(R.dimen.circle_view_stroke_width);
         strokeWidthTouched = context.getResources().getDimension(R.dimen.circle_view_stroke_width_touched);
         innerRadius = getResources().getDimension(R.dimen.circle_view_touch_inner_radius);
         outerRadius = getResources().getDimension(R.dimen.circle_view_touch_outer_radius);
 
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(strokeWidth);
-        paint.setColor(Color.RED);
-        rect = new RectF(strokeWidthTouched, strokeWidthTouched, size + strokeWidthTouched, size + strokeWidthTouched);
+        paintCircle = new Paint();
+        paintCircle.setAntiAlias(true);
+        paintCircle.setStyle(Paint.Style.STROKE);
+        paintCircle.setStrokeWidth(strokeWidth);
+        paintCircle.setColor(Color.RED);
+
+        paintText = new Paint();
+        paintText.setAntiAlias(true);
+        paintText.setStyle(Paint.Style.STROKE);
+        paintText.setTextSize(textSize);
+        paintText.setColor(Color.GRAY);
+
+        rect = new RectF(strokeWidthTouched,
+                strokeWidthTouched,
+                size + strokeWidthTouched,
+                size + strokeWidthTouched);
+
         angle = 0;
 
         initialize();
@@ -165,7 +179,8 @@ public class CircleView extends View {
                     isCancel = false;
                 }
 
-                int dataIndex = (touched && !isCancel) ? searchDataIndex(dataAngle) : INDEX_NO_FOUND;
+                int dataIndex = (touched && !isCancel) ?
+                        searchDataIndex(dataAngle) : INDEX_NO_FOUND;
 
                 // highlight selected data
                 setHighlightedData(dataIndex);
@@ -196,7 +211,7 @@ public class CircleView extends View {
         mStrokeWidthAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
                 Float value = (Float) animation.getAnimatedValue();
-                paint.setStrokeWidth(value.floatValue());
+                paintCircle.setStrokeWidth(value);
                 //Do whatever you need to to with the value and...
                 //Call invalidate if it's necessary to update the canvas
                 CircleView.this.invalidate();
@@ -225,9 +240,12 @@ public class CircleView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        // draw clock text
+        drawClockText(canvas);
+
         // draw underlying circle
-        paint.setColor(Color.GRAY);
-        canvas.drawArc(rect, START_ANGLE_POINT, 360, false, paint);
+        paintCircle.setColor(Color.GRAY);
+        canvas.drawArc(rect, START_ANGLE_POINT, 360, false, paintCircle);
 
         if (mDataPairs == null) {
             return;
@@ -242,10 +260,31 @@ public class CircleView extends View {
             float endAngle = p.second > angle ? angle : p.second;
             float sweepAngle = endAngle - startAngle;
 
-            paint.setColor(mHighlightIndex == index ? Color.MAGENTA : Color.RED);
+            paintCircle.setColor(mHighlightIndex == index ? Color.MAGENTA : Color.RED);
 
-            canvas.drawArc(rect, START_ANGLE_POINT + startAngle, sweepAngle, false, paint);
+            canvas.drawArc(rect, START_ANGLE_POINT + startAngle, sweepAngle, false, paintCircle);
             index++;
+        }
+    }
+
+    private void drawClockText(Canvas canvas) {
+        Resources res = mContext.getResources();
+        float size = res.getDimension(R.dimen.circle_view_inner_size);
+        float strokeWidthTouched = res.getDimension(R.dimen.circle_view_stroke_width_touched);
+        float radius = res.getDimension(R.dimen.circle_view_text_rect_radius);
+        float textSize = res.getDimension(R.dimen.circle_view_text_size) / 2;
+
+        float centerXY = (size + strokeWidthTouched * 2) / (float) 2;
+
+        for (int i = 1; i < 13; i++) {
+            int degree = i * 30 - 90;
+            double angle = (((double) degree % 360) / 180) * Math.PI;
+            float x = (float) Math.cos(angle) * radius;
+            float y = (float) Math.sin(angle) * radius;
+            canvas.drawText(String.valueOf(i),
+                    centerXY + x - textSize / 2,
+                    centerXY + y + textSize / 2,
+                    paintText);
         }
     }
 
