@@ -70,6 +70,9 @@ public class CircleView extends View {
 
     private static final int INDEX_NO_FOUND = -1;
 
+    private static final boolean ENLARGE_SMALL_DATA = true;
+    private static final float ENLARGE_RANGE = 6;
+
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
@@ -260,6 +263,13 @@ public class CircleView extends View {
             float endAngle = p.second > angle ? angle : p.second;
             float sweepAngle = endAngle - startAngle;
 
+            // make arc no shorter than 5 degrees
+            // so users can tap on it easily
+            if (ENLARGE_SMALL_DATA && sweepAngle < ENLARGE_RANGE) {
+                startAngle -= ENLARGE_RANGE / 2;
+                sweepAngle += ENLARGE_RANGE;
+            }
+
             paintCircle.setColor(mHighlightIndex == index ? Color.MAGENTA : Color.RED);
 
             canvas.drawArc(rect, START_ANGLE_POINT + startAngle, sweepAngle, false, paintCircle);
@@ -365,7 +375,16 @@ public class CircleView extends View {
 
         for (int i = 0; i < mDataPairs.size(); i++) {
             Pair<Float, Float> p = mDataPairs.get(i);
-            if (point >= p.first && point <= p.second) {
+
+            float start = p.first, end = p.second;
+
+            // search within a wider range if duration is too short
+            if (ENLARGE_SMALL_DATA && (end - start) < ENLARGE_RANGE) {
+                start -= ENLARGE_RANGE / 2;
+                end += ENLARGE_RANGE / 2;
+            }
+
+            if (point >= start && point <= end) {
                 return i;
             }
         }

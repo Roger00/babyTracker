@@ -109,8 +109,11 @@
     <string name="error_create_file">Fail to create file.</string>
     <string name="error_start_camera">Fail to start camera.</string>
 
-    <string name="circle_info_default_am">This morning:\n%1$d times, %2$s.</string>
-    <string name="circle_info_default_pm">This afternoon:\n%1$d times, %2$s.</string>
+    <string name="circle_info_am">This morning:</string>
+    <string name="circle_info_pm">This afternoon:</string>
+    <string name="circle_info_default_sleep">%1$s:\n\nSlept %2$d times\nDuration %3$s</string>
+    <string name="circle_info_default_meal">%1$s:\n\nFed %2$d times\nDuration %3$s\nAmount %4$s</string>
+    <string name="circle_info_default_diaper">%1$s\nChange %2$d diaper(s)</string>
     <string name="circle_info_default_add_data_hint">No data yet. How about adding a new one?</string>
 
     <string name="add_successful">Record added.</string>
@@ -142,4 +145,9 @@
     <string name="gender_girl">Girl</string>
 
     <string name="default_user_name" translatable="false">黃暐植</string>
+
+    <string name="highlight_message_sleep">"%1$s(%2$s)\n%3$s - %4$s"</string>
+    <string name="highlight_message_meal">"%1$s(%2$s)\n%3$s - %4$s"</string>
+    <string name="highlight_message_meal_with_amount">"%1$s(%2$s)\n%3$s - %4$s\namount: %5$s"</string>
+    <string name="highlight_message_diaper">"%1$s\n%2$s"</string>
 </resources>

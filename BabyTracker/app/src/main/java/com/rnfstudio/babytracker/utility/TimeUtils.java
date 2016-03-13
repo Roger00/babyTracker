@@ -23,7 +23,7 @@ public class TimeUtils {
     private static final String TAG = "TimeUtils";
     private static final boolean DEBUG = true;
 
-    public static final String TIME_FORMAT_HH_MM_SS = "HH:mm:ss";
+    public static final String TIME_FORMAT_HH_MM = "HH:mm";
     public static final long DAY_IN_MILLIS = 86400000;
     public static final long HALF_DAY_IN_MILLIS = 43200000;
 

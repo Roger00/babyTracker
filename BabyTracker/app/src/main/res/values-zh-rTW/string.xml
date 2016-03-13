@@ -108,8 +108,11 @@
     <string name="error_create_file">建立檔案失敗</string>
     <string name="error_start_camera">無法啟動相機</string>
 
-    <string name="circle_info_default_am">今日上午:\n%1$d 次，%2$s</string>
-    <string name="circle_info_default_pm">今日下午:\n%1$d 次，%2$s</string>
+    <string name="circle_info_am">今日上午:</string>
+    <string name="circle_info_pm">今日下午:</string>
+    <string name="circle_info_default_sleep">%1$s\n總共睡了 %2$d 次\n持續時間 %3$s</string>
+    <string name="circle_info_default_meal">%1$s\n總共吃了 %2$d 次\n總時間 %3$s\n餵食量 %4$s</string>
+    <string name="circle_info_default_diaper">%1$s\n總共換了 %2$d 次尿布唷</string>
     <string name="circle_info_default_add_data_hint">尚無資料\n新增一筆記錄吧！</string>
 
     <string name="add_successful">紀錄成功</string>
@@ -139,4 +142,9 @@
     <string name="hint_enter_birth">請輸入出生年月日</string>
     <string name="gender_boy">男生</string>
     <string name="gender_girl">女生</string>
+
+    <string name="highlight_message_sleep">"%1$s（%2$s）\n%3$s - %4$s"</string>
+    <string name="highlight_message_meal">"%1$s（%2$s）\n%3$s - %4$s"</string>
+    <string name="highlight_message_meal_with_amount">"%1$s（%2$s）\n%3$s - %4$s\n餵食量:%5$s"</string>
+    <string name="highlight_message_diaper">"%1$s\n%2$s"</string>
 </resources>

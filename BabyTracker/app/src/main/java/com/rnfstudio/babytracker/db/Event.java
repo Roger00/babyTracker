@@ -149,6 +149,10 @@ public class Event {
         return mId;
     }
 
+    public int getEventType() {
+        return mType;
+    }
+
     public String getTypeStr() {
         return EventContract.EventEntry.getTypeStr(mType, mSubType);
     }

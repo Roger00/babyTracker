@@ -145,6 +145,7 @@ public class RecordListFragment extends ListFragment
             mCircleWidget = new CircleWidget(getActivity());
             mCircleWidget.setCircle((CircleView) rootView.findViewById(R.id.circle));
             mCircleWidget.setInfoPanel((TextView) rootView.findViewById(R.id.circleTitle));
+            mCircleWidget.setMainType(getMainType());
         } else {
             final FrameLayout circleWidget = (FrameLayout) rootView.findViewById(R.id.circleWidget);
             circleWidget.setVisibility(GONE);
