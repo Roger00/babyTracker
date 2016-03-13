@@ -23,7 +23,26 @@
             android:id="@+id/profileImage"
             android:src="@drawable/baby"/>
 
-        <include layout="@layout/info_panel" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:id="@+id/infoPanel"
+            android:paddingStart="@dimen/info_panel_text_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/displayName" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:id="@+id/daysFromBirth" />
+        </LinearLayout>
 
     </LinearLayout>
 

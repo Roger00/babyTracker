@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:stretchColumns="0,1,2"
-    android:layout_gravity="center_vertical"
+    android:gravity="center_vertical"
     android:id="@+id/lastInfoPanel">
     <TableRow>
         <TextView

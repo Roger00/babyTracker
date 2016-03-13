@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,12 +6,13 @@
     android:splitMotionEvents="false"
     tools:context=".MainActivity">
 
-    <include layout="@layout/menu_panel"/>
-
     <include layout="@layout/last_info_panel"
+        android:layout_weight="6"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"/>
+        android:layout_height="0dp"/>
 
-</RelativeLayout>
+    <include layout="@layout/menu_panel"
+        android:layout_weight="4"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+</LinearLayout>
