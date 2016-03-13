@@ -147,4 +147,7 @@
     <string name="highlight_message_meal">"%1$s（%2$s）\n%3$s - %4$s"</string>
     <string name="highlight_message_meal_with_amount">"%1$s（%2$s）\n%3$s - %4$s\n餵食量:%5$s"</string>
     <string name="highlight_message_diaper">"%1$s\n%2$s"</string>
+
+    <string name="previous">上一個</string>
+    <string name="next">下一個</string>
 </resources>

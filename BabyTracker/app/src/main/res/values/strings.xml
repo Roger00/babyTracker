@@ -150,4 +150,7 @@
     <string name="highlight_message_meal">"%1$s(%2$s)\n%3$s - %4$s"</string>
     <string name="highlight_message_meal_with_amount">"%1$s(%2$s)\n%3$s - %4$s\namount: %5$s"</string>
     <string name="highlight_message_diaper">"%1$s\n%2$s"</string>
+
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>
