@@ -7,4 +7,8 @@
         <attr name="up" format="string" />
         <attr name="down" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="RoundedImageView">
+        <attr name="isCircle" format="boolean" />
+    </declare-styleable>
 </resources>

@@ -1,6 +1,7 @@
 package com.rnfstudio.babytracker.utility;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,21 +15,41 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import com.rnfstudio.babytracker.R;
+
 /**
  * source: http://stackoverflow.com/questions/16208365/create-a-circular-image-view-in-android
  */
 public class RoundedImageView extends ImageView {
+    private boolean mIsCircle = false;
 
     public RoundedImageView(Context context) {
         super(context);
+        init(context, null);
     }
 
     public RoundedImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context, attrs);
     }
 
     public RoundedImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        init(context, attrs);
+    }
+
+    private void init(final Context context, AttributeSet attrs) {
+        if (attrs != null) {
+            TypedArray a = context.getTheme().obtainStyledAttributes(
+                    attrs,
+                    R.styleable.RoundedImageView,
+                    0, 0);
+            try {
+                mIsCircle = a.getBoolean(R.styleable.RoundedImageView_isCircle, false);
+            } finally {
+                a.recycle();
+            }
+        }
     }
 
     @Override
@@ -52,7 +73,7 @@ public class RoundedImageView extends ImageView {
         canvas.drawBitmap(roundBitmap, 0, 0, null);
     }
 
-    public static Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
+    public Bitmap getCroppedBitmap(Bitmap bmp, int radius) {
         Bitmap sbmp;
         if(bmp.getWidth() != radius || bmp.getHeight() != radius)
             sbmp = Bitmap.createScaledBitmap(bmp, radius, radius, false);
@@ -72,23 +93,24 @@ public class RoundedImageView extends ImageView {
         paint.setDither(true);
         canvas.drawARGB(0, 0, 0, 0);
 
-//        // for circle
-//        paint.setColor(Color.parseColor("#BAB399"));
-//        canvas.drawCircle(sbmp.getWidth() / 2 + 0.7f, sbmp.getHeight() / 2 + 0.7f,
-//                sbmp.getWidth() / 2 + 0.1f, paint);
-//        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-//        canvas.drawBitmap(sbmp, innerRect, innerRect, paint);
+        if (mIsCircle) {
+            paint.setColor(Color.parseColor("#BAB399"));
+            canvas.drawCircle(sbmp.getWidth() / 2 + 0.7f, sbmp.getHeight() / 2 + 0.7f,
+                    sbmp.getWidth() / 2 + 0.1f, paint);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(sbmp, innerRect, innerRect, paint);
+        } else {
+            // draw image
+            paint.setColor(Color.parseColor("#BAB399"));
+            canvas.drawPath(RoundedRect(innerRect, 50.0f - bw, 50.0f - bw), paint);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(sbmp, innerRect, innerRect, paint);
 
-        // draw image
-        paint.setColor(Color.parseColor("#BAB399"));
-        canvas.drawPath(RoundedRect(innerRect, 50.0f - bw, 50.0f - bw), paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(sbmp, innerRect, innerRect, paint);
-
-        // draw border
-        paint.setColor(Color.WHITE);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
-        canvas.drawPath(RoundedRect(outerRect, 50.0f, 50.0f), paint);
+            // draw border
+            paint.setColor(Color.WHITE);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OVER));
+            canvas.drawPath(RoundedRect(outerRect, 50.0f, 50.0f), paint);
+        }
 
         return output;
     }
@@ -116,7 +138,7 @@ public class RoundedImageView extends ImageView {
         float height = bottom - top;
         if (rx > width/2) rx = width/2;
         if (ry > height/2) ry = height/2;
-        float widthMinusCorners = (width - (2 * rx));
+            float widthMinusCorners = (width - (2 * rx));
         float heightMinusCorners = (height - (2 * ry));
 
         path.moveTo(right, top + ry);

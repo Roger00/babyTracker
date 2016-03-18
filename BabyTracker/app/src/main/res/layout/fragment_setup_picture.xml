@@ -1,13 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Setup picture"
+        android:text="@string/welcome_setup_picture_title"
         android:id="@+id/textView2"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"/>
+
+    <com.rnfstudio.babytracker.utility.RoundedImageView
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:id="@+id/profileImage"
+        android:src="@drawable/baby"
+        custom:isCircle="true"
+        android:layout_marginBottom="20dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:id="@+id/buttonCamera"
+            android:src="@drawable/ic_local_see_black_48dp"
+            android:layout_marginStart="20dp"/>
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="150dp"
+            android:id="@+id/buttonGallery"
+            android:src="@drawable/ic_perm_media_black_48dp"
+            android:layout_marginEnd="20dp"/>
+    </LinearLayout>
 </LinearLayout>

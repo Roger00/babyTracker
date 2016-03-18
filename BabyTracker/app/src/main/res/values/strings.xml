@@ -153,4 +153,14 @@
 
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="go_setup">Start</string>
+    <string name="go_continue">Continue</string>
+
+    <string name="back_key_exit_toast">Press back key again to exit</string>
+
+    <string name="welcome_setup_title">"Welcome to %s"</string>
+    <string name="welcome_setup_name_title">"Enter baby's name"</string>
+    <string name="welcome_setup_gender_title">"Choose baby's gender"</string>
+    <string name="welcome_setup_birth_title">"Choose baby's birthday"</string>
+    <string name="welcome_setup_picture_title">"Choose baby's profile picture"</string>
 </resources>

@@ -148,6 +148,16 @@
     <string name="highlight_message_meal_with_amount">"%1$s（%2$s）\n%3$s - %4$s\n餵食量:%5$s"</string>
     <string name="highlight_message_diaper">"%1$s\n%2$s"</string>
 
-    <string name="previous">上一個</string>
-    <string name="next">下一個</string>
+    <string name="previous">上一步</string>
+    <string name="next">下一步</string>
+    <string name="go_setup">開始設定</string>
+    <string name="go_continue">繼續</string>
+
+    <string name="back_key_exit_toast">再按一次返回鍵退出</string>
+
+    <string name="welcome_setup_title">"歡迎使用%s！"</string>
+    <string name="welcome_setup_name_title">請輸入寶寶的暱稱</string>
+    <string name="welcome_setup_gender_title">請選擇寶寶的性別</string>
+    <string name="welcome_setup_birth_title">設定寶寶的生日</string>
+    <string name="welcome_setup_picture_title">設定寶寶的大頭貼</string>
 </resources>

@@ -11,6 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.rnfstudio.babytracker.db.Profile;
+import com.rnfstudio.babytracker.db.ProfileContract;
+
+import java.util.Calendar;
 
 /**
  * Created by Roger on 2016/3/13.
@@ -27,6 +35,10 @@ public class WelcomeActivity extends FragmentActivity {
             R.layout.fragment_setup_picture};
 
     private int mPageIndex = 0;
+    private int mBackKeyPressCount = 0;
+    private static Profile sProfile;
+    private Button mPrevButton;
+    private Button mNextButton;
 
     public static class WelcomeFragment extends Fragment {
         private static final String ARG_PAGE_INDEX = "page_index";
@@ -35,9 +47,23 @@ public class WelcomeActivity extends FragmentActivity {
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
             int pageIndex = getArguments().getInt(ARG_PAGE_INDEX);
-            Log.d(TAG, "[onCreateView] pageIndex: " + pageIndex);
 
             View root = inflater.inflate(SETUP_PAGES[pageIndex], container, false);
+
+            switch (SETUP_PAGES[pageIndex]) {
+                case R.layout.fragment_setup_welcome:
+                    TextView welcomeText = (TextView) root.findViewById(R.id.welcomeText);
+                    String appName = getResources().getString(R.string.app_name);
+                    welcomeText.setText(getResources()
+                            .getString(R.string.welcome_setup_title, appName));
+                    break;
+
+                case R.layout.fragment_setup_name:
+                    EditText nameEdit = (EditText) root.findViewById(R.id.nameEdit);
+                    nameEdit.setText(sProfile.getName());
+                    break;
+            }
+
             return root;
         }
     }
@@ -51,14 +77,23 @@ public class WelcomeActivity extends FragmentActivity {
             return;
         }
 
+        // create Profile instance
+        Calendar c = Calendar.getInstance();
+        sProfile = new Profile((long) -1, "",
+                ProfileContract.GENDER_BOY,
+                c.get(Calendar.YEAR),
+                c.get(Calendar.MONTH),
+                c.get(Calendar.DAY_OF_MONTH),
+                null);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_welcome);
 
         switchToPage(mPageIndex);
 
-        final Button nextBtn = (Button) findViewById(R.id.button_next);
-        nextBtn.setOnClickListener(new View.OnClickListener() {
+        mNextButton = (Button) findViewById(R.id.button_next);
+        mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int targetPage = mPageIndex + 1;
@@ -71,13 +106,39 @@ public class WelcomeActivity extends FragmentActivity {
             }
         });
 
-        final Button prevBtn = (Button) findViewById(R.id.button_prev);
-        prevBtn.setOnClickListener(new View.OnClickListener() {
+        mPrevButton = (Button) findViewById(R.id.button_prev);
+        mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressedImpl();
+                int targetPage = mPageIndex - 1;
+                if (targetPage >= 0 && targetPage < SETUP_PAGES.length) {
+                    switchToPage(targetPage);
+                }
             }
         });
+
+        updatePrevNextButton();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // reset back key press count
+        mBackKeyPressCount = 0;
+    }
+
+    private void updatePrevNextButton() {
+        // show / hide previous button
+        if (mPrevButton != null) {
+            mPrevButton.setVisibility(mPageIndex == 0 ? View.GONE: View.VISIBLE);
+        }
+
+        // update next button text
+        if (mNextButton != null) {
+            mNextButton.setText(mPageIndex == 0 ? getResources().getString(R.string.go_setup) :
+                    getResources().getString(R.string.next));
+        }
     }
 
     public void completeSetup() {
@@ -95,8 +156,6 @@ public class WelcomeActivity extends FragmentActivity {
      *     Creating a Fragment</a>
      */
     private void switchToPage(int pageIndex) {
-        Log.d(TAG, "[switchToPage] pageIndex: " + pageIndex);
-
         WelcomeFragment newFragment = new WelcomeFragment();
         Bundle args = new Bundle();
         args.putInt(WelcomeFragment.ARG_PAGE_INDEX, pageIndex);
@@ -114,6 +173,11 @@ public class WelcomeActivity extends FragmentActivity {
 
         // update page index
         mPageIndex = pageIndex;
+
+        // reset back key press count
+        mBackKeyPressCount = 0;
+
+        updatePrevNextButton();
     }
 
     private boolean isFirstUsage() {
@@ -124,7 +188,6 @@ public class WelcomeActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
         onBackPressedImpl();
     }
 
@@ -132,6 +195,14 @@ public class WelcomeActivity extends FragmentActivity {
         int targetPage = mPageIndex - 1;
         if (targetPage >= 0 && targetPage < SETUP_PAGES.length) {
             switchToPage(targetPage);
+
+        } else if (targetPage < 0) {
+            if (mBackKeyPressCount == 0) {
+                Toast.makeText(this, R.string.back_key_exit_toast, Toast.LENGTH_SHORT).show();
+                mBackKeyPressCount += 1;
+            } else {
+                finish();
+            }
         }
     }
 }
