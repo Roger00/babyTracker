@@ -66,7 +66,9 @@ public class ProfileEditActivity extends FragmentActivity
             mGenderRadioGroup.check(checkedGenderWidgetId);
 
             mProfileImage = (ImageView) root.findViewById(R.id.profileImage);
-            mProfileImage.setImageBitmap(profile.getProfilePicture());
+            if (profile.getProfilePicture() != null) {
+                mProfileImage.setImageBitmap(profile.getProfilePicture());
+            }
             mProfileImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -17,8 +17,8 @@
         android:layout_marginBottom="20dp"/>
 
     <com.rnfstudio.babytracker.utility.RoundedImageView
-        android:layout_width="180dp"
-        android:layout_height="180dp"
+        android:layout_width="@dimen/baby_icon_size_db"
+        android:layout_height="@dimen/baby_icon_size_db"
         android:id="@+id/profileImage"
         android:src="@drawable/baby"
         custom:isCircle="true"

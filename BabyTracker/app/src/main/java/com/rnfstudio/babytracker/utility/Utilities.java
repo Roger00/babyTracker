@@ -62,10 +62,10 @@ public class Utilities {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static byte[] encodeBitmap(Bitmap bitmap) {
         try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             return stream.toByteArray();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -111,7 +111,7 @@ public class Utilities {
     }
 
     public static Bitmap getResizedCenterBitmap(Context context, Bitmap src) {
-        int dstSize = context.getResources().getDimensionPixelSize(R.dimen.baby_icon_size_small);
+        int dstSize = context.getResources().getDimensionPixelSize(R.dimen.baby_icon_size_db);
         boolean isLandscape = src.getWidth() >= src.getHeight();
         float ratio = isLandscape ?
                 (float) src.getWidth()/src.getHeight() : (float) src.getHeight()/src.getWidth();

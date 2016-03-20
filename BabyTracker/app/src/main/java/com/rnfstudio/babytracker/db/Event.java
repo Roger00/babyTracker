@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.rnfstudio.babytracker.MainApplication;
 import com.rnfstudio.babytracker.R;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 import com.rnfstudio.babytracker.utility.Utilities;
@@ -195,6 +196,8 @@ public class Event {
 
         ContentValues values = new ContentValues();
         values.put(EventContract.EventEntry._ID, mId);
+        values.put(EventContract.EventEntry.COLUMN_NAME_USER_ID,
+                MainApplication.getUserId(context));
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE, mType);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE, mSubType);
         values.put(EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME, mStartTime);

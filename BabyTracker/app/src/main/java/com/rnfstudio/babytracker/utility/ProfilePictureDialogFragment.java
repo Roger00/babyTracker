@@ -34,7 +34,7 @@ public class ProfilePictureDialogFragment extends DialogFragment {
     // ------------------------------------------------------------------------
     // STATIC FIELDS
     // ------------------------------------------------------------------------
-    public static final String TAG = "[ProfilePictureDialogFragment]";
+    public static final String TAG = "[ProfilePicDialog]";
 
     public static String sCurrentPhotoPath;
     // ------------------------------------------------------------------------
@@ -90,7 +90,7 @@ public class ProfilePictureDialogFragment extends DialogFragment {
      * See <a href="http://developer.android.com/intl/zh-tw/training/camera/photobasics.html">
      *     Taking photos simply</a>
      */
-    private void startCameraSafely(Activity activity) {
+    public static void startCameraSafely(Activity activity) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
 
@@ -107,7 +107,8 @@ public class ProfilePictureDialogFragment extends DialogFragment {
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
-                activity.startActivityForResult(takePictureIntent, MainActivity.REQUEST_IMAGE_CAPTURE);
+                activity.startActivityForResult(takePictureIntent,
+                        MainActivity.REQUEST_IMAGE_CAPTURE);
             }
 
         } else {
@@ -115,7 +116,7 @@ public class ProfilePictureDialogFragment extends DialogFragment {
         }
     }
 
-    private File createImageFile() throws IOException {
+    private static File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -139,7 +140,7 @@ public class ProfilePictureDialogFragment extends DialogFragment {
      * See <a href="http://stackoverflow.com/questions/5309190/android-pick-images-from-gallery">
      *     android pick images from gallery</a>
      */
-    private void pickPictureFromGallery(Activity activity) {
+    public static void pickPictureFromGallery(Activity activity) {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
         photoPickerIntent.setType("image/*");
         if (photoPickerIntent.resolveActivity(activity.getPackageManager()) != null) {

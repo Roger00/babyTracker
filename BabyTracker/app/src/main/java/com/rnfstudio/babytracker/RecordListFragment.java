@@ -177,10 +177,14 @@ public class RecordListFragment extends ListFragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == LOADER_ID_DEFAULT) {
-            String selection = getMainType() == EventContract.EventEntry.NO_TYPE ?
-                    null : EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
+            String selection = EventContract.EventEntry.COLUMN_NAME_USER_ID + " =?";
+            selection += getMainType() == EventContract.EventEntry.NO_TYPE ?
+                    "" : " AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
+
+            String typeStr = Integer.toString(getMainType());
+            String userIdStr = Long.toString(MainApplication.getUserId(getActivity()));
             String[] selectionArgs = getMainType() == EventContract.EventEntry.NO_TYPE ?
-                    null : new String[] {Integer.toString(getMainType())};
+                    new String[] {userIdStr} : new String[] {userIdStr, typeStr};
 
             return new CursorLoader(getActivity(),
                     EventProvider.sNotifyUriForEvent,

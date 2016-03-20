@@ -1,6 +1,9 @@
 package com.rnfstudio.babytracker;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -11,19 +14,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rnfstudio.babytracker.db.Profile;
 import com.rnfstudio.babytracker.db.ProfileContract;
+import com.rnfstudio.babytracker.utility.ProfileImageTask;
+import com.rnfstudio.babytracker.utility.ProfilePictureDialogFragment;
+import com.rnfstudio.babytracker.utility.Utilities;
 
 import java.util.Calendar;
 
 /**
  * Created by Roger on 2016/3/13.
  */
-public class WelcomeActivity extends FragmentActivity {
+public class WelcomeActivity extends FragmentActivity
+        implements ProfileImageTask.ProfileImageCallback {
+
     private static final String TAG = "[WelcomeActivity]";
     private static final String SP_KEY_FIRST_USAGE = "first_usage";
 
@@ -42,15 +54,18 @@ public class WelcomeActivity extends FragmentActivity {
 
     public static class WelcomeFragment extends Fragment {
         private static final String ARG_PAGE_INDEX = "page_index";
+        private int mPageIndex;
+        private View mViewRoot;
 
         @Override
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
-            int pageIndex = getArguments().getInt(ARG_PAGE_INDEX);
+            mPageIndex = getArguments().getInt(ARG_PAGE_INDEX);
 
-            View root = inflater.inflate(SETUP_PAGES[pageIndex], container, false);
+            View root = mViewRoot = inflater.inflate(SETUP_PAGES[mPageIndex], container, false);
 
-            switch (SETUP_PAGES[pageIndex]) {
+            // load default/edited settings
+            switch (SETUP_PAGES[mPageIndex]) {
                 case R.layout.fragment_setup_welcome:
                     TextView welcomeText = (TextView) root.findViewById(R.id.welcomeText);
                     String appName = getResources().getString(R.string.app_name);
@@ -62,9 +77,105 @@ public class WelcomeActivity extends FragmentActivity {
                     EditText nameEdit = (EditText) root.findViewById(R.id.nameEdit);
                     nameEdit.setText(sProfile.getName());
                     break;
+
+                case R.layout.fragment_setup_gender:
+                    RadioGroup genderGroup = (RadioGroup) root.findViewById(R.id.genderRadioGroup);
+                    switch (sProfile.getGender()) {
+                        case ProfileContract.GENDER_UNSET:
+                            genderGroup.clearCheck();
+                            break;
+                        case ProfileContract.GENDER_BOY:
+                            genderGroup.check(R.id.radioButtonBoy);
+                            break;
+                        case ProfileContract.GENDER_GIRL:
+                            genderGroup.check(R.id.radioButtonGirl);
+                            break;
+                    }
+                    break;
+
+                case R.layout.fragment_setup_birth:
+                    DatePicker datePicker = (DatePicker) root.findViewById(R.id.datePicker);
+                    datePicker.updateDate(sProfile.getBirthYear(), sProfile.getBirthMonth() - 1,
+                            sProfile.getBirthDay());
+                    break;
+
+                case R.layout.fragment_setup_picture:
+                    ImageButton cameraButton = (ImageButton) root.findViewById(R.id.buttonCamera);
+                    cameraButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ProfilePictureDialogFragment.startCameraSafely(getActivity());
+                        }
+                    });
+
+                    ImageButton galleryButton = (ImageButton) root.findViewById(R.id.buttonGallery);
+                    galleryButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ProfilePictureDialogFragment.pickPictureFromGallery(getActivity());
+                        }
+                    });
+
+                    if (sProfile.getProfilePicture() != null) {
+                        ImageView profileImageView = (ImageView) root.findViewById(R.id.profileImage);
+                        profileImageView.setImageBitmap(sProfile.getProfilePicture());
+                    }
+
+                    break;
             }
 
             return root;
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+
+            // save settings to Profile object
+            switch (SETUP_PAGES[mPageIndex]) {
+                case R.layout.fragment_setup_name:
+                    EditText nameEdit = (EditText) mViewRoot.findViewById(R.id.nameEdit);
+                    sProfile.setName(nameEdit.getText().toString());
+                    Log.v(TAG, "[onPause] setup name: " + nameEdit.getText().toString());
+                    break;
+
+                case R.layout.fragment_setup_gender:
+                    RadioGroup genderGroup = (RadioGroup) mViewRoot
+                            .findViewById(R.id.genderRadioGroup);
+
+                    switch (genderGroup.getCheckedRadioButtonId()) {
+                        case R.id.radioButtonBoy:
+                            sProfile.setGender(ProfileContract.GENDER_BOY);
+                            Log.v(TAG, "[onPause] setup gender: boy");
+                            break;
+                        case R.id.radioButtonGirl:
+                            sProfile.setGender(ProfileContract.GENDER_GIRL);
+                            Log.v(TAG, "[onPause] setup gender: girl");
+                            break;
+                        default:
+                            Log.v(TAG, "[onPause] setup gender: none");
+                            break;
+                    }
+                    break;
+
+                case R.layout.fragment_setup_birth:
+                    DatePicker datePicker = (DatePicker) mViewRoot.findViewById(R.id.datePicker);
+                    sProfile.setBirth(datePicker.getYear(),
+                            datePicker.getMonth() + 1,
+                            datePicker.getDayOfMonth());
+                    Log.v(TAG, "[onPause] setup birth: " + String.format("%d/%d/%d",
+                            datePicker.getYear(),
+                            datePicker.getMonth() + 1,
+                            datePicker.getDayOfMonth()));
+                    break;
+            }
+        }
+
+        public void setProfileImage(Bitmap bitmap) {
+            ImageView profileImageView = (ImageView) mViewRoot.findViewById(R.id.profileImage);
+            if (profileImageView != null) {
+                Utilities.animSwitchImageRes(getActivity(), profileImageView, bitmap);
+            }
         }
     }
 
@@ -80,9 +191,9 @@ public class WelcomeActivity extends FragmentActivity {
         // create Profile instance
         Calendar c = Calendar.getInstance();
         sProfile = new Profile((long) -1, "",
-                ProfileContract.GENDER_BOY,
+                ProfileContract.GENDER_UNSET,
                 c.get(Calendar.YEAR),
-                c.get(Calendar.MONTH),
+                c.get(Calendar.MONTH) + 1,
                 c.get(Calendar.DAY_OF_MONTH),
                 null);
 
@@ -142,13 +253,25 @@ public class WelcomeActivity extends FragmentActivity {
     }
 
     public void completeSetup() {
-        // mark as completed
-        PreferenceManager.getDefaultSharedPreferences(this).edit()
-                .putBoolean(SP_KEY_FIRST_USAGE, false).apply();
+        // save profile
+        if (sProfile.writeDB(this)) {
+            // update user id
+            MainApplication.setUserId(this, sProfile.getId());
 
-        // to main page
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
+            // use new profile
+            MainApplication.setUserProfile(sProfile);
+
+            // mark as completed
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putBoolean(SP_KEY_FIRST_USAGE, false).apply();
+
+            // to main page
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+
+        } else {
+            Toast.makeText(this, R.string.error_unknown, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -165,7 +288,7 @@ public class WelcomeActivity extends FragmentActivity {
 
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.replace(R.id.fragment_container, newFragment, String.valueOf(pageIndex));
         transaction.addToBackStack(null);
 
         // Commit the transaction
@@ -181,9 +304,8 @@ public class WelcomeActivity extends FragmentActivity {
     }
 
     private boolean isFirstUsage() {
-        return true;
-//        return PreferenceManager.getDefaultSharedPreferences(this)
-//                .getBoolean(SP_KEY_FIRST_USAGE, true);
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(SP_KEY_FIRST_USAGE, true);
     }
 
     @Override
@@ -204,5 +326,34 @@ public class WelcomeActivity extends FragmentActivity {
                 finish();
             }
         }
+    }
+
+    /**
+     * Receives image capture results and starts cropping profile image
+     */
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
+            new ProfileImageTask(this, sProfile, imageFilePath, null, this, false).execute();
+
+        } else if (requestCode == MainActivity.REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
+            new ProfileImageTask(this, sProfile, null, data.getData(), this, false).execute();
+        }
+    }
+
+    /**
+     * Receives cropped image and update profile
+     */
+    @Override
+    public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
+        // update data
+        sProfile.setProfilePicture(bitmap);
+
+        // update view
+        WelcomeFragment frag = (WelcomeFragment) getSupportFragmentManager()
+                .findFragmentByTag(String.valueOf(mPageIndex));
+        frag.setProfileImage(bitmap);
     }
 }

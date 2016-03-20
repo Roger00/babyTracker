@@ -282,6 +282,11 @@ public class MainActivity extends FragmentActivity
         mDisplayName.setText(mProfile.getName());
         mDaysFromBirth.setText(getDaysFromBirthString());
 
+        // short-circuit if no bitmap
+        if (mProfile.getProfilePicture() == null) {
+            return;
+        }
+
         if (animated) {
             Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
         } else {

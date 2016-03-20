@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.rnfstudio.babytracker.utility.Utilities;
@@ -88,6 +89,10 @@ public class Profile {
     // ------------------------------------------------------------------------
     // METHODS
     // ------------------------------------------------------------------------
+    public long getId() {
+        return mId;
+    }
+
     public void setName(String name) {
         mName = name;
     }
@@ -157,6 +162,12 @@ public class Profile {
             cvs.remove(ProfileContract.UserEntry._ID);
             Uri insertUri = context.getContentResolver()
                     .insert(EventProvider.sNotifyUriForUser, cvs);
+
+            // update id if insert successfully
+            if (insertUri != null && !TextUtils.isEmpty(insertUri.getLastPathSegment())) {
+                mId = Long.parseLong(insertUri.getLastPathSegment());
+            }
+
             return insertUri != null;
 
         } else {
