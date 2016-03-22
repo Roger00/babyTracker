@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -16,7 +17,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -24,6 +27,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.rnfstudio.babytracker.db.EventProvider;
@@ -146,6 +151,13 @@ public class MainActivity extends FragmentActivity
     // ------------------------------------------------------------------------
     // FIELDS
     // ------------------------------------------------------------------------
+
+    DrawerLayout layDrawer;
+    ListView lstDrawer;
+
+    CharSequence mDrawerTitle;
+    CharSequence mTitle;
+
     ViewPager mViewPager;
     SubCategoryPagerAdapter mSubCategoryPagerAdapter;
     SlidingTabLayout mSlidingTabLayout;
@@ -198,10 +210,6 @@ public class MainActivity extends FragmentActivity
         // re-direct page change events to our listener
         mSlidingTabLayout.setOnPageChangeListener(mSubCategoryPageChangeListener);
 
-        // initialize days from birth string
-        mDaysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
-//        mDaysFromBirth.setText(getDaysFromBirthString());
-
         View.OnClickListener profileEditListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -210,10 +218,13 @@ public class MainActivity extends FragmentActivity
             }
         };
 
+        // initialize days from birth string
+        mDaysFromBirth = (TextView) findViewById(R.id.daysFromBirth);
+        mDaysFromBirth.setOnClickListener(profileEditListener);
+
         // click on display name or days from birth text should trigger profile edit
         mDisplayName = (TextView) findViewById(R.id.displayName);
         mDisplayName.setOnClickListener(profileEditListener);
-        mDaysFromBirth.setOnClickListener(profileEditListener);
 
         mProfileImage = (RoundedImageView) findViewById(R.id.profileImage);
         mProfileImage.setOnClickListener(new View.OnClickListener() {
@@ -227,6 +238,23 @@ public class MainActivity extends FragmentActivity
 
 //        // initialize cursor loader
 //        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
+
+        initDrawer();
+        initDrawerList();
+    }
+
+    private void initDrawer(){
+        layDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        lstDrawer = (ListView) findViewById(R.id.left_drawer);
+
+        mTitle = mDrawerTitle = getTitle();
+    }
+
+    private void initDrawerList(){
+        String[] drawer_menu = this.getResources().getStringArray(R.array.drawer_menu);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(this, R.layout.drawer_list_item, drawer_menu);
+        lstDrawer.setAdapter(adapter);
     }
 
     @Override

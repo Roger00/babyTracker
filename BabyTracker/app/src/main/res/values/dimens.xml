@@ -21,7 +21,10 @@
     <dimen name="record_list_item_padding">8dp</dimen>
     <dimen name="record_list_item_height">56dp</dimen>
 
+    <dimen name="milk_widget_size">300dp</dimen>
+    <dimen name="milk_body_rect">140dp</dimen>
     <dimen name="milk_body_height">93dp</dimen>
+    <dimen name="milk_amplitude">10dp</dimen>
     <dimen name="milk_picker_button">60dp</dimen>
     <dimen name="milk_picker_button_margin">10dp</dimen>
 
