@@ -111,9 +111,9 @@ public class MilkPickerDialogFragment extends DialogFragment {
         final EditText amountEdit = (EditText) layout.findViewById(R.id.amount);
         amountEdit.setText(String.valueOf(defaultAmount));
         final MilkView milkBody = (MilkView) layout.findViewById(R.id.milk);
-//        milkBody.setImageDrawable(getResources().getDrawable(R.drawable.milk_body, null));
-//        milkBody.setPivotY(getResources().getDimension(R.dimen.milk_body_height));
-//        milkBody.setScaleY(((float) defaultAmount) / MAX_AMOUNT);
+        milkBody.setAmountStartEnd((float) defaultAmount / MAX_AMOUNT, (float) defaultAmount / MAX_AMOUNT);
+        milkBody.startAnim(false);
+
         minusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,12 +161,6 @@ public class MilkPickerDialogFragment extends DialogFragment {
 
         milkBody.setAmountStartEnd(((float) oldAmount / MAX_AMOUNT), ((float) newAmount / MAX_AMOUNT));
         milkBody.startAnim(false);
-//        milkBody.setPivotY(getResources().getDimension(R.dimen.milk_body_height));
-//        AnimatorSet as = new AnimatorSet();
-//        as.playTogether(ObjectAnimator.ofFloat(milkBody, "scaleY", ((float) oldAmount / MAX_AMOUNT), ((float) newAmount / MAX_AMOUNT)));
-//        as.playTogether(ObjectAnimator.ofFloat(milkBody, "alpha", (float) 0.5, (float) 1.0));
-//        as.setDuration(700);
-//        as.start();
 
         if (sSoundEnabled) {
             int soundId = increment > 0 ? ID_SOUND_EFFECT_INCREASE : ID_SOUND_EFFECT_DECREASE;

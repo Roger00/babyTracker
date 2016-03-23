@@ -2,10 +2,14 @@ package com.rnfstudio.babytracker.utility;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -27,6 +31,7 @@ public class MilkView extends View {
     private float mAmountStart;
     private float mAmountEnd;
     private final ValueAnimator mMilkAnim;
+    private Bitmap bottleBitmap;
 
     public MilkView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -48,17 +53,23 @@ public class MilkView extends View {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (Float) animation.getAnimatedValue();
                 mAmplitudeRatio = value;
-//                Math.random()
-                phase = (float) (value * Math.PI);
+                phase += (float) (.08f * value * Math.PI);
 
-                float y_ratio = (mAmountEnd - mAmountStart) * (1.0f - value) + mAmountStart;
-                mY_offset = (1.0f - y_ratio) * rectSize;
+                updateYOffset(value);
 
                 //Do whatever you need to to with the value and...
                 //Call invalidate if it's necessary to update the canvas
                 MilkView.this.invalidate();
             }
         });
+
+        bottleBitmap = BitmapFactory.decodeResource(
+                context.getResources(), R.drawable.real_milk_bottle_cut_alpha);
+    }
+
+    private void updateYOffset(float value) {
+        float y_ratio = (mAmountEnd - mAmountStart) * (1.0f - value) + mAmountStart;
+        mY_offset = (1.0f - y_ratio) * rectSize;
     }
 
     @Override
@@ -66,9 +77,12 @@ public class MilkView extends View {
         super.onDraw(canvas);
 
         // draw circle
+        mPaint.setStyle(Paint.Style.STROKE);
         canvas.drawArc(rect, 0, 360, false, mPaint);
 
         Path p = new Path();
+        p.moveTo(0, rectSize);
+
         float x_offset = 0;
         int nPoints = 20;
 
@@ -83,12 +97,18 @@ public class MilkView extends View {
             float y2 = (float) Math.cos(angle2 + phase) * amplitude * mAmplitudeRatio + mY_offset;
 
             if (i == 0) {
-                p.moveTo(x, y);
+                p.lineTo(x, y);
             } else {
                 p.quadTo(x2, y2, x, y);
             }
         }
+        p.lineTo(rectSize, rectSize);
+        p.lineTo(0, rectSize);
+
+        mPaint.setStyle(Paint.Style.FILL);
         canvas.drawPath(p, mPaint);
+
+//        canvas.drawBitmap(bottleBitmap, 0, 0, null);
     }
 
     public void startAnim(boolean reverse) {
@@ -106,5 +126,6 @@ public class MilkView extends View {
     public void setAmountStartEnd(float start, float end) {
         mAmountStart = start;
         mAmountEnd = end;
+        updateYOffset(0.0f);
     }
 }
