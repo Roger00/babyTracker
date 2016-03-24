@@ -1,11 +1,7 @@
 package com.rnfstudio.babytracker.utility;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import com.rnfstudio.babytracker.R;
 import com.rnfstudio.babytracker.RecordEditFragment;
@@ -112,7 +107,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
         amountEdit.setText(String.valueOf(defaultAmount));
         final MilkView milkBody = (MilkView) layout.findViewById(R.id.milk);
         milkBody.setAmountStartEnd((float) defaultAmount / MAX_AMOUNT, (float) defaultAmount / MAX_AMOUNT);
-        milkBody.startAnim(false);
+        milkBody.startWaveAnim(false);
 
         minusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,7 +155,7 @@ public class MilkPickerDialogFragment extends DialogFragment {
         amountEdit.setText(String.format("%d", newAmount));
 
         milkBody.setAmountStartEnd(((float) oldAmount / MAX_AMOUNT), ((float) newAmount / MAX_AMOUNT));
-        milkBody.startAnim(false);
+        milkBody.startWaveAnim(false);
 
         if (sSoundEnabled) {
             int soundId = increment > 0 ? ID_SOUND_EFFECT_INCREASE : ID_SOUND_EFFECT_DECREASE;
