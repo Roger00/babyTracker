@@ -2,7 +2,6 @@ package com.rnfstudio.babytracker.utility;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -19,9 +18,12 @@ import com.rnfstudio.babytracker.R;
 public class MilkView extends View {
     private final Paint mPaint;
     private final float rectSize;
+    private final float rectRadius;
     private final float amplitude;
     private final Path circlePath;
     private final ValueAnimator waveAnim;
+    private final int rimColor;
+    private final int waveColor;
 
     private float ampFactor;
     private float phase;
@@ -29,8 +31,6 @@ public class MilkView extends View {
     private float startVolume;
     private float endVolume;
     private Path wavePath;
-
-    private Bitmap bottleBitmap;
 
     public MilkView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -42,6 +42,9 @@ public class MilkView extends View {
 
         rectSize = context.getResources().getDimension(R.dimen.milk_body_rect);
         amplitude = context.getResources().getDimension(R.dimen.milk_amplitude);
+
+        rimColor = context.getResources().getColor(R.color.rim);
+        waveColor = context.getResources().getColor(R.color.wave);
 
         // adapted from: https://gist.github.com/rogerpujol/99b3e8229b7a958d0930
         waveAnim = ValueAnimator.ofFloat(1.0f, 0.0f);
@@ -61,14 +64,11 @@ public class MilkView extends View {
             }
         });
 
-        float radius = rectSize / 2;
+        rectRadius = rectSize / 2;
         circlePath = new Path();
-        circlePath.addCircle(radius, radius, radius, Path.Direction.CW);
+        circlePath.addCircle(rectRadius, rectRadius, rectRadius, Path.Direction.CW);
 
         wavePath = new Path();
-
-//        bottleBitmap = BitmapFactory.decodeResource(
-//                context.getResources(), R.drawable.real_milk_bottle_cut_alpha);
     }
 
     private void updateOffsetY(float value) {
@@ -85,6 +85,14 @@ public class MilkView extends View {
 
         canvas.clipPath(circlePath, Region.Op.REPLACE);
         drawWave(canvas);
+        drawRim(canvas);
+    }
+
+    private void drawRim(Canvas canvas) {
+        mPaint.setColor(rimColor);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeWidth(30);
+        canvas.drawCircle(rectRadius, rectRadius, rectRadius, mPaint);
     }
 
     private void drawWave(Canvas canvas) {
@@ -111,6 +119,7 @@ public class MilkView extends View {
         wavePath.lineTo(rectSize, rectSize);
         wavePath.lineTo(0, rectSize);
 
+        mPaint.setColor(waveColor);
         mPaint.setStyle(Paint.Style.FILL);
         canvas.drawPath(wavePath, mPaint);
     }
