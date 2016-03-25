@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:layout_centerHorizontal="true"
+    android:padding="@dimen/info_panel_padding"
+    android:id="@+id/baby_info">
+
+    <ImageView
+        android:layout_width="@dimen/baby_icon_size_small"
+        android:layout_height="@dimen/baby_icon_size_small"
+        android:id="@+id/profileImage"
+        android:src="@drawable/ic_add_circle_black_48dp"
+        android:scaleType="center" />
+
+    <TextView
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:text="@string/profile_add_baby"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingStart="@dimen/info_panel_text_padding"/>
+
+</LinearLayout>

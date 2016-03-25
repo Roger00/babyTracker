@@ -14,61 +14,28 @@ import com.rnfstudio.babytracker.utility.TimeUtils;
 /**
  * Created by Roger on 2016/1/24.
  */
-public class RecordAdapter extends CursorAdapter{
-    // ------------------------------------------------------------------------
-    // TYPES
-    // ------------------------------------------------------------------------
+public class RecordAdapter extends CursorAdapter {
+
     interface RecordItemCallbacks {
         void onRecordClick(Event e);
         void onRecordLongClick(Event e);
     }
 
-    // ------------------------------------------------------------------------
-    // STATIC FIELDS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // STATIC INITIALIZERS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // STATIC METHODS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // FIELDS
-    // ------------------------------------------------------------------------
-    private Context mContext;
     private RecordItemCallbacks mCallbacks;
-    private LayoutInflater mInflater; // Stores the layout inflater
 
-    // ------------------------------------------------------------------------
-    // INITIALIZERS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // CONSTRUCTORS
-    // ------------------------------------------------------------------------
     public RecordAdapter(Context context, RecordItemCallbacks callbacks) {
         super(context, null, 0);
-
-        // Stores inflater for later usages
-        mContext = context;
         mCallbacks = callbacks;
-        mInflater = LayoutInflater.from(context);
     }
 
-    // ------------------------------------------------------------------------
-    // METHODS
-    // ------------------------------------------------------------------------
     /**
      * Find layout and controls, the returned view will be passed to bindView()
      */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
         // Inflates the list item layout.
-        final View itemLayout =
-                mInflater.inflate(R.layout.record_list_item, viewGroup, false);
+        final View itemLayout = LayoutInflater.from(context)
+                .inflate(R.layout.record_list_item, viewGroup, false);
         return itemLayout;
     }
 
@@ -82,9 +49,10 @@ public class RecordAdapter extends CursorAdapter{
         TextView startTimeText = (TextView) view.findViewById(R.id.startTime);
 
         final Event event = Event.createFromCursor(cursor);
-        typeText.setText(event.getDisplayType(mContext));
-        startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(), "yyyy-MM-dd HH:mm"));
-        durationText.setText(event.getDisplayDuration(mContext));
+        typeText.setText(event.getDisplayType(context));
+        startTimeText.setText(TimeUtils.flattenCalendarTimeSafely(event.getStartTimeCopy(),
+                "yyyy-MM-dd HH:mm"));
+        durationText.setText(event.getDisplayDuration(context));
 
         // add OnClick callback
         view.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +71,8 @@ public class RecordAdapter extends CursorAdapter{
         });
 
         // show/hide duration
-        boolean showDuration = !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
+        boolean showDuration =
+                !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_BOTH) &&
                 !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_PEEPEE) &&
                 !event.getTypeStr().equals(SwipeButtonHandler.MENU_ITEM_DIAPER_POOPOO);
         durationText.setVisibility(showDuration ? View.VISIBLE : View.GONE);

@@ -3,12 +3,14 @@ package com.rnfstudio.babytracker;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -17,7 +19,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Spannable;
@@ -27,7 +28,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.Window;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -140,6 +141,8 @@ public class MainActivity extends FragmentActivity
     public static final int REQUEST_PROFILE_EDIT = 3;
 
     public static final int LOADER_ID_PROFILE = 2;
+    public static final int LOADER_ID_PROFILES = 3;
+
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
     // ------------------------------------------------------------------------
@@ -152,11 +155,8 @@ public class MainActivity extends FragmentActivity
     // FIELDS
     // ------------------------------------------------------------------------
 
-    DrawerLayout layDrawer;
-    ListView lstDrawer;
-
-    CharSequence mDrawerTitle;
-    CharSequence mTitle;
+    DrawerLayout drawerLayout;
+    ListView drawerListView;
 
     ViewPager mViewPager;
     SubCategoryPagerAdapter mSubCategoryPagerAdapter;
@@ -167,6 +167,9 @@ public class MainActivity extends FragmentActivity
     TextView mDaysFromBirth;
     RoundedImageView mProfileImage;
     Profile mProfile;
+
+    ProfileAdapter mProfileAdapter;
+    ContentObserver mContentObserver;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -236,31 +239,52 @@ public class MainActivity extends FragmentActivity
             }
         });
 
-//        // initialize cursor loader
-//        getSupportLoaderManager().initLoader(LOADER_ID_PROFILE, null, this);
-
         initDrawer();
-        initDrawerList();
     }
 
     private void initDrawer(){
-        layDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        lstDrawer = (ListView) findViewById(R.id.left_drawer);
+        // initialize adapter for drawer list view
+        mProfileAdapter = new ProfileAdapter(this, null,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-        mTitle = mDrawerTitle = getTitle();
-    }
+        // initialize cursor loader
+        getSupportLoaderManager().initLoader(LOADER_ID_PROFILES, null, this);
 
-    private void initDrawerList(){
-        String[] drawer_menu = this.getResources().getStringArray(R.array.drawer_menu);
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(this, R.layout.drawer_list_item, drawer_menu);
-        lstDrawer.setAdapter(adapter);
+        // create content observer for event changes
+        mContentObserver = new ContentObserver(new Handler(getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+                restartLoaders();
+            }
+        };
+
+        // register observer
+        getContentResolver().registerContentObserver(
+                EventProvider.sNotifyUriForEvent,
+                true,
+                mContentObserver);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerListView = (ListView) findViewById(R.id.left_drawer);
+
+        drawerListView.setAdapter(mProfileAdapter);
+        drawerListView.addFooterView(getLayoutInflater()
+                .inflate(R.layout.profile_list_add_item, null));
     }
 
     @Override
     public void onResume() {
         super.onResume();
         setProfile(MainApplication.getUserProfile(), false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // unregister observer
+        getContentResolver().unregisterContentObserver(mContentObserver);
     }
 
     @Override
@@ -280,6 +304,20 @@ public class MainActivity extends FragmentActivity
                             ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
                     selection, selectionArgs,
                     ProfileContract.UserEntry._ID + " DESC");
+
+        } else if (id == LOADER_ID_PROFILES) {
+
+            return new CursorLoader(this,
+                    EventProvider.sNotifyUriForUser,
+                    new String[] {ProfileContract.UserEntry._ID,
+                            ProfileContract.UserEntry.COLUMN_NAME_DISPLAY_NAME,
+                            ProfileContract.UserEntry.COLUMN_NAME_GENDER,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_YEAR,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_MONTH,
+                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_DAY,
+                            ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
+                    null, null,
+                    ProfileContract.UserEntry._ID + " DESC");
         }
 
         Log.w(TAG, "[onCreateLoader] incorrect ID");
@@ -288,12 +326,23 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        setProfile(Profile.createFromCursor(data));
+        if (loader.getId() == LOADER_ID_PROFILE) {
+            setProfile(Profile.createFromCursor(data));
+
+        } else if (loader.getId() == LOADER_ID_PROFILES) {
+            mProfileAdapter.swapCursor(data);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        // do nothing
+        if (loader.getId() == LOADER_ID_PROFILES) {
+            mProfileAdapter.swapCursor(null);
+        }
+    }
+
+    private void restartLoaders() {
+        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     public void setProfile(Profile p) {
@@ -308,7 +357,7 @@ public class MainActivity extends FragmentActivity
 
         // update views
         mDisplayName.setText(mProfile.getName());
-        mDaysFromBirth.setText(getDaysFromBirthString());
+        mDaysFromBirth.setText(getDaysFromBirthString(getResources(), mProfile));
 
         // short-circuit if no bitmap
         if (mProfile.getProfilePicture() == null) {
@@ -323,11 +372,11 @@ public class MainActivity extends FragmentActivity
 
     }
 
-    private String getDaysFromBirthString() {
+    public static String getDaysFromBirthString(Resources res, Profile profile) {
         Calendar birth = Calendar.getInstance();
-        birth.set(Calendar.YEAR, mProfile.getBirthYear());
-        birth.set(Calendar.MONTH, mProfile.getBirthMonth() - 1);
-        birth.set(Calendar.DAY_OF_MONTH, mProfile.getBirthDay());
+        birth.set(Calendar.YEAR, profile.getBirthYear());
+        birth.set(Calendar.MONTH, profile.getBirthMonth() - 1);
+        birth.set(Calendar.DAY_OF_MONTH, profile.getBirthDay());
 
         int daysBetween = TimeUtils.daysBetween(birth, Calendar.getInstance());
         int days = TimeUtils.getRemainDaysInMonth(daysBetween);
@@ -337,15 +386,15 @@ public class MainActivity extends FragmentActivity
         Log.d(TAG, String.format("%d, %d, %d, %d", daysBetween, years, months, days));
 
         if (years > 0) {
-            return getResources().getQuantityString(R.plurals.info_years_since_birth,
+            return res.getQuantityString(R.plurals.info_years_since_birth,
                     years, years, months, days);
         } else if (months > 0) {
-            return getResources().getQuantityString(R.plurals.info_months_since_birth,
+            return res.getQuantityString(R.plurals.info_months_since_birth,
                     months, months, days);
         } else if (days > 0) {
-            return getResources().getQuantityString(R.plurals.info_days_since_birth, days, days);
+            return res.getQuantityString(R.plurals.info_days_since_birth, days, days);
         } else {
-            return getResources().getString(R.string.last_info_default_message);
+            return res.getString(R.string.last_info_default_message);
         }
     }
 

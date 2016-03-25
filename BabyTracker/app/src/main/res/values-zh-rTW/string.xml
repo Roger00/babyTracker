@@ -160,4 +160,7 @@
     <string name="welcome_setup_gender_title">請選擇寶寶的性別</string>
     <string name="welcome_setup_birth_title">設定寶寶的生日</string>
     <string name="welcome_setup_picture_title">設定寶寶的大頭貼</string>
+
+    <string name="profile_list_title">我的寶寶</string>
+    <string name="profile_add_baby">加入新寶寶</string>
 </resources>

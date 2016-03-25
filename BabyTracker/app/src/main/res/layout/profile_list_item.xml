@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:layout_centerHorizontal="true"
+    android:padding="@dimen/info_panel_padding"
+    android:id="@+id/baby_info">
+
+    <com.rnfstudio.babytracker.utility.RoundedImageView
+        android:layout_width="@dimen/baby_icon_size_small"
+        android:layout_height="@dimen/baby_icon_size_small"
+        android:id="@+id/profileImage"
+        custom:isCircle="true"
+        android:src="@drawable/baby"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:id="@+id/infoPanel"
+        android:paddingStart="@dimen/info_panel_text_padding">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/displayName" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/daysFromBirth" />
+    </LinearLayout>
+
+</LinearLayout>

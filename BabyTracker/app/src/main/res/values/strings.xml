@@ -163,4 +163,7 @@
     <string name="welcome_setup_gender_title">"Choose baby's gender"</string>
     <string name="welcome_setup_birth_title">"Choose baby's birthday"</string>
     <string name="welcome_setup_picture_title">"Choose baby's profile picture"</string>
+
+    <string name="profile_list_title">My babies</string>
+    <string name="profile_add_baby">Add a baby</string>
 </resources>
