@@ -3,6 +3,7 @@ package com.rnfstudio.babytracker;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,7 +45,8 @@ public class WelcomeActivity extends FragmentActivity
             R.layout.fragment_setup_name,
             R.layout.fragment_setup_gender,
             R.layout.fragment_setup_birth,
-            R.layout.fragment_setup_picture};
+            R.layout.fragment_setup_picture,
+            R.layout.fragment_setup_complete};
 
     private int mPageIndex = 0;
     private int mBackKeyPressCount = 0;
@@ -182,11 +184,17 @@ public class WelcomeActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
+
+        // load splash screen for normal startup
         if (!isFirstUsage()) {
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+            loadSplashScreen();
             return;
         }
+
+        // load setup screen for the 1st usage
+        setContentView(R.layout.activity_welcome);
 
         // create Profile instance
         Calendar c = Calendar.getInstance();
@@ -196,10 +204,6 @@ public class WelcomeActivity extends FragmentActivity
                 c.get(Calendar.MONTH) + 1,
                 c.get(Calendar.DAY_OF_MONTH),
                 null);
-
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        setContentView(R.layout.activity_welcome);
 
         switchToPage(mPageIndex);
 
@@ -229,6 +233,35 @@ public class WelcomeActivity extends FragmentActivity
         });
 
         updatePrevNextButton();
+    }
+
+    /**
+     * See <a href="http://stackoverflow.com/questions/5486789/how-do-i-make-a-splash-screen">
+     *      How do I make a splash screen?</a>
+     */
+    private void loadSplashScreen() {
+        setContentView(R.layout.activity_splash);
+
+        // do init tasks here
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                MainApplication.loadDefaultUserProfile(getApplicationContext());
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    Log.v(TAG, "[loadSplashScreen] sleep interrupted");
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                Log.d(TAG, "[loadSplashScreen] done loading, now lets go to main page");
+                startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+                finish();
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

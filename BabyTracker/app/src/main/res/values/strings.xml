@@ -144,7 +144,7 @@
     <string name="gender_boy">Boy</string>
     <string name="gender_girl">Girl</string>
 
-    <string name="default_user_name" translatable="false">黃暐植</string>
+    <string name="default_user_name">My Babe</string>
 
     <string name="highlight_message_sleep">"%1$s(%2$s)\n%3$s - %4$s"</string>
     <string name="highlight_message_meal">"%1$s(%2$s)\n%3$s - %4$s"</string>
@@ -166,4 +166,8 @@
 
     <string name="profile_list_title">My babies</string>
     <string name="profile_add_baby">Add a baby</string>
+
+    <string name="setup_loading">Loading user profiles</string>
+    <string name="setup_complete">Setup complete</string>
+    <string name="go_use">Start</string>
 </resources>

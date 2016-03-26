@@ -5,10 +5,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -21,13 +17,7 @@ import com.rnfstudio.babytracker.db.ProfileContract;
  * Created by Roger on 2015/7/22.
  */
 public class MainApplication extends Application {
-    // ------------------------------------------------------------------------
-    // TYPES
-    // ------------------------------------------------------------------------
 
-    // ------------------------------------------------------------------------
-    // STATIC FIELDS
-    // ------------------------------------------------------------------------
     private static final String TAG = "[MainApplication]";
     public static final String PACKAGE_NAME = "com.rnfstudio.babytracker";
 
@@ -35,46 +25,15 @@ public class MainApplication extends Application {
 
     private static final long USER_ID_NO_ID = -1;
 
-    private static long sCurrentUser;
+    private static long sCurrentUser = 1;
     private static Profile sProfile;
 
-    // ------------------------------------------------------------------------
-    // STATIC INITIALIZERS
-    // ------------------------------------------------------------------------
-    static {
-        sCurrentUser = 1;
-    }
-
-    // ------------------------------------------------------------------------
-    // STATIC METHODS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // FIELDS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // INITIALIZERS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // CONSTRUCTORS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // METHODS
-    // ------------------------------------------------------------------------
     public static long getUserId(Context context) {
         if (sCurrentUser == USER_ID_NO_ID) {
-            initCurrentUser(context);
+            loadDefaultUserId(context);
         }
 
         return sCurrentUser;
-    }
-
-    private static void initCurrentUser(Context context) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        sCurrentUser = sp.getLong(SP_KEY_CURRENT_USER, USER_ID_NO_ID);
     }
 
     public static void setUserId(Context context, long userId) {
@@ -82,6 +41,11 @@ public class MainApplication extends Application {
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         sp.edit().putLong(SP_KEY_CURRENT_USER, userId).apply();
+    }
+
+    private static void loadDefaultUserId(Context context) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        sCurrentUser = sp.getLong(SP_KEY_CURRENT_USER, USER_ID_NO_ID);
     }
 
     public static Profile getUserProfile() {
@@ -92,19 +56,12 @@ public class MainApplication extends Application {
         sProfile = profile;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        setUserProfile(initDefaultUser());
-    }
-
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    private Profile initDefaultUser() {
+    public static void loadDefaultUserProfile(Context context) {
         Profile profile = null;
 
         // load default user profile
-        try (Cursor cursor = getContentResolver().query(EventProvider.sNotifyUriForUser,
+        try (Cursor cursor = context.getContentResolver().query(EventProvider.sNotifyUriForUser,
                 new String[] {ProfileContract.UserEntry._ID,
                         ProfileContract.UserEntry.COLUMN_NAME_DISPLAY_NAME,
                         ProfileContract.UserEntry.COLUMN_NAME_GENDER,
@@ -113,29 +70,19 @@ public class MainApplication extends Application {
                         ProfileContract.UserEntry.COLUMN_NAME_BIRTH_DAY,
                         ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
                 ProfileContract.UserEntry._ID + "=?",
-                new String[]{String.valueOf(getUserId(getApplicationContext()))},
+                new String[]{String.valueOf(getUserId(context))},
                 null)) {
 
-            profile = Profile.createFromCursor(cursor);
+            if (cursor != null && cursor.moveToNext()) {
+                profile = Profile.createFromCursor(cursor);
+            }
 
         } catch (Exception e) {
-            Log.d(TAG, "Fail to load default user profile: " + e.toString());
+            Log.w(TAG, "Fail to load default user profile: " + e.toString());
         }
 
-        // create default user profile if not exist
-        if (profile == null) {
-            Log.d(TAG, "create default user profile");
-            profile = new Profile((long) 1,
-                    getString(R.string.default_user_name),
-                    0,
-                    2015,
-                    3,
-                    18,
-                    BitmapFactory.decodeResource(getResources(), R.drawable.baby));
-
-            profile.asyncWriteDB(this);
+        if (profile != null) {
+            setUserProfile(profile);
         }
-
-        return profile;
     }
 }

@@ -65,7 +65,7 @@ public class Profile {
     }
 
     public static Profile createFromCursor(Cursor c) {
-        if (c != null && c.moveToNext()) {
+        if (c != null) {
             long id = c.getLong(ProfileContract.ProfileQuery.ID);
             String name = c.getString(ProfileContract.ProfileQuery.DISPLAY_NAME);
             int gender = c.getInt(ProfileContract.ProfileQuery.GENDER);
@@ -141,6 +141,10 @@ public class Profile {
 
     public Bitmap getProfilePicture() {
         return mProfilePic;
+    }
+
+    public boolean hasProfilePicture() {
+        return mProfilePic != null;
     }
 
     public void setProfilePicture(Bitmap bitmap) {

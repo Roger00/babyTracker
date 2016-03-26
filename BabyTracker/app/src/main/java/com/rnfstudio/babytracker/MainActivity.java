@@ -383,8 +383,6 @@ public class MainActivity extends FragmentActivity
         int months = TimeUtils.getRemainMonthsInYear(daysBetween);
         int years = TimeUtils.getRemainYears(daysBetween);
 
-        Log.d(TAG, String.format("%d, %d, %d, %d", daysBetween, years, months, days));
-
         if (years > 0) {
             return res.getQuantityString(R.plurals.info_years_since_birth,
                     years, years, months, days);
