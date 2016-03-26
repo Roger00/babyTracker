@@ -40,6 +40,9 @@ public class ProfileAdapter extends CursorAdapter {
             if (profile.hasProfilePicture()) {
                 profileImage.setImageBitmap(profile.getProfilePicture());
             }
+
+            // associate profile w/ list item
+            view.setTag(profile);
         }
 
     }

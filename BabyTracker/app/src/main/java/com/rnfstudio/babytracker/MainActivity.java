@@ -49,7 +49,9 @@ import java.util.Calendar;
  * http://developer.android.com/intl/zh-tw/training/implementing-navigation/lateral.html
  */
 public class MainActivity extends FragmentActivity
-        implements LoaderManager.LoaderCallbacks<Cursor>, ProfileImageTask.ProfileImageCallback {
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+        ProfileImageTask.ProfileImageCallback,
+        DrawerItemClickHandler.SwitchUserCallback {
 
     // ------------------------------------------------------------------------
     // TYPES
@@ -139,6 +141,7 @@ public class MainActivity extends FragmentActivity
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     public static final int REQUEST_IMAGE_SELECT = 2;
     public static final int REQUEST_PROFILE_EDIT = 3;
+    public static final int REQUEST_PROFILE_CREATE = 4;
 
     public static final int LOADER_ID_PROFILE = 2;
     public static final int LOADER_ID_PROFILES = 3;
@@ -170,6 +173,9 @@ public class MainActivity extends FragmentActivity
 
     ProfileAdapter mProfileAdapter;
     ContentObserver mContentObserver;
+    ListView.OnItemClickListener mDrawerItemClickHandler;
+    DrawerLayout.DrawerListener mDrawerListener;
+    Runnable drawerCloseRunnable;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -268,7 +274,37 @@ public class MainActivity extends FragmentActivity
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerListView = (ListView) findViewById(R.id.left_drawer);
 
+        mDrawerItemClickHandler = new DrawerItemClickHandler(this);
+        mDrawerListener = new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                if (drawerCloseRunnable != null) {
+                    drawerCloseRunnable.run();
+                    drawerCloseRunnable = null;
+                }
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        };
+
+        drawerLayout.setDrawerListener(mDrawerListener);
+        drawerListView.setOnItemClickListener(mDrawerItemClickHandler);
         drawerListView.setAdapter(mProfileAdapter);
+        drawerListView.addHeaderView(getLayoutInflater()
+                .inflate(R.layout.profile_list_title, null));
         drawerListView.addFooterView(getLayoutInflater()
                 .inflate(R.layout.profile_list_add_item, null));
     }
@@ -389,10 +425,8 @@ public class MainActivity extends FragmentActivity
         } else if (months > 0) {
             return res.getQuantityString(R.plurals.info_months_since_birth,
                     months, months, days);
-        } else if (days > 0) {
-            return res.getQuantityString(R.plurals.info_days_since_birth, days, days);
         } else {
-            return res.getString(R.string.last_info_default_message);
+            return res.getQuantityString(R.plurals.info_days_since_birth, days, days);
         }
     }
 
@@ -408,6 +442,13 @@ public class MainActivity extends FragmentActivity
 
         } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
             setProfile(MainApplication.getUserProfile());
+
+        } else if (requestCode == REQUEST_PROFILE_CREATE && resultCode == RESULT_OK) {
+            // get new user profile from editor
+            Profile createdUser = ProfileEditActivity.getCreatedUserProfile();
+            ProfileEditActivity.setCreatedUserProfile(null);
+
+            switchUser(createdUser);
         }
     }
 
@@ -415,5 +456,61 @@ public class MainActivity extends FragmentActivity
     public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
         profile.setProfilePicture(bitmap);
         setProfile(profile);
+    }
+
+    private void switchUser(Profile profile) {
+        Log.v(TAG, "[switchUser] start switching");
+
+        // TODO: end current user logging tasks
+
+        // switch user profile
+        MainApplication.setUserId(getApplicationContext(), profile.getId());
+        MainApplication.setUserProfile(profile);
+
+        // update views
+        setProfile(profile);
+
+        // TODO: restart loaders
+        restartLoaders();
+    }
+
+    @Override
+    public void OnSwitchUser(final Profile profile) {
+        Log.v(TAG, "[OnSwitchUser] called");
+
+        drawerLayout.closeDrawer(drawerListView);
+
+        // skip if switch to current user
+        if (mProfile.getId() == profile.getId()) {
+            Log.d(TAG, "[OnCreateNewUser] skip switching to current user");
+            return;
+        }
+
+        drawerCloseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                switchUser(profile);
+            }
+        };
+    }
+
+    @Override
+    public void OnCreateNewUser() {
+        Log.v(TAG, "[OnCreateNewUser] called");
+
+        drawerLayout.closeDrawer(drawerListView);
+
+        drawerCloseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.v(TAG, "[OnCreateNewUser] start editor");
+
+                Intent addUser = new Intent(getApplicationContext(),
+                        ProfileEditActivity.class);
+                addUser.putExtra(ProfileEditActivity.EXTRA_REQUEST_CODE,
+                        REQUEST_PROFILE_CREATE);
+                startActivityForResult(addUser, REQUEST_PROFILE_CREATE);
+            }
+        };
     }
 }

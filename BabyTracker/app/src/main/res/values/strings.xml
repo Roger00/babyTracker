@@ -94,10 +94,12 @@
     <string name="record_list_title">All Records</string>
     <string name="record_editor_title">Edit Record</string>
     <string name="profile_editor_title">Edit Profile</string>
+    <string name="profile_editor_title_create">Add Profile</string>
 
     <string name="menu_item_edit">Edit Record</string>
     <string name="menu_item_delete">Delete Record</string>
 
+    <string name="edit_storing">Storing changes</string>
     <string name="edit_successful">Edit successful.</string>
     <string name="edit_canceled">Edit canceled.</string>
     <string name="edit_canceled_no_change">Edit canceled. No change.</string>

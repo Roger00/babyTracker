@@ -4,9 +4,10 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -26,13 +27,18 @@ import com.rnfstudio.babytracker.utility.ProfileImageTask;
 import com.rnfstudio.babytracker.utility.ProfilePictureDialogFragment;
 import com.rnfstudio.babytracker.utility.Utilities;
 
+import java.util.Calendar;
+
 /**
  * Created by Roger on 2016/3/6.
  */
-public class ProfileEditActivity extends FragmentActivity
-         {
+public class ProfileEditActivity extends FragmentActivity {
 
     private static final String TAG = "[ProfileEditActivity]";
+    public static final String EXTRA_REQUEST_CODE = "request_code";
+
+    private static Profile sProfile;
+    private static boolean sIsCreateProfile;
 
     public static class ProfileEditFragment extends Fragment
             implements ProfileImageTask.ProfileImageCallback {
@@ -51,9 +57,31 @@ public class ProfileEditActivity extends FragmentActivity
                                  Bundle savedInstanceState) {
 
             View root = inflater.inflate(R.layout.profile_editor, container, false);
+            return initViews(root, getLocalUserProfile());
+        }
 
-            final Profile profile = MainApplication.getUserProfile();
+        private Profile getLocalUserProfile() {
+            if (ProfileEditActivity.sIsCreateProfile) {
 
+                if (ProfileEditActivity.sProfile == null) {
+
+                    Calendar c = Calendar.getInstance();
+                    ProfileEditActivity.sProfile = new Profile((long) -1,
+                            getString(R.string.default_user_name),
+                            ProfileContract.GENDER_BOY,
+                            c.get(Calendar.YEAR),
+                            c.get(Calendar.MONTH) + 1,
+                            c.get(Calendar.DAY_OF_MONTH),
+                            null);
+                }
+
+                return ProfileEditActivity.sProfile;
+            }
+
+            return MainApplication.getUserProfile();
+        }
+
+        private View initViews(View root, final Profile profile) {
             mNameEdit = (EditText) root.findViewById(R.id.nameEdit);
             mNameEdit.setText(profile.getName());
 
@@ -88,7 +116,7 @@ public class ProfileEditActivity extends FragmentActivity
                     Toast.makeText(getActivity(),
                             R.string.edit_canceled, Toast.LENGTH_SHORT).show();
 
-                    getActivity().setResult(RESULT_CANCELED, null);
+                    getActivity().setResult(RESULT_CANCELED);
                     getActivity().finish();
                 }
             });
@@ -98,17 +126,49 @@ public class ProfileEditActivity extends FragmentActivity
                 public void onClick(View v) {
                     boolean changed = updateProfile(profile);
 
-                    int msgId = R.string.edit_successful;
-                    if (!changed) {
+                    // update database if necessary
+                    if (changed) {
+
+                        // lock UI
+                        mButtonCancel.setEnabled(false);
+                        mButtonOkay.setEnabled(false);
+
+                        new AsyncTask<Void, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                new Handler(getActivity().getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getActivity(),
+                                                R.string.edit_storing, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+                                profile.writeDB(getActivity());
+                                return null;
+                            }
+
+                            @Override
+                            protected void onPostExecute(Void aVoid) {
+                                Toast.makeText(getActivity(),
+                                        R.string.edit_successful, Toast.LENGTH_SHORT).show();
+
+                                getActivity().setResult(RESULT_OK);
+                                getActivity().finish();
+                            }
+
+                        }.execute();
+
+                    } else {
                         boolean isValidDate = isValidDate(mBirthEdit.getText().toString());
-                        msgId = isValidDate ? R.string.edit_canceled_no_change :
+                        int msgId = isValidDate ? R.string.edit_canceled_no_change :
                                 R.string.error_invalid_date;
+                        Toast.makeText(getActivity(), msgId, Toast.LENGTH_SHORT).show();
+
+                        getActivity().setResult(RESULT_CANCELED);
+                        getActivity().finish();
                     }
-
-                    Toast.makeText(getActivity(), msgId, Toast.LENGTH_SHORT).show();
-
-                    getActivity().setResult(changed ? RESULT_OK : RESULT_CANCELED, null);
-                    getActivity().finish();
                 }
             });
 
@@ -116,7 +176,7 @@ public class ProfileEditActivity extends FragmentActivity
         }
 
         private boolean updateProfile(Profile profile) {
-            boolean changed = false;
+            boolean changed = sIsCreateProfile;
 
             if (!profile.getName().equals(mNameEdit.getText().toString())) {
                 profile.setName(mNameEdit.getText().toString());
@@ -146,9 +206,6 @@ public class ProfileEditActivity extends FragmentActivity
                 changed = true;
             }
 
-            // update database if necessary
-            if (changed) profile.asyncWriteDB(getActivity());
-
             return changed;
         }
 
@@ -177,22 +234,39 @@ public class ProfileEditActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // decide the main purpose of this activity
+        int requestCode = getIntent().getIntExtra(EXTRA_REQUEST_CODE,
+                MainActivity.REQUEST_PROFILE_EDIT);
+        sIsCreateProfile = requestCode == MainActivity.REQUEST_PROFILE_CREATE;
+
+        if (sIsCreateProfile) {
+            setTitle(getString(R.string.profile_editor_title_create));
+        }
+
         setContentView(R.layout.activity_profile_editor);
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Profile profile = MainApplication.getUserProfile();
         ProfileEditFragment frag = (ProfileEditFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.record_edit_fragment);
 
         if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
-            new ProfileImageTask(this, profile, imageFilePath, null, frag, false).execute();
+            new ProfileImageTask(this, sProfile, imageFilePath, null, frag, false).execute();
 
         } else if (requestCode == MainActivity.REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
-            new ProfileImageTask(this, profile, null, data.getData(), frag, false).execute();
+            new ProfileImageTask(this, sProfile, null, data.getData(), frag, false).execute();
         }
+    }
+
+    public static Profile getCreatedUserProfile() {
+        return sProfile;
+    }
+
+    public static void setCreatedUserProfile(Profile p) {
+        sProfile = p;
     }
 }

@@ -93,10 +93,12 @@
     <string name="record_list_title">所有紀錄</string>
     <string name="record_editor_title">編輯記錄</string>
     <string name="profile_editor_title">編輯使用者</string>
+    <string name="profile_editor_title_create">新增使用者</string>
 
     <string name="menu_item_edit">編輯紀錄</string>
     <string name="menu_item_delete">刪除紀錄</string>
 
+    <string name="edit_storing">正在儲存更動</string>
     <string name="edit_successful">編輯成功</string>
     <string name="edit_canceled">編輯取消</string>
     <string name="edit_canceled_no_change">編輯取消：無資料修改</string>
