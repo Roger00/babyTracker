@@ -32,19 +32,17 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     Context mContext;
     Profile mProfile;
-    String mPathname;
     Uri mUri;
     ProfileImageCallback mCallback;
     boolean mUpdateProfile;
 
     public ProfileImageTask(Context context,
                             Profile profile,
-                            String pathname,
                             Uri uri,
-                            ProfileImageCallback callback, boolean updateProfile) {
+                            ProfileImageCallback callback,
+                            boolean updateProfile) {
         mContext = context;
         mProfile = profile;
-        mPathname = pathname;
         mUri = uri;
         mCallback = callback;
         mUpdateProfile = updateProfile;
@@ -72,10 +70,7 @@ public class ProfileImageTask extends AsyncTask<Void, Void, Bitmap> {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     private Bitmap getBitmapFromSource() {
-        if (!TextUtils.isEmpty(mPathname)) {
-            return BitmapFactory.decodeFile(mPathname);
-
-        } else if (mUri != null) {
+        if (mUri != null) {
             try (InputStream is = mContext.getContentResolver().openInputStream(mUri)) {
                 return BitmapFactory.decodeStream(is);
             } catch (IOException e) {

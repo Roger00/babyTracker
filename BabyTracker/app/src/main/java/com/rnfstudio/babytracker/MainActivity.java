@@ -8,6 +8,7 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,7 +42,9 @@ import com.rnfstudio.babytracker.utility.RoundedImageView;
 import com.rnfstudio.babytracker.utility.SlidingTabLayout;
 import com.rnfstudio.babytracker.utility.TimeUtils;
 import com.rnfstudio.babytracker.utility.Utilities;
+import com.soundcloud.android.crop.Crop;
 
+import java.io.File;
 import java.util.Calendar;
 
 /**
@@ -176,6 +179,8 @@ public class MainActivity extends FragmentActivity
     ListView.OnItemClickListener mDrawerItemClickHandler;
     DrawerLayout.DrawerListener mDrawerListener;
     Runnable drawerCloseRunnable;
+    Uri cropInputUri;
+    Uri cropOutputUri;
 
     // ------------------------------------------------------------------------
     // INITIALIZERS
@@ -246,6 +251,9 @@ public class MainActivity extends FragmentActivity
         });
 
         initDrawer();
+
+        // initialize Uri for cropped image
+        cropOutputUri = Uri.fromFile(new File(getCacheDir(), "cropped"));
     }
 
     private void initDrawer(){
@@ -434,11 +442,12 @@ public class MainActivity extends FragmentActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            String imageFilePath = ProfilePictureDialogFragment.sCurrentPhotoPath;
-            new ProfileImageTask(this, mProfile, imageFilePath, null, this, true).execute();
+            cropInputUri = Uri.fromFile(new File(ProfilePictureDialogFragment.sCurrentPhotoPath));
+            Crop.of(cropInputUri, cropOutputUri).asSquare().start(this);
 
         } else if (requestCode == REQUEST_IMAGE_SELECT && resultCode == RESULT_OK) {
-            new ProfileImageTask(this, mProfile, null, data.getData(), this, true).execute();
+            cropInputUri = data.getData();
+            Crop.of(cropInputUri, cropOutputUri).asSquare().start(this);
 
         } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
             setProfile(MainApplication.getUserProfile());
@@ -449,6 +458,9 @@ public class MainActivity extends FragmentActivity
             ProfileEditActivity.setCreatedUserProfile(null);
 
             switchUser(createdUser);
+
+        } else if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
+            new ProfileImageTask(this, mProfile, cropOutputUri, this, true).execute();
         }
     }
 
