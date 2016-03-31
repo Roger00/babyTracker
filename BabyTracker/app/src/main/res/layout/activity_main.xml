@@ -14,7 +14,7 @@
         android:splitMotionEvents="false"
         tools:context=".MainActivity">
 
-        <LinearLayout
+        <RelativeLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,14 +28,20 @@
                 android:layout_width="@dimen/baby_icon_size_small"
                 android:layout_height="@dimen/baby_icon_size_small"
                 android:id="@+id/profileImage"
-                android:src="@drawable/baby"/>
+                android:src="@drawable/baby"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="3dp"
+                android:layout_centerVertical="true" />
 
             <LinearLayout
                 android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:id="@+id/infoPanel"
+                android:layout_toStartOf="@+id/more_users"
+                android:layout_toEndOf="@+id/profileImage"
+                android:layout_centerVertical="true"
                 android:paddingStart="@dimen/info_panel_text_padding">
 
                 <TextView
@@ -51,7 +57,17 @@
                     android:id="@+id/daysFromBirth" />
             </LinearLayout>
 
-        </LinearLayout>
+            <ImageButton
+                android:layout_width="@dimen/baby_icon_size_small"
+                android:layout_height="@dimen/baby_icon_size_small"
+                android:background="@android:color/transparent"
+                android:id="@+id/more_users"
+                android:src="@drawable/ic_people_black_48dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="3dp"
+                android:layout_centerVertical="true" />
+
+        </RelativeLayout>
 
         <com.rnfstudio.babytracker.utility.SlidingTabLayout
             android:id="@+id/sliding_tabs"

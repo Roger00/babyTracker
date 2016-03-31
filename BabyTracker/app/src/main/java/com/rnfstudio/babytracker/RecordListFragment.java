@@ -176,53 +176,65 @@ public class RecordListFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == LOADER_ID_DEFAULT) {
-            String selection = EventContract.EventEntry.COLUMN_NAME_USER_ID + " =?";
-            selection += getMainType() == EventContract.EventEntry.NO_TYPE ?
-                    "" : " AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?";
+        String typeStr = Integer.toString(getMainType());
+        String userIdStr = Long.toString(MainApplication.getUserId(getActivity()));
 
-            String typeStr = Integer.toString(getMainType());
-            String userIdStr = Long.toString(MainApplication.getUserId(getActivity()));
-            String[] selectionArgs = getMainType() == EventContract.EventEntry.NO_TYPE ?
-                    new String[] {userIdStr} : new String[] {userIdStr, typeStr};
+        boolean hasMainType = getMainType() != EventContract.EventEntry.NO_TYPE;
+
+        // only select data from the latest half-day
+        String selection = EventContract.EventEntry.COLUMN_NAME_USER_ID + "=?";
+        selection += hasMainType ?
+                " AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?" : "";
+        selection += " AND " +
+                EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME +
+                " BETWEEN ? AND ? AND " +
+                EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME +
+                " BETWEEN ? AND ?";
+
+        if (id == LOADER_ID_DEFAULT) {
 
             return new CursorLoader(getActivity(),
                     EventProvider.sNotifyUriForEvent,
-                    new String[] {EventContract.EventEntry._ID,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
-                    selection, selectionArgs,
+                    getQueryProjection(),
+                    selection,
+                    getCircleViewQuerySelectionArgs(userIdStr, typeStr, hasMainType),
                     EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC");
 
         } else if (id == LOADER_ID_CIRCLE) {
+
             return new CursorLoader(getActivity(),
                     EventProvider.sNotifyUriForEvent,
-                    new String[] {EventContract.EventEntry._ID,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT},
-                    EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME +
-                            " BETWEEN ? AND ? AND " +
-                            EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME +
-                            " BETWEEN ? AND ?",
-                    new String[] {Integer.toString(getMainType()),
-                            Long.toString(CircleWidget.getQueryAheadTIme()),
-                            Long.toString(CircleWidget.getQueryEndTime()),
-                            Long.toString(CircleWidget.getQueryStartTime()),
-                            Long.toString(CircleWidget.getQueryEndTime())},
+                    getQueryProjection(),
+                    selection,
+                    getCircleViewQuerySelectionArgs(userIdStr, typeStr, hasMainType),
                     EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " ASC");
         }
 
         if (DEBUG) Log.w(TAG, "[onCreateLoader] incorrect ID");
         return null;
+    }
+
+    private String[] getQueryProjection() {
+
+        return new String[] {EventContract.EventEntry._ID,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
+                EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT};
+    }
+
+    private String[] getCircleViewQuerySelectionArgs(String userId,
+                                                     String type,
+                                                     boolean hasMainType) {
+
+        String aheadTime = Long.toString(CircleWidget.getQueryAheadTIme());
+        String endTime = Long.toString(CircleWidget.getQueryEndTime());
+        String startTime = Long.toString(CircleWidget.getQueryStartTime());
+
+        return hasMainType ? new String[] {userId, type, aheadTime, endTime, startTime, endTime} :
+                new String[] {userId, aheadTime, endTime, startTime, endTime};
     }
 
     @Override

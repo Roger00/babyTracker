@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -27,9 +28,11 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.CursorAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -250,6 +253,16 @@ public class MainActivity extends FragmentActivity
             }
         });
 
+        ImageButton moreUsersBtn = (ImageButton) findViewById(R.id.more_users);
+        moreUsersBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout != null) {
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+            }
+        });
+
         initDrawer();
 
         // initialize Uri for cropped image
@@ -403,15 +416,14 @@ public class MainActivity extends FragmentActivity
         mDisplayName.setText(mProfile.getName());
         mDaysFromBirth.setText(getDaysFromBirthString(getResources(), mProfile));
 
-        // short-circuit if no bitmap
-        if (mProfile.getProfilePicture() == null) {
-            return;
-        }
+        // use default image if no bitmap
+        Bitmap profilePicture = mProfile.hasProfilePicture() ? mProfile.getProfilePicture() :
+                BitmapFactory.decodeResource(getResources(), R.drawable.baby);
 
         if (animated) {
-            Utilities.animSwitchImageRes(this, mProfileImage, mProfile.getProfilePicture());
+            Utilities.animSwitchImageRes(this, mProfileImage, profilePicture);
         } else {
-            mProfileImage.setImageBitmap(mProfile.getProfilePicture());
+            mProfileImage.setImageBitmap(profilePicture);
         }
 
     }
