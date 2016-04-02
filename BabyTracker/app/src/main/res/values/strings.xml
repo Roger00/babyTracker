@@ -145,6 +145,7 @@
     <string name="hint_enter_birth">"Enter baby's birthday"</string>
     <string name="gender_boy">Boy</string>
     <string name="gender_girl">Girl</string>
+    <string name="gender_unknown">Unknown</string>
 
     <string name="default_user_name">My Babe</string>
 

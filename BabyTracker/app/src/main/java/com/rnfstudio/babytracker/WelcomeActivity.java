@@ -48,8 +48,7 @@ public class WelcomeActivity extends FragmentActivity
             R.layout.fragment_setup_name,
             R.layout.fragment_setup_gender,
             R.layout.fragment_setup_birth,
-            R.layout.fragment_setup_picture,
-            R.layout.fragment_setup_complete};
+            R.layout.fragment_setup_picture};
 
     private int mPageIndex = 0;
     private int mBackKeyPressCount = 0;
@@ -88,8 +87,8 @@ public class WelcomeActivity extends FragmentActivity
                 case R.layout.fragment_setup_gender:
                     RadioGroup genderGroup = (RadioGroup) root.findViewById(R.id.genderRadioGroup);
                     switch (sProfile.getGender()) {
-                        case ProfileContract.GENDER_UNSET:
-                            genderGroup.clearCheck();
+                        case ProfileContract.GENDER_UNKNOWN:
+                            genderGroup.check(R.id.radioButtonUnknown);
                             break;
                         case ProfileContract.GENDER_BOY:
                             genderGroup.check(R.id.radioButtonBoy);
@@ -203,8 +202,8 @@ public class WelcomeActivity extends FragmentActivity
 
         // create Profile instance
         Calendar c = Calendar.getInstance();
-        sProfile = new Profile((long) -1, "",
-                ProfileContract.GENDER_UNSET,
+        sProfile = new Profile((long) -1, getString(R.string.default_user_name),
+                ProfileContract.GENDER_UNKNOWN,
                 c.get(Calendar.YEAR),
                 c.get(Calendar.MONTH) + 1,
                 c.get(Calendar.DAY_OF_MONTH),

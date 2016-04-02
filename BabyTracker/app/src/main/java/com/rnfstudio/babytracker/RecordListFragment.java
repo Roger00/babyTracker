@@ -98,6 +98,7 @@ public class RecordListFragment extends ListFragment
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
+
                 restartLoaders();
             }
         };
@@ -184,12 +185,11 @@ public class RecordListFragment extends ListFragment
         // only select data from the latest half-day
         String selection = EventContract.EventEntry.COLUMN_NAME_USER_ID + "=?";
         selection += hasMainType ?
-                " AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=?" : "";
-        selection += " AND " +
+                " AND " + EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE + "=? AND " +
                 EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME +
                 " BETWEEN ? AND ? AND " +
                 EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME +
-                " BETWEEN ? AND ?";
+                " BETWEEN ? AND ?" : "";
 
         if (id == LOADER_ID_DEFAULT) {
 
@@ -210,8 +210,12 @@ public class RecordListFragment extends ListFragment
                     EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " ASC");
         }
 
-        if (DEBUG) Log.w(TAG, "[onCreateLoader] incorrect ID");
         return null;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
     }
 
     private String[] getQueryProjection() {
@@ -234,7 +238,7 @@ public class RecordListFragment extends ListFragment
         String startTime = Long.toString(CircleWidget.getQueryStartTime());
 
         return hasMainType ? new String[] {userId, type, aheadTime, endTime, startTime, endTime} :
-                new String[] {userId, aheadTime, endTime, startTime, endTime};
+                new String[] {userId};
     }
 
     @Override
@@ -304,7 +308,10 @@ public class RecordListFragment extends ListFragment
 
     private void restartLoaders() {
         getLoaderManager().restartLoader(LOADER_ID_DEFAULT, null, this);
-        if (isEnableCircleWidget()) getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
+
+        if (isEnableCircleWidget()) {
+            getLoaderManager().restartLoader(LOADER_ID_CIRCLE, null, this);
+        }
     }
 
     private boolean isEnableCircleWidget() {

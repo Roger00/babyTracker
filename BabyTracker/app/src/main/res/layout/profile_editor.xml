@@ -72,14 +72,22 @@
             android:text="@string/gender_boy"
             android:textAppearance="@android:style/TextAppearance.Large"
             android:id="@+id/radioButtonBoy"
-            android:layout_marginRight="30dp" />
+            android:layout_marginEnd="20dp" />
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/gender_girl"
             android:textAppearance="@android:style/TextAppearance.Large"
-            android:id="@+id/radioButtonGirl" />
+            android:id="@+id/radioButtonGirl"
+            android:layout_marginEnd="20dp" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gender_unknown"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            android:id="@+id/radioButtonUnknown" />
     </RadioGroup>
 
 </RelativeLayout>

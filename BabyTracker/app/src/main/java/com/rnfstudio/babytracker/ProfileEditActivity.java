@@ -73,7 +73,7 @@ public class ProfileEditActivity extends FragmentActivity {
                     Calendar c = Calendar.getInstance();
                     ProfileEditActivity.sProfile = new Profile((long) -1,
                             getString(R.string.default_user_name),
-                            ProfileContract.GENDER_BOY,
+                            ProfileContract.GENDER_UNKNOWN,
                             c.get(Calendar.YEAR),
                             c.get(Calendar.MONTH) + 1,
                             c.get(Calendar.DAY_OF_MONTH),
@@ -94,8 +94,12 @@ public class ProfileEditActivity extends FragmentActivity {
             mBirthEdit.setText(profile.getBirthStr());
 
             mGenderRadioGroup = (RadioGroup) root.findViewById(R.id.genderRadioGroup);
-            int checkedGenderWidgetId = profile.getGender() == ProfileContract.GENDER_BOY ?
-                    R.id.radioButtonBoy : R.id.radioButtonGirl;
+            int checkedGenderWidgetId = R.id.radioButtonUnknown;
+            if (profile.getGender() == ProfileContract.GENDER_BOY) {
+                checkedGenderWidgetId = R.id.radioButtonBoy;
+            } else if (profile.getGender() == ProfileContract.GENDER_GIRL) {
+                checkedGenderWidgetId = R.id.radioButtonGirl;
+            }
             mGenderRadioGroup.check(checkedGenderWidgetId);
 
             mProfileImage = (ImageView) root.findViewById(R.id.profileImage);

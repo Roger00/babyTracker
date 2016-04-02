@@ -144,6 +144,7 @@
     <string name="hint_enter_birth">請輸入出生年月日</string>
     <string name="gender_boy">男生</string>
     <string name="gender_girl">女生</string>
+    <string name="gender_unknown">未知</string>
 
     <string name="default_user_name">小寶貝</string>
 

@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,12 +11,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -63,7 +61,7 @@ public class MainActivity extends FragmentActivity
     // TYPES
     // ------------------------------------------------------------------------
 
-    public static class SubCategoryPagerAdapter extends FragmentPagerAdapter {
+    public static class SubCategoryPagerAdapter extends FragmentStatePagerAdapter {
         private Context mContext;
 
         private int[] imageResId = {
@@ -178,7 +176,6 @@ public class MainActivity extends FragmentActivity
     Profile mProfile;
 
     ProfileAdapter mProfileAdapter;
-    ContentObserver mContentObserver;
     ListView.OnItemClickListener mDrawerItemClickHandler;
     DrawerLayout.DrawerListener mDrawerListener;
     Runnable drawerCloseRunnable;
@@ -277,21 +274,6 @@ public class MainActivity extends FragmentActivity
         // initialize cursor loader
         getSupportLoaderManager().initLoader(LOADER_ID_PROFILES, null, this);
 
-        // create content observer for event changes
-        mContentObserver = new ContentObserver(new Handler(getMainLooper())) {
-            @Override
-            public void onChange(boolean selfChange) {
-                super.onChange(selfChange);
-                restartLoaders();
-            }
-        };
-
-        // register observer
-        getContentResolver().registerContentObserver(
-                EventProvider.sNotifyUriForEvent,
-                true,
-                mContentObserver);
-
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawerListView = (ListView) findViewById(R.id.left_drawer);
 
@@ -334,14 +316,6 @@ public class MainActivity extends FragmentActivity
     public void onResume() {
         super.onResume();
         setProfile(MainApplication.getUserProfile(), false);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // unregister observer
-        getContentResolver().unregisterContentObserver(mContentObserver);
     }
 
     @Override
@@ -396,10 +370,6 @@ public class MainActivity extends FragmentActivity
         if (loader.getId() == LOADER_ID_PROFILES) {
             mProfileAdapter.swapCursor(null);
         }
-    }
-
-    private void restartLoaders() {
-        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     public void setProfile(Profile p) {
@@ -494,8 +464,12 @@ public class MainActivity extends FragmentActivity
         // update views
         setProfile(profile);
 
-        // TODO: restart loaders
-        restartLoaders();
+        // this will trigger loader restart
+        getContentResolver().notifyChange(EventProvider.sNotifyUriForEvent, null);
+        getContentResolver().notifyChange(EventProvider.sNotifyUriForUser, null);
+
+        // we did not register observer, so trigger restart manually
+        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     @Override

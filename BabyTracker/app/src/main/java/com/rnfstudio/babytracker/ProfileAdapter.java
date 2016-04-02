@@ -2,6 +2,8 @@ package com.rnfstudio.babytracker;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,9 +39,11 @@ public class ProfileAdapter extends CursorAdapter {
             displayName.setText(profile.getName());
             daysFromBirth.setText(MainActivity
                     .getDaysFromBirthString(context.getResources(), profile));
-            if (profile.hasProfilePicture()) {
-                profileImage.setImageBitmap(profile.getProfilePicture());
-            }
+
+            Bitmap profilePicture = profile.hasProfilePicture() ? profile.getProfilePicture() :
+                    BitmapFactory.decodeResource(context.getResources(), R.drawable.baby);
+
+            profileImage.setImageBitmap(profilePicture);
 
             // associate profile w/ list item
             view.setTag(profile);

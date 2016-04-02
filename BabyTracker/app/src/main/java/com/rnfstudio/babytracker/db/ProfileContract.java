@@ -55,6 +55,7 @@ public class ProfileContract {
     public static final int GENDER_UNSET = -1;
     public static final int GENDER_BOY = 0;
     public static final int GENDER_GIRL = 1;
+    public static final int GENDER_UNKNOWN = 2;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
