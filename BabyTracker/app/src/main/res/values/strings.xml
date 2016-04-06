@@ -132,9 +132,10 @@
     <string name="settings_about_check_updates">Check for updates</string>
     <string name="settings_about_version">Version</string>
 
-    <string name="backup_fail_not_allowed">Write fail, not allowed to write SDCard</string>
+    <string name="backup_fail_not_allowed">Write fail, not allowed to write to: %s</string>
     <string name="backup_successful">Backup successful, file path: %s</string>
     <string name="backup_successful_share_message">Backup successful, do you want to share this file?</string>
+    <string name="backup_canceled">Backup is cancelled</string>
     <string name="share_file_to">Share to</string>
     <string name="restore_successful">Restore successful</string>
 

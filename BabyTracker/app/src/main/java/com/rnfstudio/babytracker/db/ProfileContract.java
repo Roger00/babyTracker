@@ -9,9 +9,7 @@ import com.rnfstudio.babytracker.MainApplication;
  * Created by Roger on 2016/3/10.
  */
 public class ProfileContract {
-    // ------------------------------------------------------------------------
-    // TYPES
-    // ------------------------------------------------------------------------
+    
     /* Inner class that defines the user profile */
     public static abstract class UserEntry implements BaseColumns {
         public static final String TABLE_NAME = "userProfile";
@@ -33,9 +31,6 @@ public class ProfileContract {
         public static final int PROFILE_PICTURE = 6;
     }
 
-    // ------------------------------------------------------------------------
-    // STATIC FIELDS
-    // ------------------------------------------------------------------------
     // SQL statements
     private static final String INT_TYPE = " INTEGER";
     private static final String TEXT_TYPE = " TEXT";
@@ -52,32 +47,18 @@ public class ProfileContract {
                     UserEntry.COLUMN_NAME_BIRTH_DAY + INT_TYPE + COMMA_SEP +
                     UserEntry.COLUMN_NAME_PROFILE_PICTURE + BLOB_TYPE + ")";
 
-    public static final int GENDER_UNSET = -1;
     public static final int GENDER_BOY = 0;
     public static final int GENDER_GIRL = 1;
     public static final int GENDER_UNKNOWN = 2;
 
-    // ------------------------------------------------------------------------
-    // STATIC INITIALIZERS
-    // ------------------------------------------------------------------------
+    public static String[] getQueryProjection() {
 
-    // ------------------------------------------------------------------------
-    // STATIC METHODS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // FIELDS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // INITIALIZERS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // CONSTRUCTORS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // METHODS
-    // ------------------------------------------------------------------------
+        return new String[]{UserEntry._ID,
+                UserEntry.COLUMN_NAME_DISPLAY_NAME,
+                UserEntry.COLUMN_NAME_GENDER,
+                UserEntry.COLUMN_NAME_BIRTH_YEAR,
+                UserEntry.COLUMN_NAME_BIRTH_MONTH,
+                UserEntry.COLUMN_NAME_BIRTH_DAY,
+                UserEntry.COLUMN_NAME_PROFILE_PICTURE};
+    }
 }

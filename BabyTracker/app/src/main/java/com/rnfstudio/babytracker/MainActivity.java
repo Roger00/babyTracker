@@ -147,8 +147,7 @@ public class MainActivity extends FragmentActivity
     public static final int REQUEST_PROFILE_EDIT = 3;
     public static final int REQUEST_PROFILE_CREATE = 4;
 
-    public static final int LOADER_ID_PROFILE = 2;
-    public static final int LOADER_ID_PROFILES = 3;
+    public static final int LOADER_ID_PROFILES = 2;
 
     // ------------------------------------------------------------------------
     // STATIC INITIALIZERS
@@ -320,23 +319,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == LOADER_ID_PROFILE) {
-            String selection = ProfileContract.UserEntry._ID + "=?";
-            String[] selectionArgs = new String[] {String.valueOf(MainApplication.getUserId(this))};
-
-            return new CursorLoader(this,
-                    EventProvider.sNotifyUriForUser,
-                    new String[] {ProfileContract.UserEntry._ID,
-                            ProfileContract.UserEntry.COLUMN_NAME_DISPLAY_NAME,
-                            ProfileContract.UserEntry.COLUMN_NAME_GENDER,
-                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_YEAR,
-                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_MONTH,
-                            ProfileContract.UserEntry.COLUMN_NAME_BIRTH_DAY,
-                            ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
-                    selection, selectionArgs,
-                    ProfileContract.UserEntry._ID + " DESC");
-
-        } else if (id == LOADER_ID_PROFILES) {
+        if (id == LOADER_ID_PROFILES) {
 
             return new CursorLoader(this,
                     EventProvider.sNotifyUriForUser,
@@ -348,7 +331,7 @@ public class MainActivity extends FragmentActivity
                             ProfileContract.UserEntry.COLUMN_NAME_BIRTH_DAY,
                             ProfileContract.UserEntry.COLUMN_NAME_PROFILE_PICTURE},
                     null, null,
-                    ProfileContract.UserEntry._ID + " DESC");
+                    ProfileContract.UserEntry._ID + " ASC");
         }
 
         Log.w(TAG, "[onCreateLoader] incorrect ID");
@@ -357,10 +340,7 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (loader.getId() == LOADER_ID_PROFILE) {
-            setProfile(Profile.createFromCursor(data));
-
-        } else if (loader.getId() == LOADER_ID_PROFILES) {
+        if (loader.getId() == LOADER_ID_PROFILES) {
             mProfileAdapter.swapCursor(data);
         }
     }
@@ -433,6 +413,7 @@ public class MainActivity extends FragmentActivity
 
         } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
             setProfile(MainApplication.getUserProfile());
+            getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
 
         } else if (requestCode == REQUEST_PROFILE_CREATE && resultCode == RESULT_OK) {
             // get new user profile from editor
@@ -450,6 +431,7 @@ public class MainActivity extends FragmentActivity
     public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
         profile.setProfilePicture(bitmap);
         setProfile(profile);
+        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     private void switchUser(Profile profile) {

@@ -8,10 +8,6 @@ import com.rnfstudio.babytracker.SwipeButtonHandler;
  * Created by Roger on 2015/7/22.
  */
 public class EventContract {
-    // ------------------------------------------------------------------------
-    // TYPES
-    // ------------------------------------------------------------------------
-
 
     /* Inner class that defines the table contents */
     public static abstract class EventEntry implements BaseColumns {
@@ -133,18 +129,15 @@ public class EventContract {
 
     public static class EventQuery {
         public static final int EVENT_ID = 0;
-        public static final int EVENT_TYPE = 1;
-        public static final int EVENT_SUBTYPE = 2;
-        public static final int EVENT_START_TIME = 3;
-        public static final int EVENT_END_TIME = 4;
-        public static final int EVENT_DURATION = 5;
-        public static final int EVENT_AMOUNT = 6;
+        public static final int EVENT_USER_ID = 1;
+        public static final int EVENT_TYPE = 2;
+        public static final int EVENT_SUBTYPE = 3;
+        public static final int EVENT_START_TIME = 4;
+        public static final int EVENT_END_TIME = 5;
+        public static final int EVENT_DURATION = 6;
+        public static final int EVENT_AMOUNT = 7;
     }
 
-    // ------------------------------------------------------------------------
-    // STATIC FIELDS
-    // ------------------------------------------------------------------------
-    // SQL statements
     private static final String INT_TYPE = " INTEGER";
     private static final String COMMA_SEP = ",";
 
@@ -161,28 +154,16 @@ public class EventContract {
                     "UNIQUE (" + EventEntry.COLUMN_NAME_EVENT_TYPE + COMMA_SEP +
                     EventEntry.COLUMN_NAME_EVENT_START_TIME + ")" + " )";
 
-    // ------------------------------------------------------------------------
-    // STATIC INITIALIZERS
-    // ------------------------------------------------------------------------
 
-    // ------------------------------------------------------------------------
-    // STATIC METHODS
-    // ------------------------------------------------------------------------
+    public static String[] getQueryProjection() {
 
-    // ------------------------------------------------------------------------
-    // FIELDS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // INITIALIZERS
-    // ------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------
-    // CONSTRUCTORS
-    // ------------------------------------------------------------------------
-    public EventContract() {}
-
-    // ------------------------------------------------------------------------
-    // METHODS
-    // ------------------------------------------------------------------------
+        return new String[]{EventEntry._ID,
+                EventEntry.COLUMN_NAME_USER_ID,
+                EventEntry.COLUMN_NAME_EVENT_TYPE,
+                EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
+                EventEntry.COLUMN_NAME_EVENT_START_TIME,
+                EventEntry.COLUMN_NAME_EVENT_END_TIME,
+                EventEntry.COLUMN_NAME_EVENT_DURATION,
+                EventEntry.COLUMN_NAME_EVENT_AMOUNT};
+    }
 }

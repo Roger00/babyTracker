@@ -10,7 +10,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -195,7 +194,7 @@ public class RecordListFragment extends ListFragment
 
             return new CursorLoader(getActivity(),
                     EventProvider.sNotifyUriForEvent,
-                    getQueryProjection(),
+                    EventContract.getQueryProjection(),
                     selection,
                     getCircleViewQuerySelectionArgs(userIdStr, typeStr, hasMainType),
                     EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME + " DESC");
@@ -204,7 +203,7 @@ public class RecordListFragment extends ListFragment
 
             return new CursorLoader(getActivity(),
                     EventProvider.sNotifyUriForEvent,
-                    getQueryProjection(),
+                    EventContract.getQueryProjection(),
                     selection,
                     getCircleViewQuerySelectionArgs(userIdStr, typeStr, hasMainType),
                     EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME + " ASC");
@@ -216,17 +215,6 @@ public class RecordListFragment extends ListFragment
     @Override
     public void onDetach() {
         super.onDetach();
-    }
-
-    private String[] getQueryProjection() {
-
-        return new String[] {EventContract.EventEntry._ID,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_TYPE,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_SUBTYPE,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_START_TIME,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_END_TIME,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_DURATION,
-                EventContract.EventEntry.COLUMN_NAME_EVENT_AMOUNT};
     }
 
     private String[] getCircleViewQuerySelectionArgs(String userId,

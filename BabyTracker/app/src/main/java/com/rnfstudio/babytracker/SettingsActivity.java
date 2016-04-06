@@ -14,7 +14,7 @@ import android.preference.PreferenceScreen;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.rnfstudio.babytracker.utility.BackupUtilities;
+import com.rnfstudio.babytracker.utility.BackupHelper;
 
 /**
  * Created by Roger on 2016/2/12.
@@ -51,11 +51,10 @@ public class SettingsActivity extends Activity {
                 return true;
 
             } else if (KEY_BACKUP_TO_SDCARD.equals(key)) {
-                BackupUtilities.copyDB2SDcard(getActivity());
+                new BackupHelper.BackupTask(getActivity()).execute();
                 return true;
 
             } else if (KEY_RESTORE_FROM_SDCARD.equals(key)) {
-                BackupUtilities.restoreDBfromSDcard(getActivity());
                 return true;
 
             } else if (KEY_CHECK_UPDATES.equals(key)) {

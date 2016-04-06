@@ -131,9 +131,10 @@
     <string name="settings_about_check_updates">檢查版本更新</string>
     <string name="settings_about_version">版本資訊</string>
 
-    <string name="backup_fail_not_allowed">備份失敗，不允許寫入 SDCard</string>
+    <string name="backup_fail_not_allowed">備份失敗，無法寫入：%d</string>
     <string name="backup_successful">備份成功，寫入至：%s</string>
     <string name="backup_successful_share_message">備份成功！是否分享這個檔案？</string>
+    <string name="backup_canceled">備份已取消</string>
     <string name="share_file_to">分享檔案到</string>
     <string name="restore_successful">還原成功</string>
 
