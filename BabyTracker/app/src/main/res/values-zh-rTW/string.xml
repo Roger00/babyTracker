@@ -134,9 +134,15 @@
     <string name="backup_fail_not_allowed">備份失敗，無法寫入：%d</string>
     <string name="backup_successful">備份成功，寫入至：%s</string>
     <string name="backup_successful_share_message">備份成功！是否分享這個檔案？</string>
-    <string name="backup_canceled">備份已取消</string>
+    <string name="hint_restore_clear_data">備份前會清除資料庫，確定要繼續嗎？</string>
+    <string name="backup_canceled">備份工作已取消</string>
+    <string name="restore_canceled">還原工作已中斷</string>
     <string name="share_file_to">分享檔案到</string>
+    <string name="select_restore_file">請選擇要還原的備份檔</string>
+    <string name="hint_install_file_browser">請安裝檔案瀏覽器並再試一次</string>
     <string name="restore_successful">還原成功</string>
+    <string name="backup_process_message">資料備份中</string>
+    <string name="restore_process_message">資料還原中</string>
 
     <string name="menu_item_take_pic">拍攝照片</string>
     <string name="menu_item_select_pic">從相簿選擇</string>

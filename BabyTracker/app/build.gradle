@@ -8,8 +8,8 @@ android {
         applicationId "com.rnfstudio.babytracker"
         minSdkVersion 18
         targetSdkVersion 22
-        versionCode 4
-        versionName "1.0_160402"
+        versionCode 5
+        versionName "1.0_160409"
     }
     buildTypes {
         release {

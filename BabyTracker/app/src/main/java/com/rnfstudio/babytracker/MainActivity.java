@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -181,6 +183,8 @@ public class MainActivity extends FragmentActivity
     Uri cropInputUri;
     Uri cropOutputUri;
 
+    ContentObserver mContentObserver;
+
     // ------------------------------------------------------------------------
     // INITIALIZERS
     // ------------------------------------------------------------------------
@@ -263,6 +267,22 @@ public class MainActivity extends FragmentActivity
 
         // initialize Uri for cropped image
         cropOutputUri = Uri.fromFile(new File(getCacheDir(), "cropped"));
+
+        // create content observer for event changes
+        mContentObserver = new ContentObserver(new Handler(getMainLooper())) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+
+                restartLoaders();
+            }
+        };
+
+        // register observer for profile changes
+        getContentResolver().registerContentObserver(
+                EventProvider.sNotifyUriForUser,
+                true,
+                mContentObserver);
     }
 
     private void initDrawer(){
@@ -350,6 +370,10 @@ public class MainActivity extends FragmentActivity
         if (loader.getId() == LOADER_ID_PROFILES) {
             mProfileAdapter.swapCursor(null);
         }
+    }
+
+    private void restartLoaders() {
+        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     public void setProfile(Profile p) {

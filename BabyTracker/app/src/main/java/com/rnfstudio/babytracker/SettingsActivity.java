@@ -1,7 +1,10 @@
 package com.rnfstudio.babytracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -13,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.rnfstudio.babytracker.utility.BackupHelper;
 
@@ -20,6 +24,7 @@ import com.rnfstudio.babytracker.utility.BackupHelper;
  * Created by Roger on 2016/2/12.
  */
 public class SettingsActivity extends Activity {
+
     // ------------------------------------------------------------------------
     // TYPES
     // ------------------------------------------------------------------------
@@ -55,6 +60,7 @@ public class SettingsActivity extends Activity {
                 return true;
 
             } else if (KEY_RESTORE_FROM_SDCARD.equals(key)) {
+                startFileChooser();
                 return true;
 
             } else if (KEY_CHECK_UPDATES.equals(key)) {
@@ -66,6 +72,29 @@ public class SettingsActivity extends Activity {
             }
 
             return super.onPreferenceTreeClick(preferenceScreen, preference);
+        }
+
+        /**
+         * Start a file chooser, the selected file will later be used as a source for restoration
+         *
+         * See <a href="http://goo.gl/b7qyLL">
+         *     android browse file intent with defined extension</a>
+         */
+        private void startFileChooser() {
+            Intent getContentIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            getContentIntent.setType("text/plain");
+            getContentIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            try {
+                getActivity().startActivityForResult(
+                        Intent.createChooser(getContentIntent,
+                                getString(R.string.select_restore_file)),
+                        REQUEST_SELECT_RESTORE_FILE);
+
+            } catch (ActivityNotFoundException ex) {
+                Toast.makeText(getActivity(), getString(R.string.hint_install_file_browser),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -81,6 +110,8 @@ public class SettingsActivity extends Activity {
     public static final String KEY_RESTORE_FROM_SDCARD = "key_restore_from_sdcard";
     public static final String KEY_CHECK_UPDATES = "key_check_for_updates";
     public static final String KEY_VERSION = "key_version";
+
+    public static final int REQUEST_SELECT_RESTORE_FILE = 0;
 
     public static final boolean DEFAULT_VALUE_ENABLE_SOUND_EFFECT = false;
     public static final boolean DEFAULT_VALUE_ENABLE_VIBRATE = false;
@@ -114,6 +145,26 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         mPrefsFragment = (PrefsFragment) getFragmentManager().findFragmentById(R.id.prefsFragment);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SELECT_RESTORE_FILE && resultCode == RESULT_OK && data != null) {
+            showConfirmDialogForRestore(data.getData());
+        }
+    }
+
+    private void showConfirmDialogForRestore(final Uri src) {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.hint_restore_clear_data)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        new BackupHelper.RestoreTask(SettingsActivity.this, src).execute();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**
