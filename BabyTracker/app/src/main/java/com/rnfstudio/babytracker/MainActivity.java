@@ -437,7 +437,6 @@ public class MainActivity extends FragmentActivity
 
         } else if (requestCode == REQUEST_PROFILE_EDIT && resultCode == RESULT_OK) {
             setProfile(MainApplication.getUserProfile());
-            getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
 
         } else if (requestCode == REQUEST_PROFILE_CREATE && resultCode == RESULT_OK) {
             // get new user profile from editor
@@ -455,7 +454,6 @@ public class MainActivity extends FragmentActivity
     public void OnProfileImageUpdated(Profile profile, Bitmap bitmap) {
         profile.setProfilePicture(bitmap);
         setProfile(profile);
-        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     private void switchUser(Profile profile) {
@@ -473,9 +471,6 @@ public class MainActivity extends FragmentActivity
         // this will trigger loader restart
         getContentResolver().notifyChange(EventProvider.sNotifyUriForEvent, null);
         getContentResolver().notifyChange(EventProvider.sNotifyUriForUser, null);
-
-        // we did not register observer, so trigger restart manually
-        getSupportLoaderManager().restartLoader(LOADER_ID_PROFILES, null, this);
     }
 
     @Override
